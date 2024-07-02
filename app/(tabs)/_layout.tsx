@@ -5,6 +5,7 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -12,26 +13,60 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
+        // headerShown: false,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          tabBarLabel: 'Trang chủ',
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="notification"
         options={{
-          title: 'Explore',
+          title: 'Thông báo mới nhất',
+          tabBarLabel: 'Thông báo',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <TabBarIcon name={focused ? 'bell-badge' : 'bell-badge-outline'} color={color} />
           ),
         }}
       />
+      <Tabs.Screen
+        name='history'
+        options={{
+          title: 'Lịch sử',
+          tabBarLabel: 'Chuyến',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'car' : 'car-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name='chat'
+        options={{
+          tabBarLabel: 'Chat',
+          title: 'Chat',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'chat-processing' : 'chat-processing-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="setting"
+        options={{
+          tabBarLabel: 'Tôi',
+          title: 'Tài khoản của tôi',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'account-cog' : 'account-cog-outline'} color={color} />
+          ),
+        }}
+      />
+
     </Tabs>
   );
 }
+
