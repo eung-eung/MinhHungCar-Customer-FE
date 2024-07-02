@@ -50,7 +50,7 @@ const CheckoutScreen: React.FC = () => {
     const [isLoadingPrice, setLoadingPrice] = useState(true);
 
 
-    // const [isHaveLicense, setIsHaveLicense] = useState(false)
+    const [isHaveLicense, setIsHaveLicense] = useState(false)
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -63,9 +63,9 @@ const CheckoutScreen: React.FC = () => {
         getCarDetail();
     }, [carId]);
 
-    // useEffect(() => {
-    //     getLicenseInfo()
-    // }, [])
+    useEffect(() => {
+        getLicenseInfo()
+    }, [])
 
     useEffect(() => {
         if (parsedStartDate && parsedEndDate) {
@@ -95,28 +95,50 @@ const CheckoutScreen: React.FC = () => {
         }
     };
 
-    // const getLicenseInfo = async () => {
-    //     try {
-    //         const response = await axios.get(apiDocument.getDrivingLicenseImage, {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //         });
-    //         const error_code = response.data.error_code;
-    //         if (error_code === 10000) {
-    //             setIsHaveLicense(true);
-    //         } else {
-    //             setIsHaveLicense(false);
-    //             console.log('No data returned for payment info.');
-    //         }
-    //         setLoading(false);
-    //     } catch (error: any) {
-    //         console.log('Fetch info failed: ', error.response.data.message);
-    //         setLoading(false);
-    //     }
-    // };
+    const getLicenseInfo = async () => {
+        try {
+            const response = await axios.get(apiDocument.getDrivingLicenseImage, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const error_code = response.data.error_code;
+            if (error_code === 10000) {
+                setIsHaveLicense(true);
+            } else {
+                setIsHaveLicense(false);
+                console.log('No data returned for driving license info.');
+            }
+            setLoading(false);
+        } catch (error: any) {
+            console.log('Fetch info failed: ', error.response?.data?.message);
+            setLoading(false);
+        }
+    };
 
     const rentCar = async () => {
+        if (!isHaveLicense) {
+            Alert.alert(
+                'Yêu cầu cập nhật',
+                'Bạn chưa cập nhật giấy phép lái xe. Tiến hành cập nhật ngay!',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            route.push('/drivingLicense');
+                        },
+                    },
+                    {
+                        text: 'Hủy',
+                        style: 'cancel',
+                    },
+                ]
+            );
+            return;
+        }
+
+        setLoading(true);
+
         try {
             const response = await axios.post(
                 apiCar.rentCar,
@@ -138,7 +160,7 @@ const CheckoutScreen: React.FC = () => {
         } catch (error: any) {
             if (error.response?.data?.error_code === 10049) {
                 Alert.alert('Không thể thuê xe', 'Vui lòng thử lại sau');
-                console.log('Error rent car: ', error.response?.data?.message)
+                console.log('Error renting car: ', error.response?.data?.message);
             } else if (error.response?.data?.error_code === 10068) {
                 Alert.alert(
                     'Yêu cầu cập nhật',
@@ -147,7 +169,7 @@ const CheckoutScreen: React.FC = () => {
                         {
                             text: 'OK',
                             onPress: () => {
-                                route.push('/payInfo')
+                                route.push('/payInfo');
                             },
                         },
                         {
@@ -159,8 +181,8 @@ const CheckoutScreen: React.FC = () => {
             } else {
                 console.log('Error: ', error.response?.data?.message);
             }
+            setLoading(false);
         }
-
     };
 
     const calculatePricing = async () => {

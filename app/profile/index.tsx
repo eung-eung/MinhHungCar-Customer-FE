@@ -18,12 +18,14 @@ import { AuthConText } from '@/store/AuthContext';
 import { apiAccount } from '@/api/apiConfig';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { useRouter } from 'expo-router';
 
 
 
 const ProfileScreen: React.FC = () => {
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
+    const router = useRouter()
 
     const [firstName, setFirstName] = useState<string>('');
     const [lastName, setLastName] = useState<string>('');
@@ -329,6 +331,16 @@ const ProfileScreen: React.FC = () => {
                                         style={styles.inputControl}
                                         value={IDCard}
                                     />
+                                </View>
+
+                                <View style={styles.formActionDriving}>
+                                    <TouchableOpacity onPress={() => router.replace("/drivingLicense")}>
+                                        <View style={styles.btnDriving}>
+                                            <TabBarIcon name='card-account-details-outline' style={{ width: 30, height: 30, marginRight: 12 }} />
+                                            <Text style={styles.btnDrivingText}>Giấy phép lái xe</Text>
+                                            <TabBarIcon name='chevron-right' size={24} />
+                                        </View>
+                                    </TouchableOpacity>
                                 </View>
 
                                 <View style={styles.formAction}>

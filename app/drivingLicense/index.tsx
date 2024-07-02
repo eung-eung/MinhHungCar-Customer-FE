@@ -113,7 +113,7 @@ export default function DrivingLicenseScreen() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', marginTop: -30 }}>
             <ScrollView>
                 <View style={styles.noticeContainer}>
                     <View style={styles.notice}>
@@ -121,7 +121,6 @@ export default function DrivingLicenseScreen() {
                     </View>
                 </View>
                 <View style={styles.licenseContainer}>
-                    <Text style={styles.title}>Ảnh mặt trước GPLX</Text>
                     {images && images.length > 0 ? (
                         <View style={styles.licenseUpload}>
                             <Image
@@ -131,6 +130,7 @@ export default function DrivingLicenseScreen() {
                         </View>
                     ) : (
                         <View>
+                            <Text style={styles.title}>Ảnh mặt trước GPLX</Text>
                             <Text style={styles.subTitle}>Hình chụp cần thấy được Ảnh đại diện và Số GPLX</Text>
                             <View style={styles.licenseUpload}>
                                 <TouchableOpacity
@@ -157,8 +157,9 @@ export default function DrivingLicenseScreen() {
                     )}
                 </View>
                 <View style={styles.licenseContainer}>
-                    <Text style={styles.title}>Ảnh mặt sau GPLX</Text>
                     {images && images.length > 0 ? (
+
+
                         <View style={styles.licenseUpload}>
                             <Image
                                 style={styles.licensePhoto}
@@ -166,26 +167,31 @@ export default function DrivingLicenseScreen() {
                             />
                         </View>
                     ) : (
-                        <View style={styles.licenseUpload}>
-                            <TouchableOpacity
-                                style={styles.licenseUploadButton}
-                                onPress={() => pickImageFromLibrary('licenseBack')}
-                            >
-                                {form.images.find((image) => image.field === 'licenseBack')?.uri ? (
-                                    // <Image style={styles.licensePhoto} source={{ uri: form.images.find((image) => image.field === 'licenseBack').uri }} />
-                                    <Image
-                                        style={styles.licensePhoto}
-                                        source={{
-                                            uri:
-                                                form.images.find((image) => image.field === 'licenseBack')?.uri ||
-                                                require('@/assets/images/photos.png').uri // Provide a fallback image source if uri is undefined
-                                        }}
-                                    />
+                        <View>
+                            <Text style={styles.title}>Ảnh mặt sau GPLX</Text>
+                            <View style={styles.licenseUpload}>
+                                <TouchableOpacity
+                                    style={styles.licenseUploadButton}
+                                    onPress={() => pickImageFromLibrary('licenseBack')}
+                                >
+                                    {form.images.find((image) => image.field === 'licenseBack')?.uri ? (
+                                        // <Image style={styles.licensePhoto} source={{ uri: form.images.find((image) => image.field === 'licenseBack').uri }} />
+                                        <Image
+                                            style={styles.licensePhoto}
+                                            source={{
+                                                uri:
+                                                    form.images.find((image) => image.field === 'licenseBack')?.uri ||
+                                                    require('@/assets/images/photos.png').uri // Provide a fallback image source if uri is undefined
+                                            }}
+                                        />
 
-                                ) : (
-                                    <Image style={styles.licensePhotoPlaceholder} source={require('@/assets/images/photos.png')} />
-                                )}
-                            </TouchableOpacity>
+                                    ) : (
+                                        <Image style={styles.licensePhotoPlaceholder} source={require('@/assets/images/photos.png')} />
+
+                                    )}
+
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     )}
                 </View>
@@ -208,8 +214,6 @@ export default function DrivingLicenseScreen() {
 
 const styles = StyleSheet.create({
     noticeContainer: {
-        flex: 1,
-        marginTop: 20,
         alignItems: 'center',
     },
     notice: {

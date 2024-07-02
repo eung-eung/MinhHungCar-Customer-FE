@@ -44,6 +44,11 @@ const SettingScreen: React.FC<Props> = () => {
 
                             <TabBarIcon name='chevron-right' style={styles.arrowIcon} />
                         </TouchableOpacity>
+                        <TouchableOpacity onPress={() => { router.push("/history") }} style={styles.row}>
+                            <TabBarIcon name='history' style={styles.icon} />
+                            <Text style={styles.rowLabel}>Lịch sử thuê xe</Text>
+                            <TabBarIcon name='chevron-right' style={styles.arrowIcon} />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
