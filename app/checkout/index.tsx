@@ -16,13 +16,16 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 interface CarDetail {
-    images: string[];
-    license_plate: string;
+    id: number;
     car_model: {
         brand: string;
         model: string;
         year: number;
     };
+    license_plate: string;
+    images: string[];
+    rating: number;
+    total_trip: number;
 }
 
 
@@ -36,7 +39,7 @@ const CheckoutScreen: React.FC = () => {
     const carIdNumber = carId ? Number(carId) : 0;
 
 
-    const [carDetail, setCarDetail] = useState<CarDetail>({ images: [], license_plate: '', car_model: { brand: '', model: '', year: 0 } });
+    const [carDetail, setCarDetail] = useState<CarDetail>();
     const [isLoading, setLoading] = useState(true);
     const [parsedStartDate, setParsedStartDate] = useState<Date>(new Date());
     const [parsedEndDate, setParsedEndDate] = useState<Date>(new Date());
@@ -274,20 +277,20 @@ const CheckoutScreen: React.FC = () => {
                                     <View style={styles.card}>
                                         <Image
                                             resizeMode="cover"
-                                            source={{ uri: carDetail.images[0] }}
+                                            source={{ uri: carDetail?.images[0] }}
                                             style={styles.cardImg}
                                         />
                                         <View style={styles.cardBody}>
-                                            <Text style={styles.cardTag}>Biển số xe: {carDetail.license_plate}</Text>
-                                            <Text style={styles.cardTitle}>{carDetail.car_model.brand + ' ' + carDetail.car_model.model + ' ' + carDetail.car_model.year}</Text>
+                                            <Text style={styles.cardTag}>Biển số xe: {carDetail?.license_plate}</Text>
+                                            <Text style={styles.cardTitle}>{carDetail?.car_model.brand + ' ' + carDetail?.car_model.model + ' ' + carDetail?.car_model.year}</Text>
                                             <View style={styles.cardRow}>
                                                 <View style={styles.cardRowItem}>
-                                                    {/* <Image
-                                                        source={require('../assets/star.png')}
-                                                        style={styles.cardRowItemImg}
-                                                    /> */}
                                                     <TabBarIcon name='star' size={24} color='#F4CE14' style={{ marginRight: 6 }} />
-                                                    <Text style={styles.cardRowItemText}>5</Text>
+                                                    <Text style={styles.cardRowItemText}>{carDetail?.rating}</Text>
+                                                </View>
+                                                <View style={styles.cardRowItem}>
+                                                    <TabBarIcon name='history' color='green' size={24} style={{ marginRight: 6 }} />
+                                                    <Text style={styles.cardRowItemText}>{carDetail?.total_trip} chuyến</Text>
                                                 </View>
                                             </View>
                                         </View>

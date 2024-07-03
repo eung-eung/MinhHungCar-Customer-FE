@@ -1,3 +1,4 @@
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native';
 
@@ -62,22 +63,25 @@ export default function NotificationScreen() {
       ItemSeparatorComponent={() => {
         return <View style={styles.separator} />;
       }}
-      keyExtractor={(item) => item.id.toString()} // Ensure key is a string
+      keyExtractor={(item) => {
+        return item.id.toString(); // Ensure the key is returned as a string
+      }}
       renderItem={({ item }) => {
-        let attachment = null;
-        if (item.attachment) {
-          attachment = <Image source={{ uri: item.attachment }} style={styles.attachment} />;
-        }
+        let attachment = <View />;
+
+        let mainContentStyle;
 
         return (
           <TouchableOpacity style={styles.container}>
-            <Image source={{ uri: item.image }} style={styles.avatar} />
+            <TabBarIcon name='bell-outline' size={40} />
             <View style={styles.content}>
-              <View style={styles.text}>
-                <Text style={styles.name}>{item.name}</Text>
-                <Text>{item.text}</Text>
+              <View style={mainContentStyle}>
+                <View style={styles.text}>
+                  <Text style={styles.name}>{item.name}</Text>
+                  <Text>{item.text}</Text>
+                </View>
+                <Text style={styles.timeAgo}>2 hours ago</Text>
               </View>
-              <Text style={styles.timeAgo}>2 hours ago</Text>
               {attachment}
             </View>
           </TouchableOpacity>
@@ -95,7 +99,7 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderColor: '#CCCCCC',
+    borderColor: '#FFFFFF',
     alignItems: 'center',
   },
   avatar: {
@@ -105,13 +109,27 @@ const styles = StyleSheet.create({
   },
   text: {
     marginBottom: 5,
-    flexDirection: 'column',
+    flexDirection: 'row',
     flexWrap: 'wrap',
   },
   content: {
     flex: 1,
     marginLeft: 16,
     marginRight: 0,
+  },
+  mainContent: {
+    marginRight: 60,
+  },
+  img: {
+    height: 50,
+    width: 50,
+    margin: 0,
+  },
+  attachment: {
+    position: 'absolute',
+    right: 0,
+    height: 50,
+    width: 50,
   },
   separator: {
     height: 1,
@@ -120,16 +138,10 @@ const styles = StyleSheet.create({
   timeAgo: {
     fontSize: 12,
     color: '#696969',
-    marginTop: 8,
   },
   name: {
     fontSize: 16,
+    // color: '#773BFF',
     fontWeight: 'bold',
-  },
-  attachment: {
-    position: 'absolute',
-    right: 0,
-    height: 50,
-    width: 50,
   },
 });
