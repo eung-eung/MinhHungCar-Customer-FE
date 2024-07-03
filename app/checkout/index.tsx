@@ -50,7 +50,7 @@ const CheckoutScreen: React.FC = () => {
     const [isLoadingPrice, setLoadingPrice] = useState(true);
 
 
-    const [isHaveLicense, setIsHaveLicense] = useState(false)
+    const [isHaveLicense, setIsHaveLicense] = useState([])
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -75,6 +75,7 @@ const CheckoutScreen: React.FC = () => {
 
     useEffect(() => {
         if (contractID) {
+
             route.push({ pathname: "/contract", params: { contractID: contractID } })
 
         }
@@ -89,8 +90,10 @@ const CheckoutScreen: React.FC = () => {
         } catch (error: any) {
             if (error.response.data.error_code === 10027) {
                 Alert.alert('Lỗi', 'Không thể xem được chi tiết xe lúc này. Vui lòng thử lại sau!')
+                console.log("Error getDetail: ", error.response.data.message)
             } else {
-                console.log("Error: ", error.response.data.message)
+                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
+                console.log("Error getDetail: ", error.response.data.message)
             }
         }
     };
@@ -104,9 +107,9 @@ const CheckoutScreen: React.FC = () => {
             });
             const error_code = response.data.error_code;
             if (error_code === 10000) {
-                setIsHaveLicense(true);
+                setIsHaveLicense(response.data.data);
+                console.log("isHaveLicense: ", response.data.data)
             } else {
-                setIsHaveLicense(false);
                 console.log('No data returned for driving license info.');
             }
             setLoading(false);
@@ -117,7 +120,8 @@ const CheckoutScreen: React.FC = () => {
     };
 
     const rentCar = async () => {
-        if (!isHaveLicense) {
+        getLicenseInfo();
+        if (isHaveLicense === null) {
             Alert.alert(
                 'Yêu cầu cập nhật',
                 'Bạn chưa cập nhật giấy phép lái xe. Tiến hành cập nhật ngay!',
@@ -136,7 +140,6 @@ const CheckoutScreen: React.FC = () => {
             );
             return;
         }
-
         setLoading(true);
 
         try {
@@ -154,8 +157,8 @@ const CheckoutScreen: React.FC = () => {
                     },
                 }
             );
-            const id = response.data.data.id;
-            setContractID(id - 1);
+            setContractID(response.data.data.id - 1);
+            // console.log("contractID-1: ", contractID)
             setLoading(false);
         } catch (error: any) {
             if (error.response?.data?.error_code === 10049) {
@@ -179,6 +182,7 @@ const CheckoutScreen: React.FC = () => {
                     ]
                 );
             } else {
+                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
                 console.log('Error: ', error.response?.data?.message);
             }
             setLoading(false);
@@ -206,9 +210,11 @@ const CheckoutScreen: React.FC = () => {
             setLoadingPrice(false);
         } catch (error: any) {
             if (error.response?.data?.error_code === 10052) {
-                Alert.alert('Pricing Error', 'Please try again later');
+                Alert.alert('Lỗi xuất đơn giá', 'Vui lòng thử lại sau!');
+                console.log('Error calculate price: ', error.response?.data?.message);
             } else {
-                console.log('Lỗi: ', error.response?.data?.message);
+                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
+                console.log('Error calculate price: ', error.response?.data?.message);
             }
         }
     };
@@ -247,7 +253,9 @@ const CheckoutScreen: React.FC = () => {
     };
 
     const handleRent = async () => {
+        console.log("contractID-1: ", contractID)
         await rentCar();
+        console.log("contractID-2: ", contractID)
     };
 
     return (

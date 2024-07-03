@@ -6,6 +6,8 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { AuthConText } from '@/store/AuthContext';
 import { apiAccount, apiDocument } from '@/api/apiConfig';
+import LoadingOverlay from '@/components/LoadingOverlay';
+import { useRouter } from 'expo-router';
 
 interface FormState {
     images: { field: string; uri: string }[];
@@ -15,6 +17,8 @@ interface FormState {
 export default function DrivingLicenseScreen() {
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
+    const router = useRouter()
+
 
     const [form, setForm] = useState<FormState>({
         images: [
@@ -26,11 +30,10 @@ export default function DrivingLicenseScreen() {
 
     const [loading, setLoading] = useState(false);
 
-    const [images, setImages] = useState([]);
 
     useEffect(() => {
-        getLicenseInfo()
-    }, [])
+        getLicenseInfo();
+    }, []);
 
     const pickImageFromLibrary = async (field: string) => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -55,22 +58,31 @@ export default function DrivingLicenseScreen() {
     };
 
     const getLicenseInfo = async () => {
+        setLoading(true);
         try {
             const response = await axios.get(apiDocument.getDrivingLicenseImage, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            const error_code = response.data.error_code;
+            const { data, error_code } = response.data;
             if (error_code === 10000) {
-                const images = response.data.data;
-                setImages(images)
+                const images = data || [];
+                setForm({
+                    images: [
+                        { field: 'licenseFront', uri: images[0] || '' },
+                        { field: 'licenseBack', uri: images[1] || '' },
+                    ],
+                    licenseNum: '',
+                });
             } else {
-                console.log('No data returned for payment info.');
+                console.log('Error fetching driving license images:', error_code);
+                Alert.alert('Lỗi', 'Không có dữ liệu trả về cho thông tin giấy phép lái xe.');
             }
-            setLoading(false);
         } catch (error: any) {
-            console.log('Fetch info failed: ', error.response.data.message);
+            console.log('Fetch info failed: ', error.response?.data?.message);
+            Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải thông tin giấy phép lái xe. Vui lòng thử lại sau.');
+        } finally {
             setLoading(false);
         }
     };
@@ -85,7 +97,7 @@ export default function DrivingLicenseScreen() {
         setLoading(true);
 
         const formData = new FormData() as any;
-        images.forEach((image, index) => {
+        images.forEach((image) => {
             if (image.uri) {
                 formData.append('files', {
                     uri: image.uri,
@@ -103,7 +115,12 @@ export default function DrivingLicenseScreen() {
                 },
             });
             console.log('License uploaded:', response.data.message);
-            Alert.alert('', 'Cập nhật thông tin giấy phép lái xe thành công!');
+            Alert.alert('', 'Cập nhật thông tin giấy phép lái xe thành công!', [
+                {
+                    text: 'OK',
+                    onPress: () => router.back(),
+                },
+            ]);
         } catch (error: any) {
             console.log('Error uploading license:', error.response?.data.message);
             Alert.alert('Lỗi', 'Có một vài lỗi xảy ra khi tải lên hình ảnh. Vui lòng thử lại');
@@ -112,108 +129,101 @@ export default function DrivingLicenseScreen() {
         }
     };
 
+
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', marginTop: -30 }}>
-            <ScrollView>
-                <View style={styles.noticeContainer}>
-                    <View style={styles.notice}>
-                        <Text style={styles.noticeText}>Lưu ý: Để tránh phát sinh vấn đề trong quá trình thuê xe, người đặt xe trên MinhHungCar (đã xác thực GPLX) ĐỒNG THỜI phải là người nhận xe.</Text>
-                    </View>
+        <>
+            {loading ? (
+                <View style={styles.loadingContainer}>
+                    <LoadingOverlay message='' />
                 </View>
-                <View style={styles.licenseContainer}>
-                    {images && images.length > 0 ? (
-                        <View style={styles.licenseUpload}>
-                            <Image
-                                style={styles.licensePhoto}
-                                source={{ uri: images[0] }}
-                            />
-                        </View>
-                    ) : (
-                        <View>
-                            <Text style={styles.title}>Ảnh mặt trước GPLX</Text>
-                            <Text style={styles.subTitle}>Hình chụp cần thấy được Ảnh đại diện và Số GPLX</Text>
-                            <View style={styles.licenseUpload}>
-                                <TouchableOpacity
-                                    style={styles.licenseUploadButton}
-                                    onPress={() => pickImageFromLibrary('licenseFront')}
-                                >
-                                    {form.images.find((image) => image.field === 'licenseFront')?.uri ? (
-                                        //<Image style={styles.licensePhoto} source={{ uri: form.images.find((image) => image.field === 'licenseFront').uri }} />
-                                        <Image
-                                            style={styles.licensePhoto}
-                                            source={{
-                                                uri:
-                                                    form.images.find((image) => image.field === 'licenseFront')?.uri ||
-                                                    require('@/assets/images/photos.png').uri // Provide a fallback image source if uri is undefined
-                                            }}
-                                        />
+            ) : (
+                <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', marginTop: -30 }}>
 
-                                    ) : (
-                                        <Image style={styles.licensePhotoPlaceholder} source={require('@/assets/images/photos.png')} />
-                                    )}
-                                </TouchableOpacity>
+
+                    <ScrollView>
+                        <View style={styles.noticeContainer}>
+                            <View style={styles.notice}>
+                                <Text style={styles.noticeText}>Lưu ý: Để tránh phát sinh vấn đề trong quá trình thuê xe, người đặt xe trên MinhHungCar (đã xác thực GPLX) ĐỒNG THỜI phải là người nhận xe.</Text>
                             </View>
                         </View>
-                    )}
-                </View>
-                <View style={styles.licenseContainer}>
-                    {images && images.length > 0 ? (
+                        <View style={styles.licenseContainer}>
 
-
-                        <View style={styles.licenseUpload}>
-                            <Image
-                                style={styles.licensePhoto}
-                                source={{ uri: images[1] }}
-                            />
-                        </View>
-                    ) : (
-                        <View>
-                            <Text style={styles.title}>Ảnh mặt sau GPLX</Text>
-                            <View style={styles.licenseUpload}>
-                                <TouchableOpacity
-                                    style={styles.licenseUploadButton}
-                                    onPress={() => pickImageFromLibrary('licenseBack')}
-                                >
-                                    {form.images.find((image) => image.field === 'licenseBack')?.uri ? (
-                                        // <Image style={styles.licensePhoto} source={{ uri: form.images.find((image) => image.field === 'licenseBack').uri }} />
-                                        <Image
-                                            style={styles.licensePhoto}
-                                            source={{
-                                                uri:
-                                                    form.images.find((image) => image.field === 'licenseBack')?.uri ||
-                                                    require('@/assets/images/photos.png').uri // Provide a fallback image source if uri is undefined
-                                            }}
-                                        />
-
-                                    ) : (
-                                        <Image style={styles.licensePhotoPlaceholder} source={require('@/assets/images/photos.png')} />
-
-                                    )}
-
-                                </TouchableOpacity>
+                            <View>
+                                <Text style={styles.title}>Ảnh mặt trước GPLX</Text>
+                                <Text style={styles.subTitle}>Hình chụp cần thấy được Ảnh đại diện và Số GPLX</Text>
+                                <View style={styles.licenseUpload}>
+                                    <TouchableOpacity
+                                        style={styles.licenseUploadButton}
+                                        onPress={() => pickImageFromLibrary('licenseFront')}
+                                    >
+                                        {form.images.find((image) => image.field === 'licenseFront')?.uri ? (
+                                            <Image
+                                                style={styles.licensePhoto}
+                                                source={{
+                                                    uri:
+                                                        form.images.find((image) => image.field === 'licenseFront')?.uri ||
+                                                        require('@/assets/images/photos.png').uri // Provide a fallback image source if uri is undefined
+                                                }}
+                                            />
+                                        ) : (
+                                            <Image style={styles.licensePhotoPlaceholder} source={require('@/assets/images/photos.png')} />
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
-                    )}
-                </View>
 
-                <View style={styles.formAction}>
-                    <TouchableOpacity onPress={handleUpload} disabled={loading || form.images.filter((image) => image.uri).length < 2}>
-                        <View style={[styles.btn, (loading || form.images.filter((image) => image.uri).length < 2) && styles.btnDisabled]}>
-                            {loading ? (
-                                <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                                <Text style={styles.btnText}>Cập nhật</Text>
-                            )}
+
                         </View>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                        <View style={styles.licenseContainer}>
+
+                            <View>
+                                <Text style={styles.title}>Ảnh mặt sau GPLX</Text>
+                                <View style={styles.licenseUpload}>
+                                    <TouchableOpacity
+                                        style={styles.licenseUploadButton}
+                                        onPress={() => pickImageFromLibrary('licenseBack')}
+                                    >
+                                        {form.images.find((image) => image.field === 'licenseBack')?.uri ? (
+                                            <Image
+                                                style={styles.licensePhoto}
+                                                source={{
+                                                    uri:
+                                                        form.images.find((image) => image.field === 'licenseBack')?.uri ||
+                                                        require('@/assets/images/photos.png').uri // Provide a fallback image source if uri is undefined
+                                                }}
+                                            />
+                                        ) : (
+                                            <Image style={styles.licensePhotoPlaceholder} source={require('@/assets/images/photos.png')} />
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+
+                        </View>
+
+                        <View style={styles.formAction}>
+                            <TouchableOpacity onPress={handleUpload}>
+                                <View style={styles.btn}>
+                                    <Text style={styles.btnText}>Cập nhật</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </ScrollView>
+
+                </SafeAreaView>
+            )}
+        </>
     );
 }
 
 const styles = StyleSheet.create({
     noticeContainer: {
+        alignItems: 'center',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
     },
     notice: {
@@ -256,8 +266,8 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     licensePhotoPlaceholder: {
-        width: 60,
-        height: 60,
+        width: 30,
+        height: 30,
     },
     title: {
         fontSize: 15,

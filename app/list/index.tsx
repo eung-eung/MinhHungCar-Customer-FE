@@ -101,9 +101,7 @@ const ListProductScreen: React.FC = () => {
         if (startDate && endDate) {
             setParsedStartDate(new Date(startDate as any));
             setParsedEndDate(new Date(endDate as any));
-            console.log("startDate: ", startDate)
-            console.log("parsedStartDate: ", parsedStartDate)
-            console.log("UTC startDate: ", parsedStartDate.toISOString())
+
         }
     }, [startDate, endDate]);
 
@@ -376,7 +374,7 @@ const ListProductScreen: React.FC = () => {
                                 <TouchableOpacity
                                     key={car.id}
                                     onPress={() =>
-                                        router.push({ pathname: "/detail", params: { carId: car.id, startDate: startDate, endDate: endDate } })
+                                        router.push({ pathname: "/detail", params: { carId: car.id, startDate: parsedStartDate.toISOString(), endDate: parsedEndDate.toISOString() } })
                                     }
                                     style={styles.carItem}
                                 >

@@ -106,6 +106,7 @@ export default function DetailScreen() {
             if (error.response.data.error_code === 10027) {
                 Alert.alert('Lỗi', 'Không thể xem được chi tiết xe lúc này. Vui lòng thử lại sau!');
             } else {
+                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
                 console.log("Error: ", error.response.data.message);
             }
         }

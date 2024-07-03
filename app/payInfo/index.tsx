@@ -137,7 +137,12 @@ const PaymentInformationScreen: React.FC = () => {
                 }
             );
 
-            Alert.alert('Thành công', 'Bạn đã cập nhật thông tin thành công');
+            Alert.alert('', 'Cập nhật thông tin thanh toán thành công!', [
+                {
+                    text: 'OK',
+                    onPress: () => router.back(),
+                },
+            ]);
             console.log('Update success: ', response.data.message);
         } catch (error: any) {
             if (error.response.data.error_code === 10022) {
@@ -153,102 +158,107 @@ const PaymentInformationScreen: React.FC = () => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-            {isLoading && <LoadingOverlay message="" />}
-            <ScrollView>
-                <View style={styles.container}>
-                    <KeyboardAwareScrollView>
-                        <View style={styles.form}>
-                            <View style={styles.input}>
-                                <Text style={styles.inputLabel}>Chủ tài khoản</Text>
-                                <TextInput
-                                    clearButtonMode="while-editing"
-                                    onChangeText={(name) => {
-                                        setBankOwner(name);
-                                        setIsInfoChanged(true);
-                                    }}
-                                    placeholder="abc"
-                                    placeholderTextColor="#6b7280"
-                                    style={styles.inputControl}
-                                    value={bankOwner}
-                                />
-                            </View>
-
-                            <View style={styles.input}>
-                                <Text style={styles.inputLabel}>Số tài khoản</Text>
-                                <TextInput
-                                    clearButtonMode="while-editing"
-                                    onChangeText={(bankNum) => {
-                                        setBankNum(bankNum);
-                                        setIsInfoChanged(true);
-                                    }}
-                                    placeholder="00000000000000"
-                                    placeholderTextColor="#6b7280"
-                                    style={styles.inputControl}
-                                    value={bankNum}
-                                />
-                            </View>
-
-                            <View style={styles.input}>
-                                <Text style={styles.inputLabel}>Ngân hàng</Text>
-                                <RNPickerSelect
-                                    onValueChange={(bank) => {
-                                        setSelectedBank(bank);
-                                        setIsInfoChanged(true);
-                                    }}
-                                    value={selectedBank}
-                                    placeholder={{
-                                        label: 'Chọn ngân hàng',
-                                        value: null,
-                                        color: '#9EA0A4',
-                                    }}
-                                    items={banks.map((bank, index) => ({
-                                        key: index.toString(),
-                                        label: bank,
-                                        value: bank,
-                                    }))}
-                                    style={{
-                                        inputIOS: {
-                                            ...pickerSelectStyles.inputIOS,
-                                            // width: pickerWidth,
-                                        },
-                                        inputAndroid: {
-                                            ...pickerSelectStyles.inputAndroid,
-                                            // width: pickerWidth,
-                                        },
-                                    }}
-                                    Icon={() => {
-                                        return <TabBarIcon name='chevron-down' size={24} style={{ paddingRight: 7, paddingTop: 8 }} />;
-                                    }}
-                                />
-
-                            </View>
-
-                            <View style={styles.dividerContainer}>
-                                <Divider style={styles.divider} />
-                                <Text style={styles.dividerText}>hoặc với mã QR</Text>
-                                <Divider style={styles.divider} />
-                            </View>
-
-                            <View style={styles.formActionDriving}>
-                                <TouchableOpacity onPress={() => router.replace("/uploadQR")}>
-                                    <View style={styles.btnDriving}>
-                                        <TabBarIcon name='card-account-details-outline' style={{ width: 30, height: 30, marginRight: 12 }} />
-                                        <Text style={styles.btnDrivingText}>Upload mã QR</Text>
-                                        <TabBarIcon name='chevron-right' size={24} />
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.formAction}>
-                                <TouchableOpacity onPress={updatePaymentInfo}>
-                                    <View style={styles.btn}>
-                                        <Text style={styles.btnText}>Lưu</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </KeyboardAwareScrollView>
+            {isLoading ? (
+                <View style={styles.loadingContainer}>
+                    <LoadingOverlay message='' />
                 </View>
-            </ScrollView>
+            ) : (
+                <ScrollView>
+                    <View style={styles.container}>
+                        <KeyboardAwareScrollView>
+                            <View style={styles.form}>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputLabel}>Chủ tài khoản</Text>
+                                    <TextInput
+                                        clearButtonMode="while-editing"
+                                        onChangeText={(name) => {
+                                            setBankOwner(name);
+                                            setIsInfoChanged(true);
+                                        }}
+                                        placeholder="abc"
+                                        placeholderTextColor="#6b7280"
+                                        style={styles.inputControl}
+                                        value={bankOwner}
+                                    />
+                                </View>
+
+                                <View style={styles.input}>
+                                    <Text style={styles.inputLabel}>Số tài khoản</Text>
+                                    <TextInput
+                                        clearButtonMode="while-editing"
+                                        onChangeText={(bankNum) => {
+                                            setBankNum(bankNum);
+                                            setIsInfoChanged(true);
+                                        }}
+                                        placeholder="00000000000000"
+                                        placeholderTextColor="#6b7280"
+                                        style={styles.inputControl}
+                                        value={bankNum}
+                                    />
+                                </View>
+
+                                <View style={styles.input}>
+                                    <Text style={styles.inputLabel}>Ngân hàng</Text>
+                                    <RNPickerSelect
+                                        onValueChange={(bank) => {
+                                            setSelectedBank(bank);
+                                            setIsInfoChanged(true);
+                                        }}
+                                        value={selectedBank}
+                                        placeholder={{
+                                            label: 'Chọn ngân hàng',
+                                            value: null,
+                                            color: '#9EA0A4',
+                                        }}
+                                        items={banks.map((bank, index) => ({
+                                            key: index.toString(),
+                                            label: bank,
+                                            value: bank,
+                                        }))}
+                                        style={{
+                                            inputIOS: {
+                                                ...pickerSelectStyles.inputIOS,
+                                                // width: pickerWidth,
+                                            },
+                                            inputAndroid: {
+                                                ...pickerSelectStyles.inputAndroid,
+                                                // width: pickerWidth,
+                                            },
+                                        }}
+                                        Icon={() => {
+                                            return <TabBarIcon name='chevron-down' size={24} style={{ paddingRight: 7, paddingTop: 8 }} />;
+                                        }}
+                                    />
+
+                                </View>
+
+                                <View style={styles.dividerContainer}>
+                                    <Divider style={styles.divider} />
+                                    <Text style={styles.dividerText}>hoặc với mã QR</Text>
+                                    <Divider style={styles.divider} />
+                                </View>
+
+                                <View style={styles.formActionDriving}>
+                                    <TouchableOpacity onPress={() => router.replace("/uploadQR")}>
+                                        <View style={styles.btnDriving}>
+                                            <TabBarIcon name='card-account-details-outline' style={{ width: 30, height: 30, marginRight: 12 }} />
+                                            <Text style={styles.btnDrivingText}>Upload mã QR</Text>
+                                            <TabBarIcon name='chevron-right' size={24} />
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.formAction}>
+                                    <TouchableOpacity onPress={updatePaymentInfo}>
+                                        <View style={styles.btn}>
+                                            <Text style={styles.btnText}>Lưu</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </KeyboardAwareScrollView>
+                    </View>
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 };
@@ -260,6 +270,11 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         flexShrink: 1,
         flexBasis: 0,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     form: {
         marginBottom: 24,

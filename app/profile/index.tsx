@@ -234,6 +234,17 @@ const ProfileScreen: React.FC = () => {
                                     <Text style={styles.inputLabel}>Họ</Text>
                                     <TextInput
                                         clearButtonMode="while-editing"
+                                        onChangeText={(lastName) => setLastName(lastName)}
+                                        placeholder="abc"
+                                        placeholderTextColor="#6b7280"
+                                        style={styles.inputControl}
+                                        value={lastName}
+                                    />
+                                </View>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputLabel}>Tên</Text>
+                                    <TextInput
+                                        clearButtonMode="while-editing"
                                         onChangeText={(firstName) => setFirstName(firstName)}
                                         placeholder="abc"
                                         placeholderTextColor="#6b7280"
@@ -242,17 +253,7 @@ const ProfileScreen: React.FC = () => {
                                     />
                                 </View>
 
-                                <View style={styles.input}>
-                                    <Text style={styles.inputLabel}>Tên</Text>
-                                    <TextInput
-                                        clearButtonMode="while-editing"
-                                        onChangeText={(lastName) => setLastName(lastName)}
-                                        placeholder="abc"
-                                        placeholderTextColor="#6b7280"
-                                        style={styles.inputControl}
-                                        value={lastName}
-                                    />
-                                </View>
+
                                 <View style={styles.input}>
                                     <Text style={styles.inputLabel}>Số điện thoại</Text>
                                     <TextInput

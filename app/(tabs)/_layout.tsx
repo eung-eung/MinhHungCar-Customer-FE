@@ -36,9 +36,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name='history'
+        name='trip'
         options={{
-          title: 'Lịch sử',
+          title: 'Lịch sử thuê xe',
           tabBarLabel: 'Chuyến',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'car' : 'car-outline'} color={color} />

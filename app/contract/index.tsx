@@ -53,9 +53,12 @@ export default function ContractScreen() {
             setLoading(false);
             if (error.response.data.error_code === 10051) {
                 Alert.alert('Lỗi', 'Không thể xem chi tiết hợp đồng lúc này. Vui lòng thử lại sau');
+                console.log("Error: ", error.response.data.message)
             } else if (error.response.data.error_code === 10036) {
                 Alert.alert('Lỗi', 'Không thể lấy được trạng thái hợp đồng');
+                console.log("Error: ", error.response.data.message)
             } else {
+                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
                 console.log("Error: ", error.response.data.message)
             }
         }
@@ -94,9 +97,10 @@ export default function ContractScreen() {
         } catch (error: any) {
             if (error.response.data.error_code === 10050) {
                 Alert.alert('Lỗi', 'Không thể chấp thuận hợp đồng lúc này. Vui lòng thử lại sau');
+                console.log('Sign contract error: ', error.response.data.message);
             } else {
                 console.log('Sign contract error: ', error.response.data.message);
-                Alert.alert('Lỗi', error.response.data.message);
+                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
             }
         }
     };

@@ -20,6 +20,7 @@ interface Trip {
         license_plate: string;
     };
     rent_price: number;
+    updated_at: string;
 }
 
 const getStatusStyles = (status: string) => {
@@ -52,22 +53,7 @@ const statusConvert: Record<string, string> = {
     completed: 'Hoàn thành',
     canceled: 'Đã hủy',
 };
-interface Trip {
-    id: number;
-    start_date: string;
-    end_date: string;
-    status: string;
-    car: {
-        car_model: {
-            brand: string;
-            model: string;
-            year: string;
-        };
-        license_plate: string;
-    };
-    rent_price: number;
-    updated_at: string; // Add updated_at property
-}
+
 const HistoryScreen: React.FC = () => {
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
@@ -99,7 +85,7 @@ const HistoryScreen: React.FC = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            const contracts: Trip[] = response.data.data.sort((a: Trip, b: Trip) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+            const contracts: Trip[] = response.data.data.sort((a: Trip, b: Trip) => b.id - a.id);
             setTrip(contracts);
             setIsLoading(false);
         } catch (error: any) {
@@ -132,14 +118,13 @@ const HistoryScreen: React.FC = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            const payment_url = response.data.data.customer_payment_document.payment_url;
-            const qr_code_image = response.data.data.document.url;
-            router.push({ pathname: '/payMethod', params: { payment_url, qr_code_image } });
+            const payment_url = response.data.data.payment_url;
+            router.push({ pathname: '/paymentMethod', params: { payment_url } });
         } catch (error: any) {
             if (error.response?.data?.error_code === 10053) {
                 Alert.alert('Lỗi', 'Không thể lấy được chi tiết thanh toán gần nhất');
             } else {
-                console.log('Error: ', error.response?.data?.message);
+                console.log('Error paymentMethod: ', error.response?.data?.message);
             }
         }
     };
@@ -148,9 +133,12 @@ const HistoryScreen: React.FC = () => {
         if (trip && trip.status === 'waiting_for_agreement') {
             router.push({ pathname: '/contract', params: { contractID: trip.id } });
         } else if (trip && trip.status === 'waiting_contract_payment') {
+            console.log('waiting_contract_payment:', trip.status)
             getLastPaymentDetail(trip.id);
+        } else if (trip && trip.status === 'canceled') {
+            return;
         } else if (trip) {
-            router.push('/detailTrip');
+            router.push({ pathname: '/detailTrip', params: { contractID: trip.id, tripStatus: trip.status } });
         }
     };
 
