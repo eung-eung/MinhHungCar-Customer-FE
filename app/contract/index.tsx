@@ -107,7 +107,7 @@ export default function ContractScreen() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-            {isLoading && contractStatus !== null ? (
+            {(isLoading && contractStatus !== null) ? (
                 <View style={styles.loadingContainer}>
                     <LoadingOverlay message='' />
                 </View>
