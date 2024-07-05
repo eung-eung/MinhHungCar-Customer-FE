@@ -15,8 +15,15 @@ export async function getUser(phone_number: string, password: string) {
         // Check if the response is as expected
         if (response.data && response.data.data && response.data.data.access_token) {
             const token = response.data.data.access_token;
+            const role = response.data.data.user.role;
             console.log("tokennn: ", token)
-            return { token };
+            console.log("role: ", role)
+            if(role === "partner") {
+                Alert.alert('Tài khoản này không thể đăng nhập', 'Vui lòng tạo tài khoản mới') 
+            } else {
+                return { token };
+
+            }
         }
     } catch (error: any) {
         if (error.response) {
