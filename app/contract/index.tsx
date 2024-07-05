@@ -30,38 +30,47 @@ export default function ContractScreen() {
     console.log("contractID", contractID)
 
     useEffect(() => {
-        console.log("Received contractID in Contract screen:", contractID);
+        console.log("Received contractID in Contract screen:", contractIDNumber);
         getDetailContract();
     }, []);
 
     const getDetailContract = async () => {
-        try {
-            const response = await axios.get(`https://minhhungcar.xyz/customer/contract/${contractID}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            setPdfURL(response.data.data.url);
-
-            setContractStatus(response.data.data.status);
-            setTimeout(() => {
-
+        if(contractID && contractIDNumber) {
+            try {
+                const response = await axios.get(`https://minhhungcar.xyz/customer/contract/${contractIDNumber}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setPdfURL(response.data.data.url);
+    
+                setContractStatus(response.data.data.status);
+                setTimeout(() => {
+    
+                    setLoading(false);
+    
+                }, 2500);
+            } catch (error: any) {
                 setLoading(false);
-
-            }, 2500);
-        } catch (error: any) {
-            setLoading(false);
-            if (error.response.data.error_code === 10051) {
-                Alert.alert('Lỗi', 'Không thể xem chi tiết hợp đồng lúc này. Vui lòng thử lại sau');
-                console.log("Error: ", error.response.data.message)
-            } else if (error.response.data.error_code === 10036) {
-                Alert.alert('Lỗi', 'Không thể lấy được trạng thái hợp đồng');
-                console.log("Error: ", error.response.data.message)
-            } else {
-                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
-                console.log("Error: ", error.response.data.message)
+                if (error.response.data.error_code === 10051) {
+                    Alert.alert('Lỗi', 'Không thể xem chi tiết hợp đồng lúc này. Vui lòng thử lại sau');
+                    console.log("Error: ", error.response.data.message)
+                } else if (error.response.data.error_code === 10036) {
+                    Alert.alert('Lỗi', 'Không thể lấy được trạng thái hợp đồng');
+                    console.log("Error: ", error.response.data.message)
+                } else {
+                    Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
+                    console.log("Error: ", error.response.data.message)
+                }
             }
+        } else {
+            setTimeout(() => {
+    
+                setLoading(false);
+Alert.alert('', 'Không có hợp đồng')
+            }, 2500);
         }
+    
     };
 
     const handleAgreeSwitch = (value: any) => {

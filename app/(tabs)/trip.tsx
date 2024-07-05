@@ -5,6 +5,7 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import { AuthConText } from '@/store/AuthContext';
 import { useRouter } from 'expo-router';
+import convertICTToUTC from '../config/convertICTToUTC';
 
 interface Trip {
     id: number;
@@ -54,6 +55,24 @@ const statusConvert: Record<string, string> = {
     canceled: 'Đã hủy',
 };
 
+const convertUTCToVietnamTime = (utcDate: Date): string => {
+    const vietnamOffset = 7 * 60; // Vietnam time is UTC+7
+    const vietnamDate = new Date(utcDate.getTime() + vietnamOffset * 60 * 1000);
+
+    const day = vietnamDate.getDate();
+    const month = vietnamDate.getMonth() + 1; // Months are zero-indexed in JavaScript
+    const year = vietnamDate.getFullYear().toString().slice(-2);
+    const hours = vietnamDate.getHours();
+    const minutes = vietnamDate.getMinutes();
+    const seconds = vietnamDate.getSeconds();
+
+    // Pad single-digit minutes and seconds with a leading zero
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+
+    return `${hours}:${formattedMinutes} ${day}/${month}/${year} `;
+};
+
 const HistoryScreen: React.FC = () => {
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
@@ -85,7 +104,7 @@ const HistoryScreen: React.FC = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            const contracts: Trip[] = response.data.data.sort((a: Trip, b: Trip) => b.id - a.id);
+            const contracts: Trip[] = response.data.data;
             setTrip(contracts);
             setIsLoading(false);
         } catch (error: any) {
@@ -103,13 +122,7 @@ const HistoryScreen: React.FC = () => {
         setPage(1); // Reset page when tab changes
     };
 
-    const formatDate = (isoDateString: string) => {
-        const date = new Date(isoDateString);
-        const day = date.getDate();
-        const month = date.getMonth() + 1;
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
+
 
     const getLastPaymentDetail = async (contractID: number) => {
         try {
@@ -143,29 +156,39 @@ const HistoryScreen: React.FC = () => {
     };
 
     const renderItem = ({ item }: { item: Trip }) => {
-        const formattedStartDate = formatDate(item.start_date);
-        const formattedEndDate = formatDate(item.end_date);
+        const utcStartDate = convertICTToUTC(convertICTToUTC(new Date(item.start_date)));
+        const utcEndDate = convertICTToUTC(convertICTToUTC(new Date(item.end_date)));
+        
+        const formattedStartDate = convertUTCToVietnamTime(utcStartDate);
+        const formattedEndDate = convertUTCToVietnamTime(utcEndDate)
+
 
         return (
             <TouchableOpacity onPress={() => navigateToScreen(item)}>
                 <View style={styles.card}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 18 }}>
-                        <View style={{ flexDirection: 'row', marginTop: 10 }}>
-                            <Text style={{ fontWeight: '600' }}>{formattedStartDate}</Text>
-                            <Text style={{ fontWeight: 'bold', marginHorizontal: 5 }}>→</Text>
-                            <Text style={{ fontWeight: '600' }}>{formattedEndDate}</Text>
+                    <View style={{marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between' }}>
+                   
+                        <View style={{ flexDirection: 'row', marginTop: 7 }}>
+                            <Text style={{ fontWeight: 'bold' }}>{formattedStartDate}</Text>
+                            <Text style={{ fontWeight: 'bold', marginHorizontal: 2 }}>→</Text>
+                            <Text style={{ fontWeight: 'bold' }}>{formattedEndDate}</Text>
                         </View>
                         <View style={[styles.statusContainer, getStatusStyles(item.status)]}>
                             <Text style={{ color: getStatusStyles(item.status).color, fontWeight: 'bold' }}>{statusConvert[item.status]}</Text>
                         </View>
                     </View>
+                   
                     <Divider style={{ marginBottom: 10, marginTop: -5 }} />
                     <View>
                         <View style={styles.cardBody}>
                             <Text style={styles.cardTitle}>{item.car.car_model.brand} {item.car.car_model.model} {item.car.car_model.year}</Text>
                             <Text style={styles.cardTag}>Biển số xe: {item.car.license_plate}</Text>
                         </View>
+                        {/* <View style={{flexDirection: 'row', justifyContent: 'space-between'}}> */}
+                      
                         <Text style={{ fontWeight: '700', color: 'red', textAlign: 'right' }}>Thành tiền: {item.rent_price.toLocaleString()} VNĐ </Text>
+                        
+                        {/* </View> */}
                         <View>
                             {(item.status === 'waiting_contract_payment' || item.status === 'ordered' || item.status === 'renting' || item.status === 'completed') && (
                                 <TouchableOpacity onPress={() => { router.push({ pathname: '/contract', params: { contractID: item.id } }) }} style={[styles.button, { alignSelf: 'flex-end', marginTop: 10 }]}>
@@ -240,7 +263,7 @@ const styles = StyleSheet.create({
     card: {
         marginBottom: 10,
         backgroundColor: '#fff',
-        paddingVertical: 20,
+        paddingVertical: 15,
         paddingHorizontal: 25,
         height: 'auto',
     },
@@ -283,9 +306,13 @@ const styles = StyleSheet.create({
     },
     statusContainer: {
         borderWidth: 1,
+        marginTop:2,
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 16,
+        justifyContent: 'space-between',
+        display:'flex',
+        alignSelf: 'flex-end'
     },
     button: {
         width: 150,

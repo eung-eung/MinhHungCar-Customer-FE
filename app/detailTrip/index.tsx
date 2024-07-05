@@ -241,10 +241,10 @@ export default function detailTrip() {
                                         <Text style={styles.cardTag}>Biển số xe: {carDetail?.license_plate}</Text>
                                         <Text style={styles.cardTitle}>{carDetail?.car_model.brand + ' ' + carDetail?.car_model.model + ' ' + carDetail?.car_model.year}</Text>
                                         <View style={styles.cardRow}>
-                                            <View style={styles.cardRowItem}>
+                                            {/* <View style={styles.cardRowItem}>
                                                 <TabBarIcon name='star' size={24} color='#F4CE14' style={{ marginRight: 6 }} />
                                                 <Text style={styles.cardRowItemText}>{carDetail?.rating}</Text>
-                                            </View>
+                                            </View> */}
                                             <View>
                                                 <View >
                                                     <Text style={{ color: getStatusStyles(detailTrip?.status || '').color, fontWeight: 'bold' }}>
@@ -270,7 +270,7 @@ export default function detailTrip() {
                                         onPress={() => setModalVisible(true)}
                                         style={styles.button_2}
                                     >
-                                        {(detailTrip?.feedback_rating === null && detailTrip?.feedback_content === null) ?
+                                        {(!detailTrip?.feedback_rating && !detailTrip?.feedback_content) ?
                                             <Text style={{ color: '#773BFF' }}>Đánh giá</Text>
                                             :
                                             <Text style={{ color: '#773BFF' }}>Sửa đánh giá</Text>
@@ -295,7 +295,7 @@ export default function detailTrip() {
                                     <Text style={{ fontSize: 14 }}>{detailTrip?.insurance_amount !== undefined ? `${detailTrip.insurance_amount.toLocaleString()} VNĐ` : '-'}</Text>
                                 </View>
                                 <View style={styles.paymentItem}>
-                                    <Text style={{ fontSize: 14 }}>Phí sửa chữa xe</Text>
+                                    <Text style={{ fontSize: 14 }}>Phí phạt giao thông</Text>
                                     <Text style={{ fontSize: 14 }}>500.000 VNĐ</Text>
                                 </View>
                                 <View style={styles.paymentItem}>
@@ -361,7 +361,7 @@ export default function detailTrip() {
                                             multiline
                                         />
                                         <TouchableOpacity onPress={giveFeedback} style={styles.submitButton}>
-                                            {(detailTrip?.feedback_rating === null && detailTrip?.feedback_content === null) ?
+                                            {(!detailTrip?.feedback_rating && !detailTrip?.feedback_content) ?
                                                 <Text style={styles.submitButtonText}>Gửi đánh giá</Text>
                                                 :
                                                 <Text style={styles.submitButtonText}>Sửa đánh giá</Text>

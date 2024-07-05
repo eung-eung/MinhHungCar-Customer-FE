@@ -10,8 +10,9 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
 
 
+
 export default function HomeScreen() {
-  const [startDate, setStartDate] = useState<Date>(new Date(Date.now() + 2 * 60 * 60 * 1000)); // Current time + 2 hours
+  const [startDate, setStartDate] = useState<Date>(new Date(Date.now() + 24 * 60 * 60 * 1000)); // Current time + 2 hours
   const [endDate, setEndDate] = useState<Date>(new Date(startDate.getTime() + 24 * 60 * 60 * 1000)); // Start date + 1 day
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
@@ -25,34 +26,31 @@ export default function HomeScreen() {
     // Check if the selected date is at least 2 hours in the future
     if (currentDate >= new Date(Date.now() + 2 * 60 * 60 * 1000)) {
       setStartDate(currentDate);
-      // Automatically set end date to 1 day after start date
-      const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
+      // Automatically set end date to 24g after start date
+      const nextDay = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
       setEndDate(nextDay);
-      console.log('selectedStartDate: ', formatDateForNavigation(currentDate));
-      console.log('selectedEndDate: ', formatDateForNavigation(nextDay));
+      console.log('selectedStartDate: ', currentDate);
+      console.log('selectedEndDate: ', nextDay);
     } else {
-      Alert.alert('', 'Please select a date and time at least 2 hours in the future.');
+      Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 2 tiếng kể từ hiện tại');
     }
   };
 
   const handleEndDateChange = (event: Event, selectedDate?: Date) => {
     const currentDate = selectedDate || endDate;
     setShowEndDatePicker(Platform.OS === 'ios');
-    if (currentDate >= new Date(Date.now() + 2 * 60 * 60 * 1000)) {
+    if (currentDate >= new Date(Date.now() + 24 * 60 * 60 * 1000)) {
       setEndDate(currentDate);
-      console.log('selectedEndDate: ', formatDateForNavigation(currentDate));
+      console.log('selectedEndDate: ', currentDate);
     } else {
-      Alert.alert('', 'Please select a date and time at least 2 hours in the future.');
+      Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 1 ngày kể từ hiện tại');
     }
   };
 
-  const formatDateForNavigation = (date: Date) => {
-    const isoString = date.toISOString();
-    return isoString.slice(0, 19) + 'Z';
-  };
+
 
   const handleSearch = () => {
-    router.push({ pathname: "/list", params: { startDate: formatDateForNavigation(startDate), endDate: formatDateForNavigation(endDate) } })
+    router.push({ pathname: "/list", params: { startDate: startDate.toISOString(), endDate: endDate.toISOString() } })
   };
 
   return (

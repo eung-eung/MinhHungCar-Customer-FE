@@ -9,6 +9,8 @@ import { AuthConText } from '@/store/AuthContext';
 import { apiCar } from '@/api/apiConfig';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import convertICTToUTC from '../config/convertICTToUTC';
+import convertUTCToICT from '../config/convertUTCToICT';
 
 interface CarModel {
     id: number;
@@ -60,6 +62,9 @@ const categories = [
     },
 ];
 
+
+
+
 const ListProductScreen: React.FC = () => {
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
@@ -89,9 +94,6 @@ const ListProductScreen: React.FC = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [selectedCategory, setSelectedCategory] = useState<{ key: string; img: any; label: string } | null>(null);
 
-    useEffect(() => {
-        filterCar();
-    }, [isFocused, parsedStartDate, parsedEndDate, selectedBrands, selectedFuels, selectedMotions, selectedSeats, selectedParkingLots]);
 
     useEffect(() => {
         fetchMetaData();
@@ -103,26 +105,24 @@ const ListProductScreen: React.FC = () => {
             setParsedEndDate(new Date(endDate as any));
 
         }
-    }, [startDate, endDate]);
+    }, []);
+
+  
 
     useEffect(() => {
-        // Log UTC Date
-        console.log('UTC Date:', parsedStartDate.toISOString());
+        filterCar();
+    }, [parsedStartDate, parsedEndDate, selectedBrands, selectedFuels, selectedMotions, selectedSeats, selectedParkingLots]);
 
-        // Display Date in 'vi-VN' Locale
-        const formattedStartDate = parsedStartDate.toLocaleDateString('vi-VN');
-        console.log('Formatted Start Date:', formattedStartDate);
-    }, [parsedStartDate]);
 
     const handleStartDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedStartDate;
-        const minDate = new Date(Date.now() + 2 * 60 * 60 * 1000); // Minimum start date, 2 hours from now
+        const minDate = new Date(Date.now());
 
         if (currentDate < minDate) {
-            Alert.alert('', 'Thời gian nhận xe ít nhất kể từ 2 tiếng tính từ hiện tại');
+            Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 2h kể từ hiện tại');
         } else {
             setParsedStartDate(currentDate);
-            const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000); // Next day from the current start date
+            const nextDay = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
             if (nextDay) {
                 setParsedEndDate(nextDay);
             }
@@ -133,13 +133,9 @@ const ListProductScreen: React.FC = () => {
         const currentDate = selectedDate || parsedEndDate;
         const minDate = parsedStartDate || new Date();
         if (currentDate <= minDate) {
-            Alert.alert('', 'Ngày kết thúc phải sau ngày bắt đầu ít nhất 1 ngày');
+            Alert.alert('', 'Thời gian thuê tối thiểu là 1 ngày');
         } else {
-            if (currentDate.getTime() - parsedStartDate.getTime() < 24 * 60 * 60 * 1000) {
-                Alert.alert('', 'Thời gian thuê phải tối thiểu là 1 ngày');
-            } else {
-                setParsedEndDate(currentDate);
-            }
+            setParsedEndDate(currentDate);
         }
     };
 
@@ -164,7 +160,8 @@ const ListProductScreen: React.FC = () => {
         } catch (error: any) {
             if (error.response.data.error_code === 10048) {
                 Alert.alert('Lỗi', 'Không thể tìm kiếm xe');
-            } else {
+            } else if (error.response.data.error_code === 10049) {
+                console.log('Lỗi', 'Ngày nhận xe phải sau hôm nay');
                 console.log("Error: ", error.response.data.message);
             }
         }
@@ -328,7 +325,7 @@ const ListProductScreen: React.FC = () => {
                                     mode="datetime"
                                     display="default"
                                     onChange={handleStartDateChange as any}
-                                    minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
+                                    minimumDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
                                     locale="vi"
                                 />
                             </View>
@@ -339,7 +336,7 @@ const ListProductScreen: React.FC = () => {
                                     mode="datetime"
                                     display="default"
                                     onChange={handleEndDateChange as any}
-                                    minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
+                                    minimumDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
                                     locale="vi"
                                 />
                             </View>

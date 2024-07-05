@@ -41,7 +41,7 @@ interface Comment {
     author: string;
     authorAvatar: string;
     text: string;
-    rating: number; // Add rating property
+    rating: number;
 }
 
 
@@ -79,14 +79,14 @@ export default function DetailScreen() {
             year: '',
             number_of_seats: 0,
         },
-        images: [], // Initialize images as an empty string array
+        images: [],
         total_trip: 0,
         status: '',
         motion: '',
         fuel: '',
         price: 0,
-        rating: 0, // Add the rating property
-        description: '', // Add the description property
+        rating: 0,
+        description: '',
     });
 
 
