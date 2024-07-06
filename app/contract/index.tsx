@@ -9,7 +9,7 @@ import LoadingOverlay from '@/components/LoadingOverlay';
 
 export default function ContractScreen() {
     const route = useRouter();
-    const params = useLocalSearchParams()
+    const params = useLocalSearchParams();
     const { contractID } = params;
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
@@ -19,20 +19,28 @@ export default function ContractScreen() {
     const [isLoading, setLoading] = useState(true);
     const [isChecked, setIsChecked] = useState(false);
     const webViewRef = useRef<WebView | null>(null);
-
-    console.log("contractID", contractID)
-    const [refresh, setRefresh] = useState(true)
-
+    const [retryCount, setRetryCount] = useState(0);
 
     const contractIDNumber = contractID ? Number(contractID) : 0;
-
-
-    console.log("contractID", contractID)
 
     useEffect(() => {
         console.log("Received contractID in Contract screen:", contractIDNumber);
         getDetailContract();
     }, []);
+
+    useEffect(() => {
+        if (retryCount < 2 && !pdfURL) {
+            console.log(`Retrying load attempt ${retryCount + 1}`);
+            const retryTimeout = setTimeout(() => {
+                setRetryCount(retryCount + 1);
+                getDetailContract();
+            }, 2500); // Retry after 2.5 seconds
+
+            return () => clearTimeout(retryTimeout); // Clear timeout on unmount or retry success
+        } else if (retryCount === 2) {
+            setLoading(false); // Stop loading after the second retry
+        }
+    }, [pdfURL, retryCount]);
 
     const getDetailContract = async () => {
         if (contractID && contractIDNumber) {
@@ -42,35 +50,26 @@ export default function ContractScreen() {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                setPdfURL(response.data.data.url);
 
-                setContractStatus(response.data.data.status);
-                setTimeout(() => {
-
-                    setLoading(false);
-
-                }, 2500);
-            } catch (error: any) {
-                setLoading(false);
-                if (error.response.data.error_code === 10051) {
-                    Alert.alert('Lỗi', 'Không thể xem chi tiết hợp đồng lúc này. Vui lòng thử lại sau');
-                    console.log("Error: ", error.response.data.message)
-                } else if (error.response.data.error_code === 10036) {
-                    Alert.alert('Lỗi', 'Không thể lấy được trạng thái hợp đồng');
-                    console.log("Error: ", error.response.data.message)
+                const url = response.data.data?.url;
+                if (url) {
+                    setPdfURL(url);
+                    setContractStatus(response.data.data.status);
                 } else {
-                    Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
-                    console.log("Error: ", error.response.data.message)
+                    console.log('API response: ', response.data);
+                    throw new Error('URL not found in response');
                 }
+            } catch (error: any) {
+                console.log("Error: ", error.response?.data?.message || error.message);
+            } finally {
+                // Ensure setLoading(false) after each attempt, including retries
+                setLoading(false);
             }
         } else {
-            setTimeout(() => {
-
-                setLoading(false);
-                Alert.alert('', 'Không có hợp đồng')
-            }, 2500);
+            setLoading(true); // Show loading until contractID is resolved
+            setTimeout(() => setLoading(false), 2500); // Simulate loading for 2.5 seconds
+            Alert.alert('', 'Không có hợp đồng');
         }
-
     };
 
     const handleAgreeSwitch = (value: any) => {
@@ -104,39 +103,36 @@ export default function ContractScreen() {
                 ]
             );
         } catch (error: any) {
-            if (error.response.data.error_code === 10050) {
-                Alert.alert('Lỗi', 'Không thể chấp thuận hợp đồng lúc này. Vui lòng thử lại sau');
-                console.log('Sign contract error: ', error.response.data.message);
-            } else {
-                console.log('Sign contract error: ', error.response.data.message);
-                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
-            }
+            console.log('Sign contract error: ', error.response?.data?.message || error.message);
+            Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!');
         }
     };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-            {(isLoading && contractStatus !== null) ? (
+            {isLoading ? (
                 <View style={styles.loadingContainer}>
                     <LoadingOverlay message='' />
                 </View>
             ) : (
                 <>
-                    <WebView
-                        ref={webViewRef}
-                        contentMode='desktop'
-                        source={{ uri: `https://docs.google.com/gview?embedded=true&url=${pdfURL}` }}
-                        style={styles.webview}
-                        onLoadEnd={data => {
-                            const { nativeEvent } = data;
-                            const { title } = nativeEvent;
-                            if (!title.trim()) {
-                                webViewRef.current?.stopLoading();
-                                webViewRef.current?.reload();
-                                setRefresh(prev => !prev)
-                            }
-                        }}
-                    />
+                    {pdfURL ? (
+                        <WebView
+                            ref={webViewRef}
+                            contentMode='desktop'
+                            source={{ uri: `https://docs.google.com/gview?embedded=true&url=${pdfURL}` }}
+                            style={styles.webview}
+                            onLoadEnd={data => {
+                                const { nativeEvent } = data;
+                                const { title } = nativeEvent;
+                                if (!title.trim()) {
+                                    webViewRef.current?.stopLoading();
+                                    webViewRef.current?.reload();
+                                }
+                            }}
+                        />
+                    ) : null /* No visible indicator or alert during retry */}
+
                     {contractStatus === 'waiting_for_agreement' && (
                         <>
                             <View style={styles.switchContainer}>
@@ -204,7 +200,3 @@ const styles = StyleSheet.create({
         backgroundColor: '#ccc',
     },
 });
-
-
-
-
