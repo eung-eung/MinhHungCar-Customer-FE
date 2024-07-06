@@ -33,6 +33,14 @@ const PaymentScreen: React.FC<PaymentScreenProps> = () => {
                 startInLoadingState={true}
                 injectedJavaScript={injectedJavascript}
                 javaScriptEnabled={true}
+                onMessage={(e) => {
+                    const message = e.nativeEvent.data as string;
+                    if (message === "success") {
+                        router.replace("/trip");
+                    } else if (message === "failed") {
+                        router.back();
+                    }
+                }}
             />
         </SafeAreaView>
     );

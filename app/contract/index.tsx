@@ -82,7 +82,7 @@ export default function ContractScreen() {
                 `https://minhhungcar.xyz/customer/contract/agree`,
                 {
                     customer_contract_id: contractIDNumber,
-                    return_url: 'https://google.com'
+                    return_url: 'https://minh-hung-car-payment-result-fe.vercel.app/'
                 },
                 {
                     headers: {
