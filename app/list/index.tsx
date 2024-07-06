@@ -122,7 +122,7 @@ const ListProductScreen: React.FC = () => {
             Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 2h kể từ hiện tại');
         } else {
             setParsedStartDate(currentDate);
-            const nextDay = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
+            const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
             if (nextDay) {
                 setParsedEndDate(nextDay);
             }
@@ -336,7 +336,7 @@ const ListProductScreen: React.FC = () => {
                                     mode="datetime"
                                     display="default"
                                     onChange={handleEndDateChange as any}
-                                    minimumDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
+                                    minimumDate={new Date(Date.now() + 24 *2 * 60 * 60 * 1000)}
                                     locale="vi"
                                 />
                             </View>

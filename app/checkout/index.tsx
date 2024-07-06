@@ -341,7 +341,7 @@ const CheckoutScreen: React.FC = () => {
                                                             mode="datetime"
                                                             display="default"
                                                             onChange={handleEndDateChange as any}
-                                                            minimumDate={new Date(Date.now())}
+                                                            minimumDate={new Date(Date.now()+ 24 *2 * 60 * 60 * 1000)}
                                                             locale="vi"
                                                         />
 

@@ -27,7 +27,7 @@ export default function HomeScreen() {
     if (currentDate >= new Date(Date.now() + 2 * 60 * 60 * 1000)) {
       setStartDate(currentDate);
       // Automatically set end date to 24g after start date
-      const nextDay = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
+      const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
       setEndDate(nextDay);
       console.log('selectedStartDate: ', currentDate);
       console.log('selectedEndDate: ', nextDay);
@@ -114,7 +114,7 @@ export default function HomeScreen() {
                   locale="vi"
                   display="default"
                   onChange={handleEndDateChange as any}
-                  minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
+                  minimumDate={new Date(Date.now() + 24*2 * 60 * 60 * 1000)}
                 />
                 {/* )} */}
               </View>
