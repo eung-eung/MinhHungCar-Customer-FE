@@ -17,6 +17,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthConText } from '@/store/AuthContext';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { apiAccount } from '@/api/apiConfig';
 
 interface CarDetail {
     id: number;
@@ -36,32 +37,34 @@ interface CarDetail {
     description: string;
 }
 
-interface Comment {
+interface Feedback {
     id: number;
-    author: string;
-    authorAvatar: string;
-    text: string;
-    rating: number;
+    customer_id: number;
+    customer: {
+        first_name: string;
+        last_name: string;
+        avatar_url: string
+    };
+    car_id: number;
+    feedback_content: string;
+    feedback_rating: string;
+    created_at: string
 }
 
 
-const comments: Comment[] = [
-    {
-        id: 1,
-        author: 'Jane Doe',
-        authorAvatar: 'https://www.bootdey.com/img/Content/avatar/avatar2.png',
-        text: 'Dịch vụ tốt!',
-        rating: 5,
-    },
-    {
-        id: 2,
-        author: 'John Smith',
-        authorAvatar: 'https://www.bootdey.com/img/Content/avatar/avatar3.png',
-        text: 'Xe chất lượng ok, giá cả hợp lý, MinhHungCar hỗ trợ khách hàng nhiệt tình',
-        rating: 4,
-    },
-];
 
+function formatDate(dateString: string) {
+    // Parse the date string
+    const date = new Date(dateString);
+
+    // Extract day, month, and year
+    const day = date.getUTCDate();
+    const month = date.getUTCMonth() + 1; // Months are zero-based, so we add 1
+    const year = date.getUTCFullYear();
+
+    // Format the date as day/month/year
+    return `${day}/${month}/${year}`;
+}
 
 export default function DetailScreen() {
     const router = useRouter();
@@ -89,11 +92,17 @@ export default function DetailScreen() {
         description: '',
     });
 
+    const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+
+    const [offset, setOffset] = useState(0);
+    const limit = 20; // Adjust the limit as needed
+    const [hasMoreFeedbacks, setHasMoreFeedbacks] = useState(true);
 
     const [isLoading, setLoading] = useState(true);
 
     useEffect(() => {
         getCarDetail();
+        getFeedbackByCar();
     }, [carId]);
 
     const getCarDetail = async () => {
@@ -111,6 +120,41 @@ export default function DetailScreen() {
             }
         }
     };
+
+    //get feeback by car
+    const getFeedbackByCar = async (newOffset = offset) => {
+        try {
+            const response = await axios.get(`https://minhhungcar.xyz/customer/feedbacks/car?car_id=${carId}&offset=${newOffset}&limit=${limit}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            if (response.data.data.feedbacks.length < limit) {
+                setHasMoreFeedbacks(false); // No more feedbacks to load
+            }
+
+            setFeedbacks((prevFeedbacks) => [
+                ...prevFeedbacks,
+                ...response.data.data.feedbacks
+            ]);
+            setOffset(newOffset + limit);
+
+        } catch (error: any) {
+            if (error.response.data.error_code === 10078) {
+                Alert.alert('', 'Tạm đời không thể xem được đánh giá!');
+                console.log('Error get feedback: ', error.response.data.message);
+            } else {
+                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!');
+                console.log("Error getDetail: ", error.response.data.message);
+            }
+        }
+    };
+
+
+
+
+
 
     return (
         <View style={{ flex: 1 }}>
@@ -271,35 +315,46 @@ export default function DetailScreen() {
                                     </View>
                                 </View>
 
-                                <Divider style={{ marginTop: 20, marginBottom: 5 }} />
-                                <View style={styles.comment}>
-                                    <Text style={styles.commentTitle}>Đánh giá</Text>
-                                    <View>
-                                        {comments.map((item) => (
-                                            <View key={item.id.toString()} style={styles.commentContainer}>
-                                                <Image source={{ uri: item.authorAvatar }} style={styles.commentAvatar} />
-                                                <View style={styles.commentTextContainer}>
-                                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                                        <Text style={styles.commentAuthor}>{item.author}</Text>
-                                                        <Text style={styles.commentDate}>19/05/2024</Text>
-                                                    </View>
 
-                                                    <View style={styles.commentRating}>
-                                                        <TabBarIcon name='star' size={24} color='#F4CE14' />
-                                                        <Text>5</Text>
+                                <View>
+                                    {feedbacks.length > 0 && (
+                                        <>
+                                            <Divider style={{ marginTop: 12, marginBottom: 22 }} />
+                                            <Text style={styles.commentTitle}>Đánh giá</Text>
+                                        </>
+                                    )}
+                                    {feedbacks.map((item) => (
+                                        (item.feedback_content && item.feedback_rating) && (
+                                            <View key={item.id.toString()} style={styles.comment}>
+                                                <View style={styles.commentContainer}>
+                                                    {item.customer.avatar_url ?
+                                                        <Image source={{ uri: item.customer.avatar_url }} style={styles.commentAvatar} />
+                                                        :
+                                                        <TabBarIcon name='account-circle' size={40} style={styles.commentAvatar} />
+                                                    }
+                                                    <View style={styles.commentTextContainer}>
+                                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                                            <Text style={styles.commentAuthor}>{item.customer.first_name + ' ' + item.customer.last_name}</Text>
+                                                            <Text style={styles.commentDate}>{formatDate(item.created_at)}</Text>
+                                                        </View>
+                                                        <View style={styles.commentRating}>
+                                                            <TabBarIcon name='star' size={19} color='#F4CE14' style={{ marginRight: 3 }} />
+                                                            <Text>{item.feedback_rating}</Text>
+                                                        </View>
+                                                        <Text style={styles.commentText}>{item.feedback_content}</Text>
                                                     </View>
-                                                    <Text style={styles.commentText}>{item.text}</Text>
                                                 </View>
                                             </View>
-                                        ))}
+                                        )
+                                    ))}
+                                    {hasMoreFeedbacks && (
                                         <TouchableOpacity
                                             style={styles.seeMoreContainer}
-                                            onPress={() => {
-
-                                            }}>
+                                            onPress={() => getFeedbackByCar(offset)}
+                                        >
                                             <Text style={styles.seeMore}>Xem thêm</Text>
                                         </TouchableOpacity>
-                                    </View>
+                                    )}
                                 </View>
 
                             </ScrollView>
@@ -536,7 +591,7 @@ const styles = StyleSheet.create({
     /** comment */
     comment: {
         marginTop: 0,
-        paddingVertical: 16,
+        paddingVertical: 8,
         paddingHorizontal: 10,
         marginBottom: -15
     },
@@ -546,7 +601,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         letterSpacing: 0.38,
         color: '#000000',
-        marginBottom: 6,
+        marginLeft: 12
     },
     commentContainer: {
         flexDirection: 'row',
@@ -580,7 +635,7 @@ const styles = StyleSheet.create({
     },
     commentText: {
         color: '#333',
-        marginTop: 5,
+        marginTop: 13,
         fontSize: 13
     },
     seeMoreContainer: {
@@ -588,7 +643,8 @@ const styles = StyleSheet.create({
         padding: 12,
         borderWidth: 1.5,
         borderColor: '#828282',
-        marginVertical: 8,
+        marginTop: 18,
+        marginHorizontal: 10,
         borderRadius: 5,
         justifyContent: 'center'
     },
