@@ -4,20 +4,34 @@ import { Card } from '@rneui/themed';
 import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import CardCar from '@/components/CardCar';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import axios from 'axios';
+import { apiAccount } from '@/api/apiConfig';
+import { AuthConText } from '@/store/AuthContext';
 
 
 
 
 export default function HomeScreen() {
+  const authCtx = useContext(AuthConText);
+  const token = authCtx.access_token;
+
   const [startDate, setStartDate] = useState<Date>(new Date(Date.now() + 24 * 60 * 60 * 1000)); // Current time + 2 hours
   const [endDate, setEndDate] = useState<Date>(new Date(startDate.getTime() + 24 * 60 * 60 * 1000)); // Start date + 1 day
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
 
+  const [firstName, setFirstName] = useState()
+  const [lastName, setLastName] = useState()
+  const [avatarURL, setAvatarURL] = useState()
+
   const router = useRouter()
+
+  useEffect(() => {
+    getProfile()
+  }, [firstName, lastName, avatarURL])
 
   const handleStartDateChange = (event: Event, selectedDate?: Date) => {
     const currentDate = selectedDate || startDate;
@@ -53,6 +67,30 @@ export default function HomeScreen() {
     router.push({ pathname: "/list", params: { startDate: startDate.toISOString(), endDate: endDate.toISOString() } })
   };
 
+
+  //get profile
+  const getProfile = async () => {
+    try {
+      const response = await axios.get(apiAccount.getProfile, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setFirstName(response.data.data.first_name || '');
+      setLastName(response.data.data.last_name || '');
+      setAvatarURL(response.data.data.avatar_url || null);
+
+
+      console.log('Fetch profile successfully ', response.data.data);
+    } catch (error: any) {
+      if (error.response?.data?.error_code === 10039) {
+        Alert.alert('', 'Không thể lấy thông tin tài khoản');
+      } else {
+        console.log('Error: ', error.response?.data?.message);
+      }
+    }
+  };
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -67,15 +105,19 @@ export default function HomeScreen() {
         </Svg>
         <View style={styles.header}>
           <View style={styles.avatar}>
-            <Image
-              source={{
-                uri: 'https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80',
-              }}
-              style={styles.avatarImg}
-            />
+            {avatarURL ?
+              <Image
+                source={{
+                  uri: avatarURL,
+                }}
+                style={styles.avatarImg}
+              />
+              :
+              <TabBarIcon name='account-circle' size={35} color="white" style={{ marginRight: 10 }} />
+            }
           </View>
           <View>
-            <Text style={styles.headerTitle}>Xin chào, Nguyễn Văn A</Text>
+            <Text style={styles.headerTitle}>Xin chào, {firstName}{lastName} </Text>
           </View>
         </View>
         <View style={styles.content}>
@@ -114,7 +156,7 @@ export default function HomeScreen() {
                   locale="vi"
                   display="default"
                   onChange={handleEndDateChange as any}
-                  minimumDate={new Date(Date.now() + 24*2 * 60 * 60 * 1000)}
+                  minimumDate={new Date(Date.now() + 24 * 2 * 60 * 60 * 1000)}
                 />
                 {/* )} */}
               </View>
@@ -145,7 +187,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     // justifyContent: 'left',
-    marginTop: 60,
+    marginTop: 65,
     marginLeft: 40
   },
   headerTitle: {
