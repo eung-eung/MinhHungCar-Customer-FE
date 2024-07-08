@@ -10,6 +10,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     Alert,
+    ListRenderItem,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthConText } from '@/store/AuthContext';
@@ -24,6 +25,7 @@ interface Message {
     content?: string;
     msg_type: string;
     conversation_id?: number;
+    sender: string;
 }
 
 interface ChatHistory {
@@ -49,17 +51,13 @@ const ChatScreen: React.FC = () => {
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
 
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [userMessages, setUserMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState<string>('');
     const [conversationId, setConversationId] = useState<number>(-1);
-    const [historyMess, setHistoryMess] = useState<Message[]>([]);
+    const [historyMess, setHistoryMess] = useState<ChatHistory[]>([]);
     const socketRef = useRef<WebSocket | null>(null);
-    const textInputRef = useRef<TextInput>(null); // Ref for text input
-    const flatListRef = useRef<FlatList<ChatHistory> | null>(null); // Ref for FlatList
 
-    useEffect(() => {
-        getHistoryChat();
-    }, [conversationId]);
+    const combinedData = [...historyMess, ...userMessages];
 
     useEffect(() => {
         // Initialize WebSocket connection on component mount
@@ -96,18 +94,11 @@ const ChatScreen: React.FC = () => {
             socketRef.current = webSocket;
         }
 
-        // Focus text input when component mounts
-        if (textInputRef.current) {
-            textInputRef.current.focus();
+        // Fetch chat history on conversationId change
+        if (conversationId !== -1) {
+            getHistoryChat();
         }
-    }, []);
-
-    useEffect(() => {
-        // Scroll to bottom when messages change
-        if (flatListRef.current) {
-            flatListRef.current.scrollToEnd({ animated: true });
-        }
-    }, [messages]);
+    }, [conversationId]);
 
     const sendMessage = async () => {
         try {
@@ -122,12 +113,6 @@ const ChatScreen: React.FC = () => {
                 console.log('Sending message:', message);
                 socketRef.current.send(JSON.stringify(message));
 
-                // Update UI optimistically
-                setMessages((prevMessages) => [
-                    ...prevMessages,
-                    { id: prevMessages.length + 1, sent: true, msg: newMessage, msg_type: MessageTypes.TEXTING, conversation_id: 82 },
-                ]);
-
                 // Clear input field after successful send
                 setNewMessage('');
             }
@@ -140,11 +125,10 @@ const ChatScreen: React.FC = () => {
     const handleResponse = (data: any) => {
         switch (data.msg_type) {
             case MessageTypes.TEXTING:
-                console.log(`data ${JSON.stringify(data)}`)
                 // Add received message to state
-                setMessages((prevMessages) => [
+                setUserMessages((prevMessages) => [
                     ...prevMessages,
-                    { id: data.id, sent: false, msg: data.content, msg_type: MessageTypes.TEXTING, conversation_id: data.conversation_id },
+                    { id: data.id, sent: false, msg: data.content, msg_type: MessageTypes.TEXTING, conversation_id: data.conversation_id, sender: data.sender },
                 ]);
                 break;
             case MessageTypes.SYSTEM_USER_JOIN_RESPONSE:
@@ -170,15 +154,41 @@ const ChatScreen: React.FC = () => {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 }
-            });
-            const sortedMessages = response.data.data.sort((a: ChatHistory, b: ChatHistory) => a.id - b.id);
-            setHistoryMess(sortedMessages);
+            })
+            setHistoryMess(response.data.data)
         } catch (error: any) {
-            console.log(error.response.data.message);
+            console.log(error.response.data.message)
         }
+    }
+
+    const renderItem: ListRenderItem<Message> = ({ item }) => {
+        if (item.sender === 'admin') {
+            return (
+                <View style={styles.receivedMsg}>
+                    <View style={styles.receivedMsgBlock}>
+                        <Text style={styles.receivedMsgTxt}>{item.msg}</Text>
+                    </View>
+                </View>
+            );
+        } else if (item.sender === 'partner' || item.sender === 'customer') {
+            return (
+                <View style={styles.sentMsg}>
+                    <LinearGradient
+                        colors={['#A5B4FC', '#C084FC']}
+                        start={{ x: 0, y: 0.5 }}
+                        end={{ x: 1, y: 0.5 }}
+                        locations={[0.09, 0.67]}
+                        style={styles.sentMsgBlock}
+                    >
+                        <Text style={styles.sentMsgTxt}>{item.msg}</Text>
+                    </LinearGradient>
+                </View>
+            );
+        }
+        return null;
     };
 
-    const renderItem = ({ item }: { item: ChatHistory }) => {
+    const renderItemHis: ListRenderItem<ChatHistory> = ({ item }) => {
         if (item.account.role_id === 1) {
             return (
                 <View style={styles.receivedMsg}>
@@ -187,11 +197,11 @@ const ChatScreen: React.FC = () => {
                     </View>
                 </View>
             );
-        } else if (item.account.role_id === 2) {
+        } else if (item.account.role_id !== 1) {
             return (
                 <View style={styles.sentMsg}>
                     <LinearGradient
-                        colors={['#447EFF', '#773BFF']}
+                        colors={['#A5B4FC', '#C084FC']}
                         start={{ x: 0, y: 0.5 }}
                         end={{ x: 1, y: 0.5 }}
                         locations={[0.09, 0.67]}
@@ -205,19 +215,70 @@ const ChatScreen: React.FC = () => {
         return null;
     };
 
-    const mappedMessages = messages.map((msg) => ({
-        id: msg.id,
-        conversation_id: msg.conversation_id!,
-        sender: msg.sent ? 2 : 1, // Assuming role_id 2 is sender, 1 is receiver
-        account: {
-            role_id: msg.sent ? 2 : 1,
-            phone_number: '',
-        },
-        content: msg.msg,
-        created_at: '', // You might need to adjust this based on actual data structure
-    }));
 
-    const mergedMessages = historyMess.concat(mappedMessages as any);
+    const isMessage = (item: Message | ChatHistory): item is Message => {
+        return (item as Message).msg !== undefined;
+    };
+    const isChatHistory = (item: Message | ChatHistory): item is ChatHistory => {
+        return (item as ChatHistory).account !== undefined;
+    };
+
+    const renderChatbox: ListRenderItem<Message | ChatHistory> = ({ item }) => {
+        if (isMessage(item)) {
+            if (item.sender === 'admin') {
+                return (
+                    <View style={styles.receivedMsg}>
+                        <View style={styles.receivedMsgBlock}>
+                            <Text style={styles.receivedMsgTxt}>{item.msg}</Text>
+                        </View>
+                    </View>
+                );
+            } else if (item.sender === 'partner' || item.sender === 'customer') {
+                return (
+                    <View style={styles.sentMsg}>
+                        <LinearGradient
+                            colors={['#A5B4FC', '#C084FC']}
+                            start={{ x: 0, y: 0.5 }}
+                            end={{ x: 1, y: 0.5 }}
+                            locations={[0.09, 0.67]}
+                            style={styles.sentMsgBlock}
+                        >
+                            <Text style={styles.sentMsgTxt}>{item.msg}</Text>
+                        </LinearGradient>
+                    </View>
+                );
+            }
+        }
+        if (isChatHistory(item)) {
+            if (item.account.role_id === 1) {
+                return (
+                    <View style={styles.receivedMsg}>
+                        <View style={styles.receivedMsgBlock}>
+                            <Text style={styles.receivedMsgTxt}>{item.content}</Text>
+                        </View>
+                    </View>
+                );
+            } else if (item.account.role_id !== 1) {
+                return (
+                    <View style={styles.sentMsg}>
+
+                        <LinearGradient
+                            colors={['#A5B4FC', '#C084FC']}
+                            start={{ x: 0, y: 0.5 }}
+                            end={{ x: 1, y: 0.5 }}
+                            locations={[0.09, 0.67]}
+                            style={styles.sentMsgBlock}
+                        >
+                            <Text style={styles.sentMsgTxt}>{item.content}</Text>
+                        </LinearGradient>
+                    </View>
+                );
+            }
+        }
+        return null;
+    };
+
+
 
     return (
         <KeyboardAvoidingView
@@ -226,16 +287,26 @@ const ChatScreen: React.FC = () => {
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
             <FlatList
-                ref={flatListRef} // Assign ref to FlatList
                 contentContainerStyle={{ paddingBottom: 10 }}
-                extraData={messages}
-                data={mergedMessages as any}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderItem}
+                extraData={historyMess}
+                data={historyMess as ChatHistory[]}
+                keyExtractor={(item, index) => `${item.id ?? index}`}
+                renderItem={renderItemHis}
+                inverted
             />
+
+            <FlatList
+                contentContainerStyle={{ paddingVertical: 15, marginBottom: 10 }}
+                extraData={userMessages}
+                data={userMessages as Message[]}
+                keyExtractor={(item, index) => `${item.id ?? index}`}
+                renderItem={renderItem}
+
+                nestedScrollEnabled
+            />
+            {/* Input container for typing and sending messages */}
             <View style={styles.inputContainer}>
                 <TextInput
-                    ref={textInputRef} // Assign ref to TextInput
                     style={styles.input}
                     placeholderTextColor="#696969"
                     onChangeText={setNewMessage}
@@ -246,7 +317,7 @@ const ChatScreen: React.FC = () => {
                     value={newMessage}
                 />
                 <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-                    <Text style={styles.sendButtonText}>Send</Text>
+                    <Text style={styles.sendButtonText}>Gửi</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -308,25 +379,15 @@ const styles = StyleSheet.create({
     sentMsgBlock: {
         maxWidth: width * 0.7,
         borderRadius: 10,
-        backgroundColor: '#6897FF',
+        // backgroundColor: '#6897FF',
         padding: 10,
         marginLeft: 0,
-    }, receivedMsgAdmin: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        margin: 5,
-        justifyContent: 'flex-start', // Align admin messages to the left
     },
     sentMsgTxt: {
         fontSize: 15,
-        color: 'white',
-    },
-    userPic: {
-        height: 30,
-        width: 30,
-        borderRadius: 20,
-        backgroundColor: '#f8f8f8',
+        color: 'black',
     },
 });
 
 export default ChatScreen;
+
