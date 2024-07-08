@@ -71,7 +71,7 @@ const ProfileScreen: React.FC = () => {
             setDriveLicense(response.data.data.driving_license || '');
             setAvatarURL(response.data.data.avatar_url || null);
 
-            console.log('Fetch profile successfully ', response.data.data);
+            // console.log('Fetch profile successfully ', response.data.data);
             setLoading(false);
         } catch (error: any) {
             if (error.response?.data?.error_code === 10039) {

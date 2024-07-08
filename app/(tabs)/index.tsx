@@ -82,7 +82,7 @@ export default function HomeScreen() {
       setAvatarURL(response.data.data.avatar_url || null);
 
 
-      console.log('Fetch profile successfully ', response.data.data);
+      // console.log('Fetch profile successfully ', response.data.data);
     } catch (error: any) {
       if (error.response?.data?.error_code === 10039) {
         Alert.alert('', 'Không thể lấy thông tin tài khoản');

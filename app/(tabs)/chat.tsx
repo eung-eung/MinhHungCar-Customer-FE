@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthConText } from '@/store/AuthContext';
+import axios from 'axios';
 
 const { width } = Dimensions.get('window');
 
@@ -23,7 +24,18 @@ interface Message {
     content?: string;
     msg_type: string;
     conversation_id?: number;
+}
 
+interface ChatHistory {
+    id: number;
+    conversation_id: number;
+    sender: number;
+    account: {
+        role_id: number;
+        phone_number: string;
+    };
+    content: string;
+    created_at: string;
 }
 
 const MessageTypes = {
@@ -40,10 +52,14 @@ const ChatScreen: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState<string>('');
     const [conversationId, setConversationId] = useState<number>(-1);
-    const [Id, setId] = useState<string>('');
-    const [chatHistory, setChatHistory] = useState<Message[]>([]);
+    const [historyMess, setHistoryMess] = useState<Message[]>([]);
     const socketRef = useRef<WebSocket | null>(null);
-    // console.log("history: ", chatHistory)
+    const textInputRef = useRef<TextInput>(null); // Ref for text input
+    const flatListRef = useRef<FlatList<ChatHistory> | null>(null); // Ref for FlatList
+
+    useEffect(() => {
+        getHistoryChat();
+    }, [conversationId]);
 
     useEffect(() => {
         // Initialize WebSocket connection on component mount
@@ -60,28 +76,13 @@ const ChatScreen: React.FC = () => {
                         conversation_id: conversationId,
                     })
                 );
-
             };
-            webSocket.onopen = () => {
-                // connection opened
-                webSocket.send(JSON.stringify({
-                    msg_type: MessageTypes.USER_JOIN,
-                    access_token: `Bearer ${token}`,
-                    conversation_id: conversationId,
-                })); // send a message
-            };
-
-
 
             webSocket.onmessage = (e) => {
                 const data = JSON.parse(e.data);
                 console.log('Received message:', e.data);
                 handleResponse(data);
             };
-
-
-
-
 
             webSocket.onerror = (error) => {
                 console.error('WebSocket error:', error);
@@ -95,26 +96,18 @@ const ChatScreen: React.FC = () => {
             socketRef.current = webSocket;
         }
 
-        // Cleanup function to close WebSocket on component unmount
-        // return () => {
-        //     if (socketRef.current) {
-        //         socketRef.current.close();
-        //         socketRef.current = null;
-        //     }
-        // };
+        // Focus text input when component mounts
+        if (textInputRef.current) {
+            textInputRef.current.focus();
+        }
     }, []);
 
-    // useEffect(() => {
-    //     // Send join message when token changes
-    //     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-    //         socketRef.current.send(
-    //             JSON.stringify({
-    //                 msg_type: MessageTypes.USER_JOIN,
-    //                 access_token: `Bearer ${token}`,
-    //             })
-    //         );
-    //     }
-    // }, [token]);
+    useEffect(() => {
+        // Scroll to bottom when messages change
+        if (flatListRef.current) {
+            flatListRef.current.scrollToEnd({ animated: true });
+        }
+    }, [messages]);
 
     const sendMessage = async () => {
         try {
@@ -132,11 +125,7 @@ const ChatScreen: React.FC = () => {
                 // Update UI optimistically
                 setMessages((prevMessages) => [
                     ...prevMessages,
-                    { id: prevMessages.length + 1, sent: true, msg: newMessage, msg_type: MessageTypes.TEXTING, conversation_id: conversationId },
-                ]);
-                setChatHistory((prevHistory) => [
-                    ...prevHistory,
-                    { id: prevHistory.length + 1, sent: true, msg: newMessage, msg_type: MessageTypes.TEXTING, conversation_id: conversationId },
+                    { id: prevMessages.length + 1, sent: true, msg: newMessage, msg_type: MessageTypes.TEXTING, conversation_id: 82 },
                 ]);
 
                 // Clear input field after successful send
@@ -157,16 +146,10 @@ const ChatScreen: React.FC = () => {
                     ...prevMessages,
                     { id: data.id, sent: false, msg: data.content, msg_type: MessageTypes.TEXTING, conversation_id: data.conversation_id },
                 ]);
-                setChatHistory((prevHistory) => [
-                    ...prevHistory,
-                    { id: data.id, sent: false, msg: data.content, msg_type: MessageTypes.TEXTING, conversation_id: data.conversation_id },
-                ]);
                 break;
             case MessageTypes.SYSTEM_USER_JOIN_RESPONSE:
                 // Handle system messages if needed
                 setConversationId(data.conversation_id);
-                setId(data.id);
-
                 break;
             case MessageTypes.ERROR:
                 // Log server error for debugging and notify user
@@ -181,29 +164,60 @@ const ChatScreen: React.FC = () => {
         }
     };
 
-    const renderItem = ({ item }: { item: Message }) => {
-        return item.sent ? (
-            <View style={styles.sentMsg}>
-                <LinearGradient
-                    colors={['#447EFF', '#773BFF']}
-                    start={{ x: 0, y: 0.5 }}
-                    end={{ x: 1, y: 0.5 }}
-                    locations={[0.09, 0.67]}
-                    style={styles.sentMsgBlock}
-                >
-                    <Text style={styles.sentMsgTxt}>{item.msg}</Text>
-                </LinearGradient>
-            </View>
-        ) : (
-            <View style={styles.receivedMsg}>
-                <View style={styles.receivedMsgBlock}>
-                    <Text style={styles.receivedMsgTxt}>{item.msg}</Text>
-                </View>
-            </View>
-        );
+    const getHistoryChat = async () => {
+        try {
+            const response = await axios.get(`https://minhhungcar.xyz/customer/conversation/messages?conversation_id=${conversationId}&offset=0&limit=100`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+            const sortedMessages = response.data.data.sort((a: ChatHistory, b: ChatHistory) => a.id - b.id);
+            setHistoryMess(sortedMessages);
+        } catch (error: any) {
+            console.log(error.response.data.message);
+        }
     };
 
+    const renderItem = ({ item }: { item: ChatHistory }) => {
+        if (item.account.role_id === 1) {
+            return (
+                <View style={styles.receivedMsg}>
+                    <View style={styles.receivedMsgBlock}>
+                        <Text style={styles.receivedMsgTxt}>{item.content}</Text>
+                    </View>
+                </View>
+            );
+        } else if (item.account.role_id === 2) {
+            return (
+                <View style={styles.sentMsg}>
+                    <LinearGradient
+                        colors={['#447EFF', '#773BFF']}
+                        start={{ x: 0, y: 0.5 }}
+                        end={{ x: 1, y: 0.5 }}
+                        locations={[0.09, 0.67]}
+                        style={styles.sentMsgBlock}
+                    >
+                        <Text style={styles.sentMsgTxt}>{item.content}</Text>
+                    </LinearGradient>
+                </View>
+            );
+        }
+        return null;
+    };
 
+    const mappedMessages = messages.map((msg) => ({
+        id: msg.id,
+        conversation_id: msg.conversation_id!,
+        sender: msg.sent ? 2 : 1, // Assuming role_id 2 is sender, 1 is receiver
+        account: {
+            role_id: msg.sent ? 2 : 1,
+            phone_number: '',
+        },
+        content: msg.msg,
+        created_at: '', // You might need to adjust this based on actual data structure
+    }));
+
+    const mergedMessages = historyMess.concat(mappedMessages as any);
 
     return (
         <KeyboardAvoidingView
@@ -211,18 +225,17 @@ const ChatScreen: React.FC = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
-            {/* FlatList to render messages */}
             <FlatList
+                ref={flatListRef} // Assign ref to FlatList
                 contentContainerStyle={{ paddingBottom: 10 }}
                 extraData={messages}
-                // data={messages}
-                data={messages}
+                data={mergedMessages as any}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
             />
-            {/* Input container for typing and sending messages */}
             <View style={styles.inputContainer}>
                 <TextInput
+                    ref={textInputRef} // Assign ref to TextInput
                     style={styles.input}
                     placeholderTextColor="#696969"
                     onChangeText={setNewMessage}
