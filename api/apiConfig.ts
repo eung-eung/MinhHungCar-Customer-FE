@@ -13,6 +13,7 @@ export const apiAccount = {
 
     //method: put
     updateProfile: `${endpoint}/profile`
+    
 
 };
 
@@ -45,4 +46,8 @@ export const apiPayment = {
 export const apiDocument = {
     //method: get
     getDrivingLicenseImage: `${endpoint}/customer/driving_license`,
+}
+
+export const apiChat = {
+    chat: `wss://minhhungcar.xyz/chat`
 }

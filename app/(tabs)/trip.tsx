@@ -158,7 +158,7 @@ const HistoryScreen: React.FC = () => {
     const renderItem = ({ item }: { item: Trip }) => {
         const utcStartDate = convertICTToUTC(convertICTToUTC(new Date(item.start_date)));
         const utcEndDate = convertICTToUTC(convertICTToUTC(new Date(item.end_date)));
-        
+
         const formattedStartDate = convertUTCToVietnamTime(utcStartDate);
         const formattedEndDate = convertUTCToVietnamTime(utcEndDate)
 
@@ -166,8 +166,8 @@ const HistoryScreen: React.FC = () => {
         return (
             <TouchableOpacity onPress={() => navigateToScreen(item)}>
                 <View style={styles.card}>
-                    <View style={{marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between' }}>
-                   
+                    <View style={{ marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between' }}>
+
                         <View style={{ flexDirection: 'row', marginTop: 7 }}>
                             <Text style={{ fontWeight: 'bold' }}>{formattedStartDate}</Text>
                             <Text style={{ fontWeight: 'bold', marginHorizontal: 2 }}>→</Text>
@@ -177,7 +177,7 @@ const HistoryScreen: React.FC = () => {
                             <Text style={{ color: getStatusStyles(item.status).color, fontWeight: 'bold' }}>{statusConvert[item.status]}</Text>
                         </View>
                     </View>
-                   
+
                     <Divider style={{ marginBottom: 10, marginTop: -5 }} />
                     <View>
                         <View style={styles.cardBody}>
@@ -185,9 +185,9 @@ const HistoryScreen: React.FC = () => {
                             <Text style={styles.cardTag}>Biển số xe: {item.car.license_plate}</Text>
                         </View>
                         {/* <View style={{flexDirection: 'row', justifyContent: 'space-between'}}> */}
-                      
+
                         <Text style={{ fontWeight: '700', color: 'red', textAlign: 'right' }}>Thành tiền: {item.rent_price.toLocaleString()} VNĐ </Text>
-                        
+
                         {/* </View> */}
                         <View>
                             {(item.status === 'waiting_contract_payment' || item.status === 'ordered' || item.status === 'renting' || item.status === 'completed') && (
@@ -306,12 +306,12 @@ const styles = StyleSheet.create({
     },
     statusContainer: {
         borderWidth: 1,
-        marginTop:2,
+        marginTop: 2,
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 16,
         justifyContent: 'space-between',
-        display:'flex',
+        display: 'flex',
         alignSelf: 'flex-end'
     },
     button: {

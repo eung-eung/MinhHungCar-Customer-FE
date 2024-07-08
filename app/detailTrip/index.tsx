@@ -6,7 +6,7 @@ import axios from 'axios';
 import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Divider } from 'react-native-paper';
-import { AnimatedKeyboardOptions } from 'react-native-reanimated';
+import { CheckBox } from '@rneui/themed';
 
 interface Trip {
     id: number;
@@ -58,6 +58,18 @@ interface Car {
     status: string;
 }
 
+interface Payment {
+    id: number;
+    customer_contract_id: number;
+    customer_contract: {
+        car_id: number;
+    };
+    payment_type: string;
+    amount: number;
+    status: string;
+    payment_url: string
+}
+
 const getStatusStyles = (status: string) => {
     switch (status) {
         case 'ordered':
@@ -77,6 +89,15 @@ const statusConvert: Record<string, string> = {
     completed: 'Hoàn thành',
 };
 
+const paymentTypeConvert: Record<string, string> = {
+    pre_pay: 'Phí đặt cọc',
+    remaining_pay: 'Phí còn lại',
+    collateral_cash: 'Tài sản thế chấp',
+    return_collateral_cash: 'Hoàn trả thế chấp',
+    other: 'Khác'
+
+}
+
 export default function detailTrip() {
     const router = useRouter();
     const authCtx = useContext(AuthConText);
@@ -89,7 +110,6 @@ export default function detailTrip() {
 
     const [detailTrip, setDetailTrip] = useState<Trip | undefined>();
     const [carDetail, setCarDetail] = useState<Car>();
-    const [totalPrice, setTotalPrice] = useState<number>();
 
     const [content, setContent] = useState<string>('');
     const [rating, setRating] = useState<number>();
@@ -97,10 +117,19 @@ export default function detailTrip() {
     const [isLoading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
 
+    const [payments, setPayments] = useState<Payment[]>([]);
+    const [selectedPaymentIds, setSelectedPaymentIds] = useState<number[]>([]);
+    const [selectAllText, setSelectAllText] = useState<string>('Chọn tất cả');
+
+
+
+
     useEffect(() => {
         getDetailTrip();
+        getContractPayment();
     }, []);
 
+    //Get detail trip
     const getDetailTrip = async () => {
         try {
             const response = await axios.get(`https://minhhungcar.xyz/customer/activities?status=${tripStatus}`, {
@@ -110,7 +139,7 @@ export default function detailTrip() {
             });
 
             const trips: Trip[] = response.data.data; // Ensure trips is typed as an array of Trip objects
-            console.log('Fetch trip list success: ', trips);
+            console.log('Fetch trip list success: ', response.data.message);
 
             const detail: Trip | undefined = trips.find((trip: Trip) => trip.id === contractIDNumber); // Explicitly type detail as Trip | undefined
             console.log('detailTrip: ', detail);
@@ -125,8 +154,7 @@ export default function detailTrip() {
                     setRating(detail.feedback_rating)
                 }
 
-                const totalPrice = detail.rent_price + detail.insurance_amount;
-                setTotalPrice(totalPrice);
+
 
                 const carResponse = await axios.get(`https://minhhungcar.xyz/car/${detail.car_id}`, {
                     headers: {
@@ -135,7 +163,7 @@ export default function detailTrip() {
                 });
 
                 const detailCar = carResponse.data.data;
-                console.log('detailCar: ', detailCar);
+                console.log('detailCar: ', response.data.message);
                 setCarDetail(detailCar);
             }
         } catch (error: any) {
@@ -156,6 +184,7 @@ export default function detailTrip() {
         }
     };
 
+    // give feedback
     const giveFeedback = async () => {
         try {
             const response = await axios.put(`https://minhhungcar.xyz/customer/feedback`, {
@@ -189,6 +218,63 @@ export default function detailTrip() {
     const handleContentChange = (text: string) => {
         setContent(text);
     };
+
+
+    //get contract payments 
+    const getContractPayment = async () => {
+        try {
+            const response = await axios.get(`https://minhhungcar.xyz/customer/customer_payments?customer_contract_id=${contractID}&offset=0&limit=100`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            setPayments(response.data.data)
+
+        } catch (error: any) {
+            console.log('Error get contract payment: ', error.response.data.message)
+        }
+    }
+
+    const toggleCheckbox = (paymentId: number) => {
+        setSelectedPaymentIds((prevSelected) => {
+            if (prevSelected.includes(paymentId)) {
+                return prevSelected.filter(id => id !== paymentId);
+            } else {
+                return [...prevSelected, paymentId];
+            }
+        });
+    };
+    const toggleSelectAll = () => {
+        if (selectedPaymentIds.length === 0) {
+            const allPaymentIds = payments.map(pay => pay.id);
+            setSelectedPaymentIds(allPaymentIds);
+            setSelectAllText('Bỏ chọn tất cả');
+        } else {
+            setSelectedPaymentIds([]);
+            setSelectAllText('Chọn tất cả');
+        }
+    };
+
+    const handlePayment = () => {
+        if (selectedPaymentIds.length === 1) {
+            const selectedPayment = payments.find(pay => pay.id === selectedPaymentIds[0]);
+            if (selectedPayment) {
+                router.push({ pathname: '/paymentMethod', params: { payment_url: selectedPayment.payment_url } });
+            }
+        } else if (selectedPaymentIds.length > 1) {
+            axios.post('https://minhhungcar.xyz/customer/customer_payment/multiple/generate_qr', {
+                customer_payment_ids: selectedPaymentIds,
+                return_url: 'https://minh-hung-car-payment-result-fe.vercel.app/'
+            })
+                .then(response => {
+                    console.log('Payment successful:', response.data.message);
+                })
+                .catch(error => {
+                    console.error('Error processing payment:', error.response.data.message);
+                });
+        }
+    };
+
 
     const renderProgressLine = () => {
         return (
@@ -281,16 +367,45 @@ export default function detailTrip() {
 
                             {/* Payment */}
                             <Divider style={{ marginVertical: 15 }} />
-                            <View style={{ marginHorizontal: 25, marginVertical: 20 }}>
-                                <View style={styles.paymentItem}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Thành tiền</Text>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{totalPrice !== undefined ? `${totalPrice.toLocaleString()} VNĐ` : '-'} </Text>
-                                </View>
-                                <View style={styles.paymentItem}>
-                                    <Text style={{ fontSize: 14 }}>Phí thuê xe</Text>
-                                    <Text style={{ fontSize: 14 }}>{detailTrip?.rent_price !== undefined ? `${detailTrip.rent_price.toLocaleString()} VNĐ` : '-'}</Text>
-                                </View>
-                                <View style={styles.paymentItem}>
+                            {/* <>
+                                {detailTrip?.status === 'completed' &&
+                                    <TouchableOpacity onPress={toggleSelectAll} style={styles.selectAllButton}>
+                                        <Text style={styles.selectAllText}>{selectAllText}</Text>
+                                    </TouchableOpacity>
+                                }
+                            </> */}
+                            <View style={{ flex: 1 }}>
+                                {payments.map(pay => (
+                                    <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                        <View style={styles.paymentItem}>
+                                            {detailTrip?.status === 'completed' &&
+                                                <>
+                                                    {pay.status === 'pending' && (
+                                                        <CheckBox
+                                                            checked={selectedPaymentIds.includes(pay.id)}
+                                                            onPress={() => toggleCheckbox(pay.id)}
+                                                            checkedColor="#15891A"
+                                                            containerStyle={styles.checkBoxContainer}
+                                                        // disabled={pay.status === 'paid'}
+                                                        />
+
+                                                    )}
+                                                </>}
+                                            <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: 700 }}>{paymentTypeConvert[pay.payment_type]}</Text>
+                                            <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: 700 }}>{pay.amount.toLocaleString()} VNĐ</Text>
+                                        </View>
+                                    </View>
+                                ))}
+                                {selectedPaymentIds.length > 0 && detailTrip?.status === 'completed' && (
+                                    <TouchableOpacity
+                                        onPress={handlePayment}
+                                        style={styles.payButton}
+                                    >
+                                        <Text style={{ color: 'white' }}>Thanh toán</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                            {/* <View style={styles.paymentItem}>
                                     <Text style={{ fontSize: 14 }}>Bảo hiểm thuê xe</Text>
                                     <Text style={{ fontSize: 14 }}>{detailTrip?.insurance_amount !== undefined ? `${detailTrip.insurance_amount.toLocaleString()} VNĐ` : '-'}</Text>
                                 </View>
@@ -301,21 +416,14 @@ export default function detailTrip() {
                                 <View style={styles.paymentItem}>
                                     <Text style={{ fontSize: 14 }}>Phí sửa chữa xe</Text>
                                     <Text style={{ fontSize: 14 }}>800.000 VNĐ</Text>
-                                </View>
+                                </View> */}
 
-                            </View>
-
+                            {/* <View style={styles.paymentItem}>
+                                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Thành tiền</Text>
+                                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{totalPrice !== undefined ? `${totalPrice.toLocaleString()} VNĐ` : '-'} </Text>
+                                </View> */}
                         </View>
-                        {detailTrip?.status === 'completed' && (
-                            <TouchableOpacity
-                                onPress={() => {
-                                    // Add your logic for handling payment action
-                                }}
-                                style={styles.payButton}
-                            >
-                                <Text style={{ color: 'white' }}>Thanh toán</Text>
-                            </TouchableOpacity>
-                        )}
+
                         {/* Modal for feedback */}
                         <Modal
                             animationType="slide"
@@ -449,8 +557,10 @@ const styles = StyleSheet.create({
     paymentItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 18,
+        alignItems: 'center',
+        marginBottom: 5,
     },
+
     statusContainer: {
         borderWidth: 1,
         padding: 6,
@@ -489,15 +599,15 @@ const styles = StyleSheet.create({
         marginTop: 18,
     },
     payButton: {
-        position: 'absolute',
-        bottom: 80,
-        right: 20,
-        backgroundColor: '#80AF81',
-        paddingVertical: 10,
-        paddingHorizontal: 25,
+        backgroundColor: '#15891A',
+        padding: 10,
         borderRadius: 12,
+        right: 10,
+        marginHorizontal: 25,
+        marginTop: 20,
         alignItems: 'center',
     },
+
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -560,5 +670,21 @@ const styles = StyleSheet.create({
     submitButtonText: {
         color: 'white',
         fontSize: 18,
+    },
+    checkBoxContainer: {
+        marginRight: 0,
+        padding: 0,
+        color: '#15891A'
+    },
+    selectAllButton: {
+        paddingHorizontal: 25,
+        paddingVertical: 10,
+        alignItems: 'flex-start',
+        marginBottom: 10,
+        marginTop: 10,
+    },
+    selectAllText: {
+        fontSize: 14,
+        color: '#A9A9A9',
     },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, Image, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { Divider } from 'react-native-paper';
 
 interface PaymentMethodScreenProps { }
 
@@ -29,17 +30,20 @@ const PaymentMethodScreen: React.FC<PaymentMethodScreenProps> = () => {
                     <TabBarIcon name='chevron-right' size={24} style={{ marginTop: 5 }} />
                     {/* <Image source={require('../assets/right.png')} style={styles.arrowIcon} /> */}
                 </TouchableOpacity>
-                {/* Uncomment this section if using QR Code */}
-                {/* <View style={styles.dividerContainer}>
-                    <Divider style={styles.divider} />
-                    <Text style={styles.dividerText}>hoặc với mã QR</Text>
-                    <Divider style={styles.divider} />
-                </View>
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={styles.QR}>
-                        <Image style={styles.qrImage} source={{ uri: qr_code_image }} />
-                    </View>
-                </View> */}
+                {qr_code_image && typeof qr_code_image === 'string' ? (
+                    <>
+                        <View style={styles.dividerContainer}>
+                            <Divider style={styles.divider} />
+                            <Text style={styles.dividerText}>hoặc với mã QR</Text>
+                            <Divider style={styles.divider} />
+                        </View>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={styles.QR}>
+                                <Image style={styles.qrImage} source={{ uri: qr_code_image }} />
+                            </View>
+                        </View>
+                    </>
+                ) : null}
             </View>
         </SafeAreaView>
     );
