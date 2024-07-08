@@ -11,6 +11,7 @@ import {
     Platform,
     Alert,
     ListRenderItem,
+    ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthConText } from '@/store/AuthContext';
@@ -28,16 +29,21 @@ interface Message {
     sender: string;
 }
 
+// interface ChatHistory {
+//     id: number;
+//     conversation_id: number;
+//     sender: number;
+//     account: {
+//         role_id: number;
+//         phone_number: string;
+//     };
+//     content: string;
+//     created_at: string;
+// }
+
 interface ChatHistory {
-    id: number;
-    conversation_id: number;
     sender: number;
-    account: {
-        role_id: number;
-        phone_number: string;
-    };
     content: string;
-    created_at: string;
 }
 
 const MessageTypes = {
@@ -51,22 +57,18 @@ const ChatScreen: React.FC = () => {
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
 
-    const [userMessages, setUserMessages] = useState<Message[]>([]);
+    const [userMessages, setUserMessages] = useState<ChatHistory[]>([]);
     const [newMessage, setNewMessage] = useState<string>('');
     const [conversationId, setConversationId] = useState<number>(-1);
     const [historyMess, setHistoryMess] = useState<ChatHistory[]>([]);
     const socketRef = useRef<WebSocket | null>(null);
 
-    const combinedData = [...historyMess, ...userMessages];
-
     useEffect(() => {
-        // Initialize WebSocket connection on component mount
         if (!socketRef.current) {
             const webSocket = new WebSocket('wss://minhhungcar.xyz/chat');
 
             webSocket.onopen = () => {
                 console.log('WebSocket connection opened');
-                // Send join message with access token
                 webSocket.send(
                     JSON.stringify({
                         msg_type: MessageTypes.USER_JOIN,
@@ -94,7 +96,6 @@ const ChatScreen: React.FC = () => {
             socketRef.current = webSocket;
         }
 
-        // Fetch chat history on conversationId change
         if (conversationId !== -1) {
             getHistoryChat();
         }
@@ -112,8 +113,6 @@ const ChatScreen: React.FC = () => {
 
                 console.log('Sending message:', message);
                 socketRef.current.send(JSON.stringify(message));
-
-                // Clear input field after successful send
                 setNewMessage('');
             }
         } catch (error) {
@@ -125,18 +124,20 @@ const ChatScreen: React.FC = () => {
     const handleResponse = (data: any) => {
         switch (data.msg_type) {
             case MessageTypes.TEXTING:
-                // Add received message to state
-                setUserMessages((prevMessages) => [
-                    ...prevMessages,
-                    { id: data.id, sent: false, msg: data.content, msg_type: MessageTypes.TEXTING, conversation_id: data.conversation_id, sender: data.sender },
-                ]);
+                if (data.sender === 'system') {
+                    return;
+                }
+                if (data.sender === 'admin') {
+                    setUserMessages((prev) => [
+                        ...prev,
+                        { content: data.content, sender: data.sender === "admin" ? 1 : data.sender },
+                    ]);
+                }
                 break;
             case MessageTypes.SYSTEM_USER_JOIN_RESPONSE:
-                // Handle system messages if needed
                 setConversationId(data.conversation_id);
                 break;
             case MessageTypes.ERROR:
-                // Log server error for debugging and notify user
                 if (data.content.includes('foreign key constraint "messages_conversation_id_fkey"')) {
                     Alert.alert('Error', 'Invalid conversation ID');
                 } else {
@@ -150,46 +151,20 @@ const ChatScreen: React.FC = () => {
 
     const getHistoryChat = async () => {
         try {
-            const response = await axios.get(`https://minhhungcar.xyz/customer/conversation/messages?conversation_id=${conversationId}&offset=0&limit=100`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            setHistoryMess(response.data.data)
+            const response = await axios.get(
+                `https://minhhungcar.xyz/customer/conversation/messages?conversation_id=${conversationId}&offset=0&limit=100`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            // console.log('Chat history response:', response.data.data); // Log the response data
+            setHistoryMess(response.data.data);
         } catch (error: any) {
-            console.log(error.response.data.message)
+            console.log(error.response.data.message);
         }
-    }
-
-    const renderItem: ListRenderItem<Message> = ({ item }) => {
-        if (item.sender === 'admin') {
-            return (
-                <View style={styles.receivedMsg}>
-                    <View style={styles.receivedMsgBlock}>
-                        <Text style={styles.receivedMsgTxt}>{item.msg}</Text>
-                    </View>
-                </View>
-            );
-        } else if (item.sender === 'partner' || item.sender === 'customer') {
-            return (
-                <View style={styles.sentMsg}>
-                    <LinearGradient
-                        colors={['#A5B4FC', '#C084FC']}
-                        start={{ x: 0, y: 0.5 }}
-                        end={{ x: 1, y: 0.5 }}
-                        locations={[0.09, 0.67]}
-                        style={styles.sentMsgBlock}
-                    >
-                        <Text style={styles.sentMsgTxt}>{item.msg}</Text>
-                    </LinearGradient>
-                </View>
-            );
-        }
-        return null;
     };
 
     const renderItemHis: ListRenderItem<ChatHistory> = ({ item }) => {
-        if (item.account.role_id === 1) {
+        console.log('Rendering item:', item); // Log each item being rendered
+        if (item.sender === 1) {
             return (
                 <View style={styles.receivedMsg}>
                     <View style={styles.receivedMsgBlock}>
@@ -197,7 +172,7 @@ const ChatScreen: React.FC = () => {
                     </View>
                 </View>
             );
-        } else if (item.account.role_id !== 1) {
+        } else {
             return (
                 <View style={styles.sentMsg}>
                     <LinearGradient
@@ -212,73 +187,7 @@ const ChatScreen: React.FC = () => {
                 </View>
             );
         }
-        return null;
     };
-
-
-    const isMessage = (item: Message | ChatHistory): item is Message => {
-        return (item as Message).msg !== undefined;
-    };
-    const isChatHistory = (item: Message | ChatHistory): item is ChatHistory => {
-        return (item as ChatHistory).account !== undefined;
-    };
-
-    const renderChatbox: ListRenderItem<Message | ChatHistory> = ({ item }) => {
-        if (isMessage(item)) {
-            if (item.sender === 'admin') {
-                return (
-                    <View style={styles.receivedMsg}>
-                        <View style={styles.receivedMsgBlock}>
-                            <Text style={styles.receivedMsgTxt}>{item.msg}</Text>
-                        </View>
-                    </View>
-                );
-            } else if (item.sender === 'partner' || item.sender === 'customer') {
-                return (
-                    <View style={styles.sentMsg}>
-                        <LinearGradient
-                            colors={['#A5B4FC', '#C084FC']}
-                            start={{ x: 0, y: 0.5 }}
-                            end={{ x: 1, y: 0.5 }}
-                            locations={[0.09, 0.67]}
-                            style={styles.sentMsgBlock}
-                        >
-                            <Text style={styles.sentMsgTxt}>{item.msg}</Text>
-                        </LinearGradient>
-                    </View>
-                );
-            }
-        }
-        if (isChatHistory(item)) {
-            if (item.account.role_id === 1) {
-                return (
-                    <View style={styles.receivedMsg}>
-                        <View style={styles.receivedMsgBlock}>
-                            <Text style={styles.receivedMsgTxt}>{item.content}</Text>
-                        </View>
-                    </View>
-                );
-            } else if (item.account.role_id !== 1) {
-                return (
-                    <View style={styles.sentMsg}>
-
-                        <LinearGradient
-                            colors={['#A5B4FC', '#C084FC']}
-                            start={{ x: 0, y: 0.5 }}
-                            end={{ x: 1, y: 0.5 }}
-                            locations={[0.09, 0.67]}
-                            style={styles.sentMsgBlock}
-                        >
-                            <Text style={styles.sentMsgTxt}>{item.content}</Text>
-                        </LinearGradient>
-                    </View>
-                );
-            }
-        }
-        return null;
-    };
-
-
 
     return (
         <KeyboardAvoidingView
@@ -286,25 +195,16 @@ const ChatScreen: React.FC = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
+
             <FlatList
                 contentContainerStyle={{ paddingBottom: 10 }}
                 extraData={historyMess}
                 data={historyMess as ChatHistory[]}
-                keyExtractor={(item, index) => `${item.id ?? index}`}
+                keyExtractor={(item, index) => `${item.sender}-${index}`}
                 renderItem={renderItemHis}
                 inverted
             />
 
-            <FlatList
-                contentContainerStyle={{ paddingVertical: 15, marginBottom: 10 }}
-                extraData={userMessages}
-                data={userMessages as Message[]}
-                keyExtractor={(item, index) => `${item.id ?? index}`}
-                renderItem={renderItem}
-
-                nestedScrollEnabled
-            />
-            {/* Input container for typing and sending messages */}
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
@@ -385,9 +285,10 @@ const styles = StyleSheet.create({
     },
     sentMsgTxt: {
         fontSize: 15,
-        color: 'black',
+        color: 'white',
     },
 });
 
 export default ChatScreen;
+
 

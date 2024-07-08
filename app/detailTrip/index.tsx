@@ -67,7 +67,8 @@ interface Payment {
     payment_type: string;
     amount: number;
     status: string;
-    payment_url: string
+    payment_url: string;
+    payer: string;
 }
 
 const getStatusStyles = (status: string) => {
@@ -380,7 +381,7 @@ export default function detailTrip() {
                                         <View style={styles.paymentItem}>
                                             {detailTrip?.status === 'completed' &&
                                                 <>
-                                                    {pay.status === 'pending' && (
+                                                    {pay.status === 'pending' && pay.payer === 'customer' && (
                                                         <CheckBox
                                                             checked={selectedPaymentIds.includes(pay.id)}
                                                             onPress={() => toggleCheckbox(pay.id)}
