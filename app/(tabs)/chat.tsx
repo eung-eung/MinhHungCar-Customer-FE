@@ -11,7 +11,6 @@ import {
     Platform,
     Alert,
     ListRenderItem,
-    ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthConText } from '@/store/AuthContext';
@@ -29,18 +28,6 @@ interface Message {
     sender: string;
 }
 
-// interface ChatHistory {
-//     id: number;
-//     conversation_id: number;
-//     sender: number;
-//     account: {
-//         role_id: number;
-//         phone_number: string;
-//     };
-//     content: string;
-//     created_at: string;
-// }
-
 interface ChatHistory {
     sender: number;
     content: string;
@@ -57,13 +44,15 @@ const ChatScreen: React.FC = () => {
     const authCtx = useContext(AuthConText);
     const token = authCtx.access_token;
 
-    const [userMessages, setUserMessages] = useState<ChatHistory[]>([]);
+    const [messages, setMessages] = useState<ChatHistory[]>([]);
     const [newMessage, setNewMessage] = useState<string>('');
     const [conversationId, setConversationId] = useState<number>(-1);
-    const [historyMess, setHistoryMess] = useState<ChatHistory[]>([]);
     const socketRef = useRef<WebSocket | null>(null);
 
     useEffect(() => {
+        if (conversationId !== -1) {
+            getHistoryChat();
+        }
         if (!socketRef.current) {
             const webSocket = new WebSocket('wss://minhhungcar.xyz/chat');
 
@@ -95,10 +84,6 @@ const ChatScreen: React.FC = () => {
 
             socketRef.current = webSocket;
         }
-
-        if (conversationId !== -1) {
-            getHistoryChat();
-        }
     }, [conversationId]);
 
     const sendMessage = async () => {
@@ -113,6 +98,13 @@ const ChatScreen: React.FC = () => {
 
                 console.log('Sending message:', message);
                 socketRef.current.send(JSON.stringify(message));
+
+                // Add the new message to the messages state
+                setMessages((prevMessages) => [
+                    { content: newMessage, sender: 0 },
+                    ...prevMessages,
+                ]);
+
                 setNewMessage('');
             }
         } catch (error) {
@@ -128,9 +120,9 @@ const ChatScreen: React.FC = () => {
                     return;
                 }
                 if (data.sender === 'admin') {
-                    setUserMessages((prev) => [
-                        ...prev,
-                        { content: data.content, sender: data.sender === "admin" ? 1 : data.sender },
+                    setMessages((prevMessages) => [
+                        { content: data.content, sender: 1 },
+                        ...prevMessages,
                     ]);
                 }
                 break;
@@ -155,15 +147,13 @@ const ChatScreen: React.FC = () => {
                 `https://minhhungcar.xyz/customer/conversation/messages?conversation_id=${conversationId}&offset=0&limit=100`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            // console.log('Chat history response:', response.data.data); // Log the response data
-            setHistoryMess(response.data.data);
+            setMessages(response.data.data);
         } catch (error: any) {
             console.log(error.response.data.message);
         }
     };
 
-    const renderItemHis: ListRenderItem<ChatHistory> = ({ item }) => {
-        console.log('Rendering item:', item); // Log each item being rendered
+    const renderItem: ListRenderItem<ChatHistory> = ({ item }) => {
         if (item.sender === 1) {
             return (
                 <View style={styles.receivedMsg}>
@@ -195,13 +185,11 @@ const ChatScreen: React.FC = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
-
             <FlatList
                 contentContainerStyle={{ paddingBottom: 10 }}
-                extraData={historyMess}
-                data={historyMess as ChatHistory[]}
+                data={messages}
                 keyExtractor={(item, index) => `${item.sender}-${index}`}
-                renderItem={renderItemHis}
+                renderItem={renderItem}
                 inverted
             />
 
