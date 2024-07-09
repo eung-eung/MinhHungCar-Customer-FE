@@ -53,7 +53,7 @@ export default function HomeScreen() {
   const handleEndDateChange = (event: Event, selectedDate?: Date) => {
     const currentDate = selectedDate || endDate;
     setShowEndDatePicker(Platform.OS === 'ios');
-    if (currentDate >= new Date(Date.now() + 24 * 60 * 60 * 1000)) {
+    if (currentDate >= new Date(Date.now() + 22 * 60 * 60 * 1000)) {
       setEndDate(currentDate);
       console.log('selectedEndDate: ', currentDate);
     } else {
@@ -156,7 +156,7 @@ export default function HomeScreen() {
                   locale="vi"
                   display="default"
                   onChange={handleEndDateChange as any}
-                  minimumDate={new Date(Date.now() + 24 * 2 * 60 * 60 * 1000)}
+                  minimumDate={new Date(Date.now() + 22 * 60 * 60 * 1000)}
                 />
                 {/* )} */}
               </View>

@@ -266,8 +266,13 @@ export default function detailTrip() {
             axios.post('https://minhhungcar.xyz/customer/customer_payment/multiple/generate_qr', {
                 customer_payment_ids: selectedPaymentIds,
                 return_url: 'https://minh-hung-car-payment-result-fe.vercel.app/'
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
             })
                 .then(response => {
+                    router.push({ pathname: '/paymentMethod', params: { payment_url: response.data.data.payment_url } });
                     console.log('Payment successful:', response.data.message);
                 })
                 .catch(error => {
@@ -379,7 +384,7 @@ export default function detailTrip() {
                                 {payments.map(pay => (
                                     <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                         <View style={styles.paymentItem}>
-                                            {detailTrip?.status === 'completed' &&
+                                            {detailTrip?.status === 'renting' &&
                                                 <>
                                                     {pay.status === 'pending' && pay.payer === 'customer' && (
                                                         <CheckBox
@@ -397,7 +402,7 @@ export default function detailTrip() {
                                         </View>
                                     </View>
                                 ))}
-                                {selectedPaymentIds.length > 0 && detailTrip?.status === 'completed' && (
+                                {selectedPaymentIds.length > 0 && detailTrip?.status === 'renting' && (
                                     <TouchableOpacity
                                         onPress={handlePayment}
                                         style={styles.payButton}

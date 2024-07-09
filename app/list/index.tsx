@@ -107,7 +107,7 @@ const ListProductScreen: React.FC = () => {
         }
     }, []);
 
-  
+
 
     useEffect(() => {
         filterCar();
@@ -325,7 +325,7 @@ const ListProductScreen: React.FC = () => {
                                     mode="datetime"
                                     display="default"
                                     onChange={handleStartDateChange as any}
-                                    minimumDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
+                                    minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
                                     locale="vi"
                                 />
                             </View>
@@ -336,7 +336,7 @@ const ListProductScreen: React.FC = () => {
                                     mode="datetime"
                                     display="default"
                                     onChange={handleEndDateChange as any}
-                                    minimumDate={new Date(Date.now() + 24 *2 * 60 * 60 * 1000)}
+                                    minimumDate={new Date(Date.now() + 22 * 60 * 60 * 1000)}
                                     locale="vi"
                                 />
                             </View>
