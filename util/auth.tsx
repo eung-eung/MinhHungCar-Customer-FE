@@ -18,8 +18,8 @@ export async function getUser(phone_number: string, password: string) {
             const role = response.data.data.user.role;
             console.log("tokennn: ", token)
             console.log("role: ", role)
-            if(role === "partner") {
-                Alert.alert('Tài khoản này không thể đăng nhập', 'Vui lòng tạo tài khoản mới') 
+            if (role === "partner") {
+                Alert.alert('Tài khoản này không thể đăng nhập', 'Vui lòng tạo tài khoản mới')
             } else {
                 return { token };
 
