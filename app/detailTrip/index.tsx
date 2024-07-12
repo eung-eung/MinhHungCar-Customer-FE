@@ -74,11 +74,11 @@ interface Payment {
 const getStatusStyles = (status: string) => {
     switch (status) {
         case 'ordered':
-            return { borderColor: '#F4BB4C', color: '#F4BB4C' };
+            return { borderColor: '#F4BB4C', color: '#F4BB4C', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'renting':
-            return { borderColor: '#24D02B', color: '#24D02B' };
+            return { borderColor: '#24D02B', color: '#24D02B', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'completed':
-            return { borderColor: '#15891A', color: '#15891A' };
+            return { borderColor: '#15891A', color: '#15891A', borderWidth: 1, borderRadius: 50, padding: 4 };
         default:
             return {};
     }
@@ -247,8 +247,10 @@ export default function detailTrip() {
     };
     const toggleSelectAll = () => {
         if (selectedPaymentIds.length === 0) {
-            const allPaymentIds = payments.map(pay => pay.id);
-            setSelectedPaymentIds(allPaymentIds);
+            const pendingPaymentIds = payments
+                .filter(pay => pay.status === 'pending')
+                .map(pay => pay.id);
+            setSelectedPaymentIds(pendingPaymentIds);
             setSelectAllText('Bỏ chọn tất cả');
         } else {
             setSelectedPaymentIds([]);
@@ -333,16 +335,10 @@ export default function detailTrip() {
                                         <Text style={styles.cardTag}>Biển số xe: {carDetail?.license_plate}</Text>
                                         <Text style={styles.cardTitle}>{carDetail?.car_model.brand + ' ' + carDetail?.car_model.model + ' ' + carDetail?.car_model.year}</Text>
                                         <View style={styles.cardRow}>
-                                            {/* <View style={styles.cardRowItem}>
-                                                <TabBarIcon name='star' size={24} color='#F4CE14' style={{ marginRight: 6 }} />
-                                                <Text style={styles.cardRowItemText}>{carDetail?.rating}</Text>
-                                            </View> */}
-                                            <View>
-                                                <View >
-                                                    <Text style={{ color: getStatusStyles(detailTrip?.status || '').color, fontWeight: 'bold' }}>
-                                                        {statusConvert[detailTrip?.status || '']}
-                                                    </Text>
-                                                </View>
+                                            <View style={getStatusStyles(detailTrip?.status || '')}>
+                                                <Text style={{ color: getStatusStyles(detailTrip?.status || '').color, fontWeight: 'bold' }}>
+                                                    {statusConvert[detailTrip?.status || '']}
+                                                </Text>
                                             </View>
                                         </View>
                                     </View>
@@ -373,61 +369,43 @@ export default function detailTrip() {
 
                             {/* Payment */}
                             <Divider style={{ marginVertical: 15 }} />
-                            {/* <>
-                                {detailTrip?.status === 'completed' &&
+                            <>
+                                {detailTrip?.status === 'renting' && (
                                     <TouchableOpacity onPress={toggleSelectAll} style={styles.selectAllButton}>
                                         <Text style={styles.selectAllText}>{selectAllText}</Text>
                                     </TouchableOpacity>
-                                }
-                            </> */}
-                            <View style={{ flex: 1 }}>
-                                {payments.map(pay => (
-                                    <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
-                                        <View style={styles.paymentItem}>
-                                            {detailTrip?.status === 'renting' &&
-                                                <>
-                                                    {pay.status === 'pending' && pay.payer === 'customer' && (
-                                                        <CheckBox
-                                                            checked={selectedPaymentIds.includes(pay.id)}
-                                                            onPress={() => toggleCheckbox(pay.id)}
-                                                            checkedColor="#15891A"
-                                                            containerStyle={styles.checkBoxContainer}
-                                                        // disabled={pay.status === 'paid'}
-                                                        />
-
-                                                    )}
-                                                </>}
-                                            <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: 700 }}>{paymentTypeConvert[pay.payment_type]}</Text>
-                                            <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: 700 }}>{pay.amount.toLocaleString()} VNĐ</Text>
-                                        </View>
-                                    </View>
-                                ))}
-                                {selectedPaymentIds.length > 0 && detailTrip?.status === 'renting' && (
-                                    <TouchableOpacity
-                                        onPress={handlePayment}
-                                        style={styles.payButton}
-                                    >
-                                        <Text style={{ color: 'white' }}>Thanh toán</Text>
-                                    </TouchableOpacity>
                                 )}
-                            </View>
-                            {/* <View style={styles.paymentItem}>
-                                    <Text style={{ fontSize: 14 }}>Bảo hiểm thuê xe</Text>
-                                    <Text style={{ fontSize: 14 }}>{detailTrip?.insurance_amount !== undefined ? `${detailTrip.insurance_amount.toLocaleString()} VNĐ` : '-'}</Text>
+                                <View style={{ flex: 1 }}>
+                                    {payments.map(pay => (
+                                        <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                            <View style={styles.paymentItem}>
+                                                <CheckBox
+                                                    checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
+                                                    onPress={() => toggleCheckbox(pay.id)}
+                                                    checkedColor="#15891A"
+                                                    containerStyle={styles.checkBoxContainer}
+                                                    disabled={pay.status === 'paid'}
+                                                />
+                                                <View style={{ flex: 1 }}>
+                                                    <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
+                                                        {paymentTypeConvert[pay.payment_type]}
+                                                    </Text>
+                                                </View>
+                                                <View>
+                                                    <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
+                                                        {pay.amount.toLocaleString()} VNĐ
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                    ))}
+                                    {selectedPaymentIds.length > 0 && detailTrip?.status === 'renting' && (
+                                        <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
+                                            <Text style={{ color: 'white' }}>Thanh toán</Text>
+                                        </TouchableOpacity>
+                                    )}
                                 </View>
-                                <View style={styles.paymentItem}>
-                                    <Text style={{ fontSize: 14 }}>Phí phạt giao thông</Text>
-                                    <Text style={{ fontSize: 14 }}>500.000 VNĐ</Text>
-                                </View>
-                                <View style={styles.paymentItem}>
-                                    <Text style={{ fontSize: 14 }}>Phí sửa chữa xe</Text>
-                                    <Text style={{ fontSize: 14 }}>800.000 VNĐ</Text>
-                                </View> */}
-
-                            {/* <View style={styles.paymentItem}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Thành tiền</Text>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{totalPrice !== undefined ? `${totalPrice.toLocaleString()} VNĐ` : '-'} </Text>
-                                </View> */}
+                            </>
                         </View>
 
                         {/* Modal for feedback */}
@@ -533,8 +511,9 @@ const styles = StyleSheet.create({
     },
     cardRow: {
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        marginTop: 5
     },
     cardRowItem: {
         flexDirection: 'row',
@@ -608,7 +587,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#15891A',
         padding: 10,
         borderRadius: 12,
-        right: 10,
+        // right: 5,
         marginHorizontal: 25,
         marginTop: 20,
         alignItems: 'center',
@@ -678,7 +657,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     checkBoxContainer: {
-        marginRight: 0,
+        marginRight: 20,
         padding: 0,
         color: '#15891A'
     },
