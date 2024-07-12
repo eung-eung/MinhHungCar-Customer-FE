@@ -133,7 +133,7 @@ export default function detailTrip() {
     //Get detail trip
     const getDetailTrip = async () => {
         try {
-            const response = await axios.get(`https://minhhungcar.xyz/customer/activities?status=${tripStatus}`, {
+            const response = await axios.get(`https://minhhungcar.xyz/customer/activities`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

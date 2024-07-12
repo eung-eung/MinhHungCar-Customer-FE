@@ -229,29 +229,31 @@ const CheckoutScreen: React.FC = () => {
 
     const handleStartDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedStartDate;
-        const minDate = new Date(Date.now() + 2 * 60 * 60 * 1000); // Minimum start date, 2 hours from now
-
-        if (currentDate < minDate) {
-            Alert.alert('', 'Thời gian nhận xe tối thiểu 1 ngày kể từ hiện tại');
+        const minStartDate = new Date(Date.now() + 2 * 60 * 60 * 1000); // Minimum start date, 2 hours from now
+    
+        if (currentDate < minStartDate) {
+            Alert.alert('', 'Thời gian nhận xe  là sau 2h kể từ hiện tại');
         } else {
             setParsedStartDate(currentDate);
-            const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000); // Next day from the current start date
-            if (nextDay) {
-                setParsedEndDate(nextDay);
-            }
+            const endDate = new Date(currentDate.getTime() + 22 * 60 * 60 * 1000); // End date, 22 hours from the start date
+            setParsedEndDate(endDate);
+            console.log('selectedStartDate: ', currentDate);
+            console.log('selectedEndDate: ', endDate);
         }
     };
-
+    
     const handleEndDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedEndDate;
-        const minDate = parsedStartDate || new Date();
-        if (currentDate <= minDate) {
+        const minEndDate = new Date(parsedStartDate.getTime() + 22 * 60 * 60 * 1000); // Minimum end date, 22 hours from the start date
+    
+        if (currentDate < minEndDate) {
             Alert.alert('', 'Thời gian thuê xe tối thiểu là 1 ngày');
-        }  else {
-                setParsedEndDate(currentDate);
-            }
-        
+        } else {
+            setParsedEndDate(currentDate);
+            console.log('selectedEndDate: ', currentDate);
+        }
     };
+    
 
     const handleOptionSelect = (option: 'cash' | 'motorbike') => {
         setSelectedCollateral(option);
@@ -319,7 +321,7 @@ const CheckoutScreen: React.FC = () => {
                                                             mode="datetime"
                                                             display="default"
                                                             onChange={handleStartDateChange as any}
-                                                            minimumDate={new Date(Date.now())}
+                                                            minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
                                                             locale="vi"
                                                         />
                                                     </View>
@@ -341,7 +343,7 @@ const CheckoutScreen: React.FC = () => {
                                                             mode="datetime"
                                                             display="default"
                                                             onChange={handleEndDateChange as any}
-                                                            minimumDate={new Date(Date.now()+ 24 *2 * 60 * 60 * 1000)}
+                                                            minimumDate={new Date(Date.now()+ 22 * 60 * 60 * 1000)}
                                                             locale="vi"
                                                         />
 

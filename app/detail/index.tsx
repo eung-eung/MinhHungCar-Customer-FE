@@ -142,7 +142,7 @@ export default function DetailScreen() {
 
         } catch (error: any) {
             if (error.response.data.error_code === 10078) {
-                Alert.alert('', 'Tạm đời không thể xem được đánh giá!');
+                Alert.alert('', 'Tạm thời không thể xem được đánh giá!');
                 console.log('Error get feedback: ', error.response.data.message);
             } else {
                 Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!');

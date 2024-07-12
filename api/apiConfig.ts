@@ -21,6 +21,7 @@ export const apiCar = {
     // method: get
     filterCar: `${endpoint}/customer/cars`,
     fetchMetaData: `${endpoint}/register_car_metadata`,
+    fetchSuggestCar: `${endpoint}/customer/suggested_cars`,
 
     //method: post
     rentCar: `${endpoint}/customer/rent`,

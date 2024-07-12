@@ -116,23 +116,23 @@ const ListProductScreen: React.FC = () => {
 
     const handleStartDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedStartDate;
-        const minDate = new Date(Date.now());
+        const now = new Date();
+        const minStartDate = new Date(now.getTime() + 2 * 60 * 60 * 1000); // Current time + 2 hours
 
-        if (currentDate < minDate) {
-            Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 2h kể từ hiện tại');
+        if (currentDate < minStartDate) {
+            Alert.alert('', 'Thời gian nhận xe là sau 2h kể từ hiện tại');
         } else {
             setParsedStartDate(currentDate);
-            const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
-            if (nextDay) {
-                setParsedEndDate(nextDay);
-            }
+            const nextDay = new Date(currentDate.getTime() + 22 * 60 * 60 * 1000);
+            setParsedEndDate(nextDay);
         }
     };
 
     const handleEndDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedEndDate;
-        const minDate = parsedStartDate || new Date();
-        if (currentDate <= minDate) {
+        const minEndDate = new Date(parsedStartDate.getTime() + 22 * 60 * 60 * 1000); // Start date + 22 hours
+
+        if (currentDate <= minEndDate) {
             Alert.alert('', 'Thời gian thuê tối thiểu là 1 ngày');
         } else {
             setParsedEndDate(currentDate);
@@ -340,7 +340,6 @@ const ListProductScreen: React.FC = () => {
                                     locale="vi"
                                 />
                             </View>
-                            {/* <Image style={styles.searchIcon} source={require('../assets/search.png')} /> */}
                         </View>
                     </View>
 
@@ -382,12 +381,10 @@ const ListProductScreen: React.FC = () => {
                                         </Text>
                                         <View style={styles.carFooter}>
                                             <View style={styles.starContainer}>
-                                                {/* <Image source={require('../assets/star.png')} style={styles.starIcon} /> */}
                                                 <TabBarIcon name='star' color='#F4CE14' size={24} style={{ marginRight: 6, }} />
                                                 <Text style={styles.rating}>{car.rating}</Text>
                                             </View>
                                             <View style={styles.tripContainer}>
-                                                {/* <Image source={require('../assets/completeTrip.png')} style={styles.tripIcon} /> */}
                                                 <TabBarIcon name='history' color='green' size={24} style={{ marginRight: 6, }} />
                                                 <Text style={styles.tripCount}>{car.total_trip} chuyến</Text>
                                             </View>

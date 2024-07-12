@@ -35,31 +35,37 @@ export default function HomeScreen() {
 
   const handleStartDateChange = (event: Event, selectedDate?: Date) => {
     const currentDate = selectedDate || startDate;
+    const now = new Date();
+    const minStartDate = new Date(now.getTime() + 2 * 60 * 60 * 1000); // Current time + 2 hours
+
     setShowStartDatePicker(Platform.OS === 'ios');
 
-    // Check if the selected date is at least 2 hours in the future
-    if (currentDate >= new Date(Date.now() + 2 * 60 * 60 * 1000)) {
+    if (currentDate >= minStartDate) {
       setStartDate(currentDate);
-      // Automatically set end date to 24g after start date
-      const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
+      // Automatically set end date to 22 hours after start date
+      const nextDay = new Date(currentDate.getTime() + 22 * 60 * 60 * 1000);
       setEndDate(nextDay);
       console.log('selectedStartDate: ', currentDate);
       console.log('selectedEndDate: ', nextDay);
     } else {
-      Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 2 tiếng kể từ hiện tại');
+      Alert.alert('', 'Thời gian nhận xe là sau 2 tiếng kể từ hiện tại');
     }
   };
 
   const handleEndDateChange = (event: Event, selectedDate?: Date) => {
     const currentDate = selectedDate || endDate;
+    const minEndDate = new Date(startDate.getTime() + 22 * 60 * 60 * 1000); // Start date + 22 hours
+
     setShowEndDatePicker(Platform.OS === 'ios');
-    if (currentDate >= new Date(Date.now() + 22 * 60 * 60 * 1000)) {
+
+    if (currentDate >= minEndDate) {
       setEndDate(currentDate);
       console.log('selectedEndDate: ', currentDate);
     } else {
-      Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 1 ngày kể từ hiện tại');
+      Alert.alert('', 'Thời gian thuê xe tối thiểu là 1 ngày');
     }
   };
+
 
 
 
@@ -271,7 +277,7 @@ const styles = StyleSheet.create({
   listCar: {
     marginTop: 5,
     flexDirection: 'row',
-    height: 280
+    height: 350
   },
   titleList: {
     marginTop: 30,
