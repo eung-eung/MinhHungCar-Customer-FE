@@ -277,11 +277,12 @@ const styles = StyleSheet.create({
   listCar: {
     marginTop: 5,
     flexDirection: 'row',
-    height: 350
+    height: 350,
+    marginLeft: 10
   },
   titleList: {
     marginTop: 30,
-    marginLeft: 30,
+    marginLeft: 35,
     fontSize: 24,
     fontWeight: 'bold'
   },
