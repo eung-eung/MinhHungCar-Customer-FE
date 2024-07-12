@@ -13,7 +13,7 @@ export const apiAccount = {
 
     //method: put
     updateProfile: `${endpoint}/profile`
-    
+
 
 };
 
@@ -50,4 +50,8 @@ export const apiDocument = {
 
 export const apiChat = {
     chat: `wss://minhhungcar.xyz/chat`
+}
+
+export const apiExpoToken = {
+    expoPushToken: `${endpoint}/customer/expo_push_token`,
 }
