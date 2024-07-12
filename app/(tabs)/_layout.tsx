@@ -25,16 +25,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="notification"
-        options={{
-          title: 'Thông báo mới nhất',
-          tabBarLabel: 'Thông báo',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'bell-badge' : 'bell-badge-outline'} color={color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name='trip'
         options={{
@@ -52,6 +43,16 @@ export default function TabLayout() {
           title: 'Chat',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'chat-processing' : 'chat-processing-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notification"
+        options={{
+          title: 'Thông báo mới nhất',
+          tabBarLabel: 'Thông báo',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'bell' : 'bell-outline'} color={color} />
           ),
         }}
       />
