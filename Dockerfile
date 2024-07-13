@@ -16,8 +16,17 @@ RUN npm install
 # Copy the rest of the application files to the working directory
 COPY . .
 
+# Install expect for automating expo login
+RUN apt-get update && apt-get install -y expect
+
+# Copy the expo-login script
+COPY expo-login.sh /app/
+
+# Make the script executable
+RUN chmod +x /app/expo-login.sh
+
 # Expose the port that Expo uses
 EXPOSE 19006 19007 19008
 
-# Start the Expo project
-CMD ["npx", "expo", "start", "--tunnel"]
+# Start the Expo project after logging in
+CMD ["sh", "-c", "/app/expo-login.sh && npx expo start --tunnel"]
