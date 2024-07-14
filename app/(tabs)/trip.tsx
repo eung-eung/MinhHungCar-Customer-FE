@@ -6,6 +6,8 @@ import axios from 'axios';
 import { AuthConText } from '@/store/AuthContext';
 import { useRouter } from 'expo-router';
 import convertICTToUTC from '../config/convertICTToUTC';
+import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 
 interface Trip {
     id: number;
@@ -244,7 +246,9 @@ const HistoryScreen: React.FC = () => {
                         />
                     ) : (
                         <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 250 }}>
-                            <Text style={{ fontSize: 16, color: '#B4B4B8' }}>Chưa có chuyến nào {statusConvert[activeTab]}</Text>
+                            <AntDesign name="inbox" size={50} color="#B4B4B8" />
+                            {/* <FontAwesome6 name="folder-open" size={40} color="#B4B4B8" /> */}
+                            <Text style={{ fontSize: 16, color: '#B4B4B8', marginTop: 15 }}>Chưa có chuyến nào {statusConvert[activeTab]}</Text>
                         </View>
                     )}
 
