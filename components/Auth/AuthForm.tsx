@@ -92,26 +92,26 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin, onSubmit, credentialsInval
                         <View style={styles.form}>
                             {!isLogin && (
                                 <View style={styles.input}>
-                                    <Text style={styles.inputLabel}>Họ
-                                        <Text style={{ color: 'red' }}>*</Text>
-                                    </Text>
+                                    <Text style={styles.inputLabel}>Họ  <Text style={{ color: 'red' }}>*</Text></Text>
                                     <Input
-                                        onUpdateValue={updateInputValueHandler.bind(this, 'first_name')}
-                                        value={enteredFirstName}
-                                        isInvalid={firstNameIsInvalid}
+                                        onUpdateValue={updateInputValueHandler.bind(this, 'last_name')}
                                         placeholder='Nguyễn'
+                                        value={enteredLastName}
+                                        isInvalid={lastNameIsInvalid}
                                     />
                                 </View>
                             )}
 
                             {!isLogin && (
                                 <View style={styles.input}>
-                                    <Text style={styles.inputLabel}>Tên  <Text style={{ color: 'red' }}>*</Text></Text>
+                                    <Text style={styles.inputLabel}>Tên
+                                        <Text style={{ color: 'red' }}>*</Text>
+                                    </Text>
                                     <Input
-                                        onUpdateValue={updateInputValueHandler.bind(this, 'last_name')}
+                                        onUpdateValue={updateInputValueHandler.bind(this, 'first_name')}
+                                        value={enteredFirstName}
+                                        isInvalid={firstNameIsInvalid}
                                         placeholder='Văn A'
-                                        value={enteredLastName}
-                                        isInvalid={lastNameIsInvalid}
                                     />
                                 </View>
                             )}

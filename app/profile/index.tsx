@@ -122,8 +122,8 @@ const ProfileScreen: React.FC = () => {
             }
 
             // Validate IDCard
-            if (IDCard.length < 9 || IDCard.length > 11) {
-                Alert.alert('Lỗi', 'Số CCCD không hợp lệ. Vui lòng nhập số từ 9 đến 11 chữ số.');
+            if (IDCard.length !== 9 && IDCard.length !== 12) {
+                Alert.alert('Lỗi', 'Số CCCD có 9 hoặc 12 số.');
                 return;
             }
 
@@ -138,6 +138,12 @@ const ProfileScreen: React.FC = () => {
             const enteredYear = parseInt(year, 10);
             if (isNaN(enteredYear) || enteredYear < 1900 || enteredYear > currentYear) {
                 Alert.alert('Lỗi', 'Năm sinh không hợp lệ');
+                return;
+            }
+
+            // Validate day and month
+            if (day.length !== 2 || month.length !== 2) {
+                Alert.alert('Lỗi', 'Ngày và tháng phải có đủ 2 chữ số.');
                 return;
             }
 
@@ -241,22 +247,23 @@ const ProfileScreen: React.FC = () => {
                                     <Text style={styles.inputLabel}>Họ</Text>
                                     <TextInput
                                         clearButtonMode="while-editing"
-                                        onChangeText={(lastName) => setLastName(lastName)}
-                                        placeholder="abc"
-                                        placeholderTextColor="#6b7280"
-                                        style={styles.inputControl}
-                                        value={lastName}
-                                    />
-                                </View>
-                                <View style={styles.input}>
-                                    <Text style={styles.inputLabel}>Tên</Text>
-                                    <TextInput
-                                        clearButtonMode="while-editing"
                                         onChangeText={(firstName) => setFirstName(firstName)}
                                         placeholder="abc"
                                         placeholderTextColor="#6b7280"
                                         style={styles.inputControl}
                                         value={firstName}
+                                    />
+                                </View>
+
+                                <View style={styles.input}>
+                                    <Text style={styles.inputLabel}>Tên</Text>
+                                    <TextInput
+                                        clearButtonMode="while-editing"
+                                        onChangeText={(lastName) => setLastName(lastName)}
+                                        placeholder="abc"
+                                        placeholderTextColor="#6b7280"
+                                        style={styles.inputControl}
+                                        value={lastName}
                                     />
                                 </View>
 
