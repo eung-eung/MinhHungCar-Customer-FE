@@ -65,7 +65,7 @@ export default function CardCar() {
         parsedStartDate.setHours(parsedStartDate.getHours() + 2);
 
         const parsedEndDate = new Date(parsedStartDate);
-        parsedEndDate.setHours(parsedEndDate.getHours() + 22);
+        parsedEndDate.setHours(parsedEndDate.getHours() + 24);
 
         return (
             <TouchableOpacity
@@ -130,7 +130,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingVertical: 24,
-        paddingHorizontal: 0,
     },
     scrollViewContent: {
         paddingHorizontal: 18,
@@ -148,6 +147,7 @@ const styles = StyleSheet.create({
         shadowRadius: 1.41,
         elevation: 2,
         width: 320,
+        marginRight: 12
     },
     carImage: {
         width: '100%',

@@ -123,14 +123,14 @@ const ListProductScreen: React.FC = () => {
             Alert.alert('', 'Thời gian nhận xe là sau 2h kể từ hiện tại');
         } else {
             setParsedStartDate(currentDate);
-            const nextDay = new Date(currentDate.getTime() + 22 * 60 * 60 * 1000);
+            const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
             setParsedEndDate(nextDay);
         }
     };
 
     const handleEndDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedEndDate;
-        const minEndDate = new Date(parsedStartDate.getTime() + 22 * 60 * 60 * 1000); // Start date + 22 hours
+        const minEndDate = new Date(parsedStartDate.getTime() + 24 * 60 * 60 * 1000); // Start date + 22 hours
 
         if (currentDate <= minEndDate) {
             Alert.alert('', 'Thời gian thuê tối thiểu là 1 ngày');
@@ -336,7 +336,7 @@ const ListProductScreen: React.FC = () => {
                                     mode="datetime"
                                     display="default"
                                     onChange={handleEndDateChange as any}
-                                    minimumDate={new Date(Date.now() + 22 * 60 * 60 * 1000)}
+                                    minimumDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
                                     locale="vi"
                                 />
                             </View>

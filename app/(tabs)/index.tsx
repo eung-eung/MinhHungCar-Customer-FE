@@ -18,7 +18,7 @@ export default function HomeScreen() {
   const authCtx = useContext(AuthConText);
   const token = authCtx.access_token;
 
-  const [startDate, setStartDate] = useState<Date>(new Date(Date.now() + 24 * 60 * 60 * 1000)); // Current time + 2 hours
+  const [startDate, setStartDate] = useState<Date>(new Date(Date.now() + 2 * 60 * 60 * 1000)); // Current time + 2 hours
   const [endDate, setEndDate] = useState<Date>(new Date(startDate.getTime() + 24 * 60 * 60 * 1000)); // Start date + 1 day
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
@@ -43,7 +43,7 @@ export default function HomeScreen() {
     if (currentDate >= minStartDate) {
       setStartDate(currentDate);
       // Automatically set end date to 22 hours after start date
-      const nextDay = new Date(currentDate.getTime() + 22 * 60 * 60 * 1000);
+      const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
       setEndDate(nextDay);
       console.log('selectedStartDate: ', currentDate);
       console.log('selectedEndDate: ', nextDay);
@@ -54,7 +54,7 @@ export default function HomeScreen() {
 
   const handleEndDateChange = (event: Event, selectedDate?: Date) => {
     const currentDate = selectedDate || endDate;
-    const minEndDate = new Date(startDate.getTime() + 22 * 60 * 60 * 1000); // Start date + 22 hours
+    const minEndDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // Start date + 22 hours
 
     setShowEndDatePicker(Platform.OS === 'ios');
 
@@ -123,7 +123,7 @@ export default function HomeScreen() {
             }
           </View>
           <View>
-            <Text style={styles.headerTitle}>Xin chào, {firstName}{lastName} </Text>
+            <Text style={styles.headerTitle}>Xin chào, {lastName} {firstName} </Text>
           </View>
         </View>
         <View style={styles.content}>
@@ -162,7 +162,7 @@ export default function HomeScreen() {
                   locale="vi"
                   display="default"
                   onChange={handleEndDateChange as any}
-                  minimumDate={new Date(Date.now() + 22 * 60 * 60 * 1000)}
+                  minimumDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
                 />
                 {/* )} */}
               </View>
