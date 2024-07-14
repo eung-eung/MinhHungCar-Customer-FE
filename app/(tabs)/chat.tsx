@@ -11,11 +11,15 @@ import {
     Platform,
     Alert,
     ListRenderItem,
-    ActivityIndicator,
+    Image,
+    TouchableWithoutFeedback,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthConText } from '@/store/AuthContext';
 import axios from 'axios';
+import { ActivityIndicator } from 'react-native';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { Keyboard } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -51,6 +55,7 @@ const ChatScreen: React.FC = () => {
     const socketRef = useRef<WebSocket | null>(null);
 
     const [isLoading, setLoading] = useState(true)
+
 
     useEffect(() => {
         if (conversationId !== -1) {
@@ -117,8 +122,6 @@ const ChatScreen: React.FC = () => {
             Alert.alert('Lỗi', 'Gửi tin nhắn thất bại');
         }
     };
-
-
 
     const handleResponse = (data: any) => {
         switch (data.msg_type) {
@@ -194,44 +197,56 @@ const ChatScreen: React.FC = () => {
                     <ActivityIndicator size="large" color="#aaa" />
                 </View>
             ) : (
-                <KeyboardAvoidingView
-                    style={styles.container}
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-                >
-                    <FlatList
-                        contentContainerStyle={{ paddingBottom: 10 }}
-                        data={messages}
-                        keyExtractor={(item, index) => `${item.sender}-${index}`}
-                        renderItem={renderItem}
-                        inverted
-                    />
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.input}
-                            placeholderTextColor="#696969"
-                            onChangeText={setNewMessage}
-                            blurOnSubmit={false}
-                            onSubmitEditing={sendMessage}
-                            placeholder="Type a message"
-                            returnKeyType="send"
-                            value={newMessage}
-                        />
-                        <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-                            <Text style={styles.sendButtonText}>Gửi</Text>
-                        </TouchableOpacity>
-                    </View>
-                </KeyboardAvoidingView>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <KeyboardAvoidingView
+                        style={styles.container}
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+                    >
+
+                        {messages.length === 0 ? (
+                            <View style={styles.emptyChatContainer}>
+                                <Image src='https://minhhungcar-admin.vercel.app/minhhunglogo.png' style={{ width: 190, height: 80, objectFit: 'contain', marginBottom: 15 }} />
+                                <Text style={styles.emptyChatText}>Hãy bắt đầu cuộc trò chuyện ngay bây giờ!</Text>
+                            </View>
+                        ) : (
+                            <FlatList
+                                contentContainerStyle={{ paddingBottom: 10 }}
+                                data={messages}
+                                keyExtractor={(item, index) => `${item.sender}-${index}`}
+                                renderItem={renderItem}
+                                inverted
+                            />
+                        )}
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={styles.input}
+                                placeholderTextColor="#696969"
+                                onChangeText={setNewMessage}
+                                blurOnSubmit={false}
+                                onSubmitEditing={sendMessage}
+                                placeholder="Type a message"
+                                returnKeyType="send"
+                                value={newMessage}
+                            />
+                            <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+                                {/* <Text style={styles.sendButtonText}> */}
+                                <TabBarIcon name='send' color='#773BFF' />
+                                {/* </Text> */}
+                            </TouchableOpacity>
+                        </View>
+                    </KeyboardAvoidingView>
+                </TouchableWithoutFeedback>
+
             )}
         </>
     );
 };
 
-// Styles for components
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f1f1f1',
+        backgroundColor: 'white',
     },
     loaderStyle: {
         marginTop: 100,
@@ -242,7 +257,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         backgroundColor: '#fff',
-        borderTopWidth: 1,
+        borderTopWidth: 0.5,
         borderTopColor: '#e0e0e0',
     },
     input: {
@@ -252,10 +267,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 20,
         paddingHorizontal: 15,
-        marginRight: 10,
+        marginRight: 4,
     },
     sendButton: {
-        backgroundColor: '#773BFF',
+        backgroundColor: 'white',
         padding: 10,
         borderRadius: 20,
     },
@@ -271,9 +286,9 @@ const styles = StyleSheet.create({
     receivedMsgBlock: {
         maxWidth: width * 0.7,
         borderRadius: 10,
-        backgroundColor: '#fff',
+        backgroundColor: '#F2F2F2',
         padding: 10,
-        marginLeft: 5,
+        marginLeft: 10,
     },
     receivedMsgTxt: {
         fontSize: 15,
@@ -289,13 +304,26 @@ const styles = StyleSheet.create({
         // backgroundColor: '#6897FF',
         padding: 10,
         marginLeft: 0,
+        marginRight: 10,
+        marginBottom: 10
     },
     sentMsgTxt: {
         fontSize: 15,
         color: 'white',
     },
+    emptyChatContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyChatText: {
+        fontSize: 16,
+        color: '#696969',
+    },
 });
 
 export default ChatScreen;
+
+
 
 

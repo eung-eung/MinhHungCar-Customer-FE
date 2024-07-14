@@ -333,11 +333,17 @@ const ProfileScreen: React.FC = () => {
                                     <Text style={styles.inputLabel}>Số CCCD</Text>
                                     <TextInput
                                         clearButtonMode="while-editing"
-                                        onChangeText={(id) => setIDCard(id)}
+                                        onChangeText={(id) => {
+                                            if (/^\d*$/.test(id)) {
+                                                setIDCard(id);
+                                            }
+                                        }}
                                         placeholder="000000000000"
                                         placeholderTextColor="#6b7280"
                                         style={styles.inputControl}
                                         value={IDCard}
+                                        keyboardType="numeric"
+                                        textContentType="oneTimeCode" // This helps iOS recognize the input as numeric
                                     />
                                 </View>
 
