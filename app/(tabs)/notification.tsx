@@ -183,10 +183,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 300
   },
   emptyMessage: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
     color: '#B4B4B8',
     textAlign: 'center',
   },
@@ -226,5 +226,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     textAlign: 'right',
   },
+  emptyChatContainer: {
+    flex: 1,
+    marginTop: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyChatText: {
+    fontSize: 16,
+    color: '#696969',
+  },
 });
-

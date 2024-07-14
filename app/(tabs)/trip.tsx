@@ -243,8 +243,8 @@ const HistoryScreen: React.FC = () => {
                             contentContainerStyle={styles.container} // Replace listContainer with container
                         />
                     ) : (
-                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
-                            <Text style={{ fontSize: 16, color: '#686D76', marginBottom: 20 }}>Chưa có chuyến nào {statusConvert[activeTab]}</Text>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 250 }}>
+                            <Text style={{ fontSize: 16, color: '#B4B4B8' }}>Chưa có chuyến nào {statusConvert[activeTab]}</Text>
                         </View>
                     )}
 
