@@ -236,6 +236,8 @@ export default function detailTrip() {
         }
     }
 
+    const customerPayments = payments.filter(pay => pay.payer === 'customer');
+
     const toggleCheckbox = (paymentId: number) => {
         setSelectedPaymentIds((prevSelected) => {
             if (prevSelected.includes(paymentId)) {
@@ -370,13 +372,13 @@ export default function detailTrip() {
                             {/* Payment */}
                             <Divider style={{ marginVertical: 15 }} />
                             <>
-                                {detailTrip?.status === 'renting' && (
+                                {/* {detailTrip?.status === 'renting' && (
                                     <TouchableOpacity onPress={toggleSelectAll} style={styles.selectAllButton}>
                                         <Text style={styles.selectAllText}>{selectAllText}</Text>
                                     </TouchableOpacity>
-                                )}
+                                )} */}
                                 <View style={{ flex: 1 }}>
-                                    {payments.map(pay => (
+                                    {customerPayments.map(pay => (
                                         <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                             <View style={styles.paymentItem}>
                                                 <CheckBox

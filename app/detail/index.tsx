@@ -27,6 +27,7 @@ interface CarDetail {
         year: string;
         number_of_seats: number;
     };
+    license_plate: string;
     images: string[];
     total_trip: number;
     status: string;
@@ -83,6 +84,7 @@ export default function DetailScreen() {
             number_of_seats: 0,
         },
         images: [],
+        license_plate: '',
         total_trip: 0,
         status: '',
         motion: '',
@@ -195,6 +197,14 @@ export default function DetailScreen() {
                                 {/*  */}
 
                                 <View style={styles.info}>
+                                    {/* <Text style={{
+                                        fontWeight: '600',
+                                        fontSize: 13,
+                                        color: '#758694',
+                                        marginBottom: 10
+                                    }}>
+                                        Biển số xe: {carDetail.license_plate}
+                                    </Text> */}
                                     <Text style={styles.infoTitle}>{carDetail.car_model.brand + ' ' + carDetail.car_model.model + ' ' + carDetail.car_model.year}</Text>
 
                                     <View style={styles.infoRating}>
@@ -209,10 +219,13 @@ export default function DetailScreen() {
                                     </View>
 
 
-                                    <Text style={styles.infoDescription}>
+                                    {/* <Text style={styles.infoDescription}>
                                         {carDetail.description}
-                                    </Text>
+                                    </Text> */}
                                 </View>
+
+
+
 
                                 <Divider style={{ marginTop: 20 }} />
                                 <View style={styles.character}>
@@ -245,6 +258,27 @@ export default function DetailScreen() {
 
                                     </View>
                                 </View>
+
+                                <Divider style={{ marginTop: 10, marginBottom: 5 }} />
+                                <View style={styles.regulation}>
+                                    <Text style={styles.regulationTitle}>Mô tả</Text>
+                                    <View style={styles.containerRegulation}>
+                                        <View style={styles.bulletTextContainer}>
+                                            <Text style={{
+                                                lineHeight: 18,
+                                                fontSize: 13,
+                                                marginBottom: 15,
+                                                marginTop: 3,
+                                                marginLeft: 15,
+                                                fontWeight: '600',
+                                                color: '#838383',
+                                            }}>
+                                                {carDetail.description}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+
 
                                 <Divider style={{ marginBottom: 5 }} />
                                 <View style={styles.require}>

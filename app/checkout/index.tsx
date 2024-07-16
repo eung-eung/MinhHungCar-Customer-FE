@@ -105,32 +105,13 @@ const CheckoutScreen: React.FC = () => {
                 Alert.alert('Lỗi', 'Không thể xem được chi tiết xe lúc này. Vui lòng thử lại sau!')
                 console.log("Error getDetail: ", error.response.data.message)
             } else {
-                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
+                // Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
                 console.log("Error getDetail: ", error.response.data.message)
             }
         }
     };
 
-    // const getLicenseInfo = async () => {
-    //     try {
-    //         const response = await axios.get(apiDocument.getDrivingLicenseImage, {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //         });
-    //         const error_code = response.data.error_code;
-    //         if (error_code === 10000) {
-    //             setIsHaveLicense(response.data.data);
-    //             console.log("isHaveLicense: ", response.data.data)
-    //         } else {
-    //             console.log('No data returned for driving license info.');
-    //         }
-    //         setLoading(false);
-    //     } catch (error: any) {
-    //         console.log('Fetch info failed: ', error.response?.data?.message);
-    //         setLoading(false);
-    //     }
-    // };
+
 
     const rentCar = async () => {
 
@@ -140,8 +121,8 @@ const CheckoutScreen: React.FC = () => {
                 apiCar.rentCar,
                 {
                     car_id: carIdNumber,
-                    start_date: convertUTCToICT(parsedStartDate).toISOString(),
-                    end_date: convertUTCToICT(parsedEndDate).toISOString(),
+                    start_date: (parsedStartDate).toISOString(),
+                    end_date: (parsedEndDate).toISOString(),
                     collateral_type: selectedCollateral,
                 },
                 {
@@ -223,7 +204,7 @@ const CheckoutScreen: React.FC = () => {
                 Alert.alert('Lỗi xuất đơn giá', 'Vui lòng thử lại sau!');
                 console.log('Error calculate price: ', error.response?.data?.message);
             } else {
-                Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
+                // Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!')
                 console.log('Error calculate price: ', error.response?.data?.message);
             }
         }

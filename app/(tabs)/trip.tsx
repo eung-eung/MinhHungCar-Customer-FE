@@ -58,8 +58,8 @@ const statusConvert: Record<string, string> = {
 };
 
 const convertUTCToVietnamTime = (utcDate: Date): string => {
-    const vietnamOffset = 7 * 60; // Vietnam time is UTC+7
-    const vietnamDate = new Date(utcDate.getTime() - vietnamOffset * 60 * 1000);
+    // const vietnamOffset = 7 * 60; // Vietnam time is UTC+7
+    const vietnamDate = new Date(utcDate.getTime());
 
     const day = vietnamDate.getDate();
     const month = vietnamDate.getMonth() + 1; // Months are zero-indexed in JavaScript
@@ -157,8 +157,6 @@ const HistoryScreen: React.FC = () => {
     };
 
     const renderItem = ({ item }: { item: Trip }) => {
-        const utcStartDate = convertICTToUTC(convertICTToUTC(new Date(item.start_date)));
-        const utcEndDate = convertICTToUTC(convertICTToUTC(new Date(item.end_date)));
 
         const formattedStartDate = convertUTCToVietnamTime(new Date(item.start_date));
         const formattedEndDate = convertUTCToVietnamTime(new Date(item.end_date))

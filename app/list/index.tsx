@@ -20,6 +20,7 @@ interface CarModel {
         model: string;
         year: number;
     };
+    license_plate: string;
     rating: number;
     total_trip: number;
     price: number;
@@ -379,6 +380,14 @@ const ListProductScreen: React.FC = () => {
                                         <Text style={styles.carName}>
                                             {car.car_model.brand} {car.car_model.model} {car.car_model.year}
                                         </Text>
+                                        {/* <Text style={{
+                                            fontWeight: '600',
+                                            fontSize: 13,
+                                            color: '#A9A9A9',
+                                            marginTop: 8
+                                        }}>
+                                            Biển số xe: {car.license_plate}
+                                        </Text> */}
                                         <View style={styles.carFooter}>
                                             <View style={styles.starContainer}>
                                                 <TabBarIcon name='star' color='#F4CE14' size={24} style={{ marginRight: 6, }} />
