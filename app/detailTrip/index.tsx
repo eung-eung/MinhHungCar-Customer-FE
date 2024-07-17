@@ -248,11 +248,12 @@ export default function detailTrip() {
         });
     };
     const toggleSelectAll = () => {
+        const customerPaymentIds = payments
+            .filter(pay => pay.payer === 'customer' && pay.status === 'pending')
+            .map(pay => pay.id);
+
         if (selectedPaymentIds.length === 0) {
-            const pendingPaymentIds = payments
-                .filter(pay => pay.status === 'pending')
-                .map(pay => pay.id);
-            setSelectedPaymentIds(pendingPaymentIds);
+            setSelectedPaymentIds(customerPaymentIds);
             setSelectAllText('Bỏ chọn tất cả');
         } else {
             setSelectedPaymentIds([]);
@@ -260,30 +261,29 @@ export default function detailTrip() {
         }
     };
 
-    const handlePayment = () => {
-        if (selectedPaymentIds.length === 1) {
-            const selectedPayment = payments.find(pay => pay.id === selectedPaymentIds[0]);
-            if (selectedPayment) {
-                router.push({ pathname: '/paymentMethod', params: { payment_url: selectedPayment.payment_url } });
-            }
-        } else if (selectedPaymentIds.length > 1) {
-            axios.post('https://minhhungcar.xyz/customer/customer_payment/multiple/generate_qr', {
+
+    const handlePayment = async () => {
+        try {
+            const response = await axios.post('https://minhhungcar.xyz/customer/customer_payment/multiple/generate_qr', {
                 customer_payment_ids: selectedPaymentIds,
                 return_url: 'https://minh-hung-car-payment-result-fe.vercel.app/'
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 }
-            })
-                .then(response => {
-                    router.push({ pathname: '/paymentMethod', params: { payment_url: response.data.data.payment_url } });
-                    console.log('Payment successful:', response.data.message);
-                })
-                .catch(error => {
-                    console.error('Error processing payment:', error.response.data.message);
-                });
+            });
+
+            router.push({ pathname: '/paymentMethod', params: { payment_url: response.data.data.payment_url } });
+            console.log('Payment successful:', response.data.message);
+        } catch (error: any) {
+            if (error.response && error.response.data && error.response.data.message) {
+                console.error('Error processing payment:', error.response.data.message);
+            } else {
+                console.error('Unexpected error processing payment:', error.message);
+            }
         }
     };
+
 
 
     const renderProgressLine = () => {
@@ -358,35 +358,43 @@ export default function detailTrip() {
                                 {detailTrip?.status === 'completed' && (
                                     <TouchableOpacity
                                         onPress={() => setModalVisible(true)}
-                                        style={styles.button_2}
+                                        style={[
+                                            styles.button_2,
+                                            { borderColor: detailTrip?.feedback_status === 'inactive' ? 'red' : '#773BFF' }
+                                        ]}
                                     >
-                                        {(!detailTrip?.feedback_rating && !detailTrip?.feedback_content) ?
-                                            <Text style={{ color: '#773BFF' }}>Đánh giá</Text>
-                                            :
-                                            <Text style={{ color: '#773BFF' }}>Sửa đánh giá</Text>
-                                        }
+                                        {detailTrip?.feedback_status === 'inactive' ? (
+                                            <Text style={{ color: 'red' }}>Đánh giá bị khóa</Text>
+                                        ) : (
+                                            !detailTrip?.feedback_rating && !detailTrip?.feedback_content ? (
+                                                <Text style={{ color: '#773BFF' }}>Đánh giá</Text>
+                                            ) : (
+                                                <Text style={{ color: '#773BFF' }}>Xem đánh giá</Text>
+                                            )
+                                        )}
                                     </TouchableOpacity>
                                 )}
+
                             </View>
 
                             {/* Payment */}
                             <Divider style={{ marginVertical: 15 }} />
                             <>
-                                {/* {detailTrip?.status === 'renting' && (
+                                {detailTrip?.status === 'renting' && (
                                     <TouchableOpacity onPress={toggleSelectAll} style={styles.selectAllButton}>
                                         <Text style={styles.selectAllText}>{selectAllText}</Text>
                                     </TouchableOpacity>
-                                )} */}
+                                )}
                                 <View style={{ flex: 1 }}>
-                                    {customerPayments.map(pay => (
+                                    {payments.map(pay => (
                                         <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                             <View style={styles.paymentItem}>
                                                 <CheckBox
                                                     checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
                                                     onPress={() => toggleCheckbox(pay.id)}
-                                                    checkedColor="#15891A"
+                                                    checkedColor={pay.payer !== 'customer' ? 'red' : '#15891A'}
                                                     containerStyle={styles.checkBoxContainer}
-                                                    disabled={pay.status === 'paid'}
+                                                    disabled={pay.payer !== 'customer'}
                                                 />
                                                 <View style={{ flex: 1 }}>
                                                     <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
@@ -438,6 +446,7 @@ export default function detailTrip() {
                                                         rating! >= index ? styles.ratingStarSelected : {},
                                                     ]}
                                                     onPress={() => handleRatingChange(index)}
+                                                    disabled={!!detailTrip?.feedback_rating}
                                                 >
                                                     <TabBarIcon
                                                         name='star'
@@ -453,14 +462,17 @@ export default function detailTrip() {
                                             onChangeText={handleContentChange}
                                             value={content}
                                             multiline
+                                            editable={!detailTrip?.feedback_content}
                                         />
-                                        <TouchableOpacity onPress={giveFeedback} style={styles.submitButton}>
-                                            {(!detailTrip?.feedback_rating && !detailTrip?.feedback_content) ?
+                                        {(!detailTrip?.feedback_rating && !detailTrip?.feedback_content) ?
+                                            <TouchableOpacity onPress={giveFeedback} style={styles.submitButton}>
+
                                                 <Text style={styles.submitButtonText}>Gửi đánh giá</Text>
-                                                :
-                                                <Text style={styles.submitButtonText}>Sửa đánh giá</Text>
-                                            }
-                                        </TouchableOpacity>
+
+                                            </TouchableOpacity>
+                                            :
+                                            ''
+                                        }
                                     </View>
                                 </View>
                             </View>
