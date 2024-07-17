@@ -265,12 +265,12 @@ export default function DetailScreen() {
                                     <View style={styles.containerRegulation}>
                                         <View style={styles.bulletTextContainer}>
                                             <Text style={{
-                                                lineHeight: 18,
+                                                lineHeight: 20,
                                                 fontSize: 13,
                                                 marginBottom: 15,
                                                 marginTop: 3,
-                                                marginLeft: 15,
-                                                fontWeight: '600',
+                                                marginHorizontal: 8,
+                                                fontWeight: '500',
                                                 color: '#838383',
                                             }}>
                                                 {carDetail.description}
