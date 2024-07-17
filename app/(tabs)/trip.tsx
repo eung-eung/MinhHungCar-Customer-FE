@@ -215,42 +215,48 @@ const HistoryScreen: React.FC = () => {
         <View style={{ flex: 1 }}>
             <StatusBar barStyle="dark-content" />
             <SafeAreaView style={{ flex: 1 }}>
-                <View style={styles.container}>
-                    {/* Tab */}
-                    <View style={styles.tabContainer}>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollViewContent}>
-                            {Object.keys(statusConvert).map((statusKey) => (
-                                <TouchableOpacity
-                                    key={statusKey}
-                                    style={[styles.tabItem, activeTab === statusKey && styles.activeTabItem]}
-                                    onPress={() => handleTabPress(statusKey)}
-                                >
-                                    <Text style={[styles.tabText, activeTab === statusKey && styles.activeTabItem]}>{statusConvert[statusKey]}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
+                {isLoading ? (
+                    <View style={styles.loaderStyle}>
+                        <ActivityIndicator size="large" color="#aaa" />
                     </View>
-
-                    {/* Card */}
-                    {trip.length > 0 ? (
-                        <FlatList
-                            data={trip}
-                            renderItem={renderItem}
-                            keyExtractor={(item) => item.id.toString()}
-                            ListFooterComponent={renderFooter}
-                            onEndReached={!isLoading ? getAllContract : undefined}
-                            onEndReachedThreshold={0.5}
-                            contentContainerStyle={styles.container} // Replace listContainer with container
-                        />
-                    ) : (
-                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 250 }}>
-                            <AntDesign name="inbox" size={50} color="#B4B4B8" />
-                            {/* <FontAwesome6 name="folder-open" size={40} color="#B4B4B8" /> */}
-                            <Text style={{ fontSize: 16, color: '#B4B4B8', marginTop: 15 }}>Chưa có chuyến nào {statusConvert[activeTab]}</Text>
+                ) : (
+                    <View style={styles.container}>
+                        {/* Tab */}
+                        <View style={styles.tabContainer}>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollViewContent}>
+                                {Object.keys(statusConvert).map((statusKey) => (
+                                    <TouchableOpacity
+                                        key={statusKey}
+                                        style={[styles.tabItem, activeTab === statusKey && styles.activeTabItem]}
+                                        onPress={() => handleTabPress(statusKey)}
+                                    >
+                                        <Text style={[styles.tabText, activeTab === statusKey && styles.activeTabItem]}>{statusConvert[statusKey]}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
                         </View>
-                    )}
 
-                </View>
+                        {/* Card */}
+                        {trip.length > 0 ? (
+                            <FlatList
+                                data={trip}
+                                renderItem={renderItem}
+                                keyExtractor={(item) => item.id.toString()}
+                                ListFooterComponent={renderFooter}
+                                onEndReached={!isLoading ? getAllContract : undefined}
+                                onEndReachedThreshold={0.5}
+                                contentContainerStyle={styles.container} // Replace listContainer with container
+                            />
+                        ) : (
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 250 }}>
+                                <AntDesign name="inbox" size={50} color="#B4B4B8" />
+                                {/* <FontAwesome6 name="folder-open" size={40} color="#B4B4B8" /> */}
+                                <Text style={{ fontSize: 16, color: '#B4B4B8', marginTop: 15 }}>Chưa có chuyến nào {statusConvert[activeTab]}</Text>
+                            </View>
+                        )}
+
+                    </View>
+                )}
             </SafeAreaView>
         </View>
     );
@@ -324,7 +330,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     loaderStyle: {
-        marginTop: 10,
+        marginTop: 250,
         alignItems: 'center',
     },
 });
