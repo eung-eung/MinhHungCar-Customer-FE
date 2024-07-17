@@ -386,11 +386,11 @@ export default function detailTrip() {
                                     {payments.filter(pay => pay.payer === 'customer').length > 0 && (
                                         <>
                                             <Text style={styles.sectionTitle}>Phải thanh toán:</Text>
-                                            {detailTrip?.status === 'renting' && (
+                                            {/* {detailTrip?.status === 'renting' && (
                                                 <TouchableOpacity onPress={toggleSelectAll} style={styles.selectAllButton}>
                                                     <Text style={styles.selectAllText}>{selectAllText}</Text>
                                                 </TouchableOpacity>
-                                            )}
+                                            )} */}
                                             {payments.map(pay => (
                                                 pay.payer === 'customer' && (
                                                     <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
@@ -400,7 +400,7 @@ export default function detailTrip() {
                                                                 onPress={() => toggleCheckbox(pay.id)}
                                                                 checkedColor={'#15891A'}
                                                                 containerStyle={styles.checkBoxContainer}
-                                                                disabled={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
+                                                                disabled={pay.status === 'paid'}
                                                             />
                                                             <View style={{ flex: 1 }}>
                                                                 <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
