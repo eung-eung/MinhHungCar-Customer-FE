@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 24,
         marginTop: 18,
-        marginBottom: 36
+        marginBottom: 5
     },
     formFooter: {
         fontSize: 15,

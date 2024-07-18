@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#222',
         textAlign: 'center',
-        marginBottom: 10,
+        marginBottom: 20,
+        marginTop: -150
     },
 });
 
