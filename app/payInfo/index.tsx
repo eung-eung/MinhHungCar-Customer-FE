@@ -67,7 +67,7 @@ const PaymentInformationScreen: React.FC = () => {
                 setBankNum(response.data.data.bank_number || '');
                 setSelectedBank(response.data.data.bank_name || '');
                 setQRUrl(response.data.data.qr_code_url || null);
-                console.log('Fetch success: ', response.data);
+                console.log('Fetch success: ', response.data.message);
             } else {
                 console.log('No data returned for payment info.');
             }

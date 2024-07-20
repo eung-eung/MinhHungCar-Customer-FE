@@ -7,7 +7,7 @@ import axios from 'axios';
 import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthConText } from '@/store/AuthContext';
-import { apiCar, apiDocument, apiPayment } from '@/api/apiConfig';
+import { apiAccount, apiCar, apiDocument, apiPayment } from '@/api/apiConfig';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -111,10 +111,80 @@ const CheckoutScreen: React.FC = () => {
         }
     };
 
+    const getProfile = async () => {
+        try {
+            const response = await axios.get(apiAccount.getProfile, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // console.log('Profile response:', response.data);
 
+            if (response.data.data.identification_card_number === "") {
+                Alert.alert(
+                    'Yêu cầu cập nhật',
+                    'Bạn chưa cập nhật thông tin tài khoản. Tiến hành cập nhật ngay!',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                route.push('/profile');
+                            },
+                        },
+                        {
+                            text: 'Hủy',
+                            style: 'cancel',
+                        },
+                    ]
+                );
+                return;
+            }
+
+        } catch (error: any) {
+            if (error.response?.data?.error_code === 10039) {
+                Alert.alert('', 'Không thể lấy thông tin tài khoản');
+            } else {
+                console.log('Error: ', error.response?.data?.message);
+            }
+        }
+    };
 
     const rentCar = async () => {
+        try {
+            const response = await axios.get(apiAccount.getProfile, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // console.log('Profile response:', response.data);
 
+            if (response.data.data.identification_card_number === "") {
+                Alert.alert(
+                    'Yêu cầu cập nhật',
+                    'Bạn chưa cập nhật thông tin tài khoản. Tiến hành cập nhật ngay!',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                route.push('/profile');
+                            },
+                        },
+                        {
+                            text: 'Hủy',
+                            style: 'cancel',
+                        },
+                    ]
+                );
+                return;
+            }
+
+        } catch (error: any) {
+            if (error.response?.data?.error_code === 10039) {
+                Alert.alert('', 'Không thể lấy thông tin tài khoản');
+            } else {
+                console.log('Error: ', error.response?.data?.message);
+            }
+        }
 
         try {
             const response = await axios.post(
@@ -218,7 +288,7 @@ const CheckoutScreen: React.FC = () => {
             Alert.alert('', 'Thời gian nhận xe  là sau 2h kể từ hiện tại');
         } else {
             setParsedStartDate(currentDate);
-            const endDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000); // End date, 22 hours from the start date
+            const endDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
             setParsedEndDate(endDate);
             console.log('selectedStartDate: ', currentDate);
             console.log('selectedEndDate: ', endDate);
@@ -227,7 +297,7 @@ const CheckoutScreen: React.FC = () => {
 
     const handleEndDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedEndDate;
-        const minEndDate = new Date(parsedStartDate.getTime() + 24 * 60 * 60 * 1000); // Minimum end date, 22 hours from the start date
+        const minEndDate = new Date(parsedStartDate.getTime() + 24 * 60 * 60 * 1000);
 
         if (currentDate < minEndDate) {
             Alert.alert('', 'Thời gian thuê xe tối thiểu là 1 ngày');

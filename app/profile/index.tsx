@@ -172,7 +172,12 @@ const ProfileScreen: React.FC = () => {
                 if (image.selectedImage) {
                     await uploadImage();
                 }
-                Alert.alert('Thành công', 'Bạn đã cập nhật thông tin thành công!');
+                Alert.alert('Thành công', 'Bạn đã cập nhật thông tin thành công!', [
+                    {
+                        text: 'OK',
+                        onPress: () => router.back(),
+                    },
+                ]);
                 getProfile();
             } else {
                 console.log('Unexpected response status:', response.status);
@@ -186,7 +191,7 @@ const ProfileScreen: React.FC = () => {
 
 
     const uploadImage = async () => {
-        const imageFormData = new FormData() as any; // Explicitly type as any
+        const imageFormData = new FormData() as any;
 
         imageFormData.append('file', {
             uri: image.selectedImage!,
