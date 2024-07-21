@@ -22,7 +22,6 @@ export default function HomeScreen() {
   const [endDate, setEndDate] = useState<Date>(new Date(startDate.getTime() + 24 * 60 * 60 * 1000)); // Start date + 1 day
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
-  const [hasAlertBeenShown, setHasAlertBeenShown] = useState(false);
   const [firstName, setFirstName] = useState()
   const [lastName, setLastName] = useState()
   const [avatarURL, setAvatarURL] = useState()
@@ -32,70 +31,17 @@ export default function HomeScreen() {
   const [bankOwner, setBankOwner] = useState<string>('');
   const [paymentUrl, setPaymentUrl] = useState<string>('');
   const [drivingLicense, setDrivingLicense] = useState([])
-  const [refreshing, setRefreshing] = useState(false);
-  const isFocused = useIsFocused();
-  const [hasAlerted, setHasAlerted] = useState(false);
   const router = useRouter()
-  const [hasProfileAlertBeenShown, setHasProfileAlertBeenShown] = useState(false);
-  const [hasPaymentAlertBeenShown, setHasPaymentAlertBeenShown] = useState(false);
-  const [hasLicenseAlertBeenShown, setHasLicenseAlertBeenShown] = useState(false);
 
-  const [skipProfileAlert, setSkipProfileAlert] = useState(false);
-  const [skipPaymentAlert, setSkipPaymentAlert] = useState(false);
-  const [skipLicenseAlert, setSkipLicenseAlert] = useState(false);
-
-  // useEffect(() => {
-  //   if (token) {
-  //     getProfile();
-  //     getPaymentInfo();
-  //     getLicenseInfo();
-  //   }
-  // }, [firstName, lastName, avatarURL, IdNum, bankNum, bankName, drivingLicense, isFocused])
 
 
 
   useEffect(() => {
     if (token) {
-
-
-
-      // const fetchData = async () => {
-      //   await setSkipProfileAlert(false);
-      //   await setSkipPaymentAlert(false);
-      //   await setSkipLicenseAlert(false);
-      //   await setHasProfileAlertBeenShown(false);
-      //   await setHasPaymentAlertBeenShown(false);
-      //   await setHasLicenseAlertBeenShown(false);
       fetchAndValidateUserInfo();
-      // };
-      // fetchData();
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (token) {
-  //     fetchData();
-  //   }
-  // }, [token, isFocused]);
-
-  // const fetchData = async () => {
-  //   try {
-  //     await getProfile();
-  //     await getPaymentInfo();
-  //     await getLicenseInfo();
-  //     // Đảm bảo rằng dữ liệu đã được cập nhật trước khi kiểm tra
-  //     console.log("Dữ liệu sau khi lấy: ", {
-  //       IdNum,
-  //       paymentUrl,
-  //       bankNum,
-  //       bankName,
-  //       drivingLicense
-  //     });
-  //     requireAddInfo();
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
 
 
 
@@ -140,116 +86,6 @@ export default function HomeScreen() {
   };
 
 
-  //get profile
-  const getProfile = async () => {
-    try {
-      const response = await axios.get(apiAccount.getProfile, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // console.log('Profile response:', response.data);
-      setFirstName(response.data.data.first_name || '');
-      setLastName(response.data.data.last_name || '');
-      setAvatarURL(response.data.data.avatar_url || null);
-      setIdNum(response.data.data.identification_card_number);
-
-      if (response.data.data.identification_card_number === "") {
-        Alert.alert(
-          'Yêu cầu cập nhật',
-          'Bạn chưa cập nhật thông tin tài khoản. Tiến hành cập nhật ngay!',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                router.push('/profile');
-              },
-            },
-            {
-              text: 'Hủy',
-              style: 'cancel',
-            },
-          ]
-        );
-        return;
-      }
-
-    } catch (error: any) {
-      if (error.response?.data?.error_code === 10039) {
-        Alert.alert('', 'Không thể lấy thông tin tài khoản');
-      } else {
-        console.log('Error: ', error.response?.data?.message);
-      }
-    }
-  };
-
-  const getPaymentInfo = async () => {
-    try {
-      const response = await axios.get(apiPayment.getPaymentInfo, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      })
-      setBankName(response.data.data.bank_name);
-      setBankNum(response.data.data.bank_number);
-      setBankOwner(response.data.data.bank_owner);
-      setPaymentUrl(response.data.data.qr_code_url);
-
-      if (!response.data.data.qr_code_url && (!response.data.data.bank_number || !response.data.data.bank_name)) {
-        Alert.alert(
-          'Yêu cầu cập nhật',
-          'Bạn chưa cập nhật thông tin thanh toán. Tiến hành cập nhật ngay!',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                router.push('/payInfo');
-              },
-            },
-            {
-              text: 'Hủy',
-              style: 'cancel',
-            },
-          ]
-        );
-        return;
-      }
-    } catch (error: any) {
-      console.log("error fetch paymeny info: ", error.response.data.message)
-    }
-  }
-
-  const getLicenseInfo = async () => {
-    try {
-      const response = await axios.get(apiDocument.getDrivingLicenseImage, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setDrivingLicense(response.data.data);
-      if (response.data.data.length === 0) {
-        Alert.alert(
-          'Yêu cầu cập nhật',
-          'Bạn chưa cập nhật giấy phép lái xe. Tiến hành cập nhật ngay!',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                router.push('/drivingLicense');
-              },
-            },
-            {
-              text: 'Hủy',
-              style: 'cancel',
-            },
-          ]
-        );
-      }
-    } catch (error: any) {
-      console.log('Fetch info failed: ', error.response?.data?.message);
-      Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải thông tin giấy phép lái xe. Vui lòng thử lại sau.');
-    }
-  };
 
   const fetchAndValidateUserInfo = async () => {
     try {
@@ -295,7 +131,6 @@ export default function HomeScreen() {
             {
               text: 'OK',
               onPress: () => {
-                setHasProfileAlertBeenShown(true);
                 router.push('/setting');
               },
             },
