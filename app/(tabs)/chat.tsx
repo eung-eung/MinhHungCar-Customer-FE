@@ -13,6 +13,7 @@ import {
     ListRenderItem,
     Image,
     TouchableWithoutFeedback,
+    SafeAreaView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthConText } from '@/store/AuthContext';
@@ -197,10 +198,12 @@ const ChatScreen: React.FC = () => {
                     <ActivityIndicator size="large" color="#aaa" />
                 </View>
             ) : (
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <SafeAreaView style={{ flex: 1 }}>
+                    {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
                     <KeyboardAvoidingView
+
                         style={styles.container}
-                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
                     >
 
@@ -236,8 +239,8 @@ const ChatScreen: React.FC = () => {
                             </TouchableOpacity>
                         </View>
                     </KeyboardAvoidingView>
-                </TouchableWithoutFeedback>
-
+                    {/* </TouchableWithoutFeedback> */}
+                </SafeAreaView>
             )}
         </>
     );
@@ -305,7 +308,7 @@ const styles = StyleSheet.create({
         padding: 10,
         marginLeft: 0,
         marginRight: 10,
-        marginBottom: 10
+        marginBottom: 5
     },
     sentMsgTxt: {
         fontSize: 15,
