@@ -83,7 +83,11 @@ export default function CardCar() {
                 <View style={styles.carItem}>
                     <Image source={{ uri: item.images[0] }} style={styles.carImage} />
                     <View style={styles.carDetails}>
-                        <Text style={styles.carName}>
+                        <Text
+                            style={styles.carName}
+                            numberOfLines={1}
+                            ellipsizeMode='tail'
+                        >
                             {item.car_model.brand} {item.car_model.model} {item.car_model.year}
                         </Text>
                         <View style={styles.carFooter}>
