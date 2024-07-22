@@ -444,7 +444,7 @@ const CheckoutScreen: React.FC = () => {
                                                 <View style={[styles.radioButton, selectedCollateral === 'motorbike' && styles.radioButtonSelected]}>
                                                     {selectedCollateral === 'motorbike' && <View style={styles.radioButtonInner} />}
                                                 </View>
-                                                <Text style={styles.radioButtonText}>Xe máy và giấy tờ xe</Text>
+                                                <Text style={styles.radioButtonText}>Giấy tờ xe máy</Text>
                                             </TouchableOpacity>
                                         </View>
                                         {/* </View>  */}

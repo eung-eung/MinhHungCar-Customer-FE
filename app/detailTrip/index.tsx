@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, Alert, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Modal, TextInput } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthConText } from '@/store/AuthContext';
 import axios from 'axios';
@@ -122,7 +122,7 @@ export default function detailTrip() {
     const [selectedPaymentIds, setSelectedPaymentIds] = useState<number[]>([]);
     const [selectAllText, setSelectAllText] = useState<string>('Chọn tất cả');
 
-
+    const [totalAmount, setTotalAmount] = useState<number>(0);
 
 
     useEffect(() => {
@@ -143,7 +143,7 @@ export default function detailTrip() {
             console.log('Fetch trip list success: ', response.data.message);
 
             const detail: Trip | undefined = trips.find((trip: Trip) => trip.id === contractIDNumber); // Explicitly type detail as Trip | undefined
-            console.log('detailTrip: ', detail);
+            // console.log('detailTrip: ', detail);
 
             if (detail) {
                 setDetailTrip(detail);
@@ -237,12 +237,20 @@ export default function detailTrip() {
     }
 
 
-    const toggleCheckbox = (paymentId: number) => {
-        setSelectedPaymentIds((prevSelected) => {
-            if (prevSelected.includes(paymentId)) {
-                return prevSelected.filter(id => id !== paymentId);
+    useEffect(() => {
+        // Calculate the total amount of selected payments
+        const total = payments
+            .filter(pay => selectedPaymentIds.includes(pay.id))
+            .reduce((sum, pay) => sum + pay.amount, 0);
+        setTotalAmount(total);
+    }, [selectedPaymentIds, payments]);
+
+    const toggleCheckbox = (id: number) => {
+        setSelectedPaymentIds(prevIds => {
+            if (prevIds.includes(id)) {
+                return prevIds.filter(paymentId => paymentId !== id);
             } else {
-                return [...prevSelected, paymentId];
+                return [...prevIds, id];
             }
         });
     };
@@ -282,6 +290,8 @@ export default function detailTrip() {
             }
         }
     };
+
+
 
 
 
@@ -377,7 +387,46 @@ export default function detailTrip() {
                             </View>
 
                             {/* Payment */}
-                            <Divider style={{ marginVertical: 15 }} />
+
+
+
+
+                            {/* Payments for non-customers */}
+                            {payments.filter(pay => pay.payer !== 'customer').length > 0 && (
+                                <>
+                                    <Divider style={{ marginTop: 25, marginBottom: 8 }} />
+                                    <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
+                                    {payments.map(pay => (
+                                        pay.payer !== 'customer' && (
+                                            <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                                <View style={styles.paymentItem}>
+                                                    <CheckBox
+                                                        checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
+                                                        onPress={() => toggleCheckbox(pay.id)}
+                                                        checkedColor={'#15891A'}
+                                                        containerStyle={styles.checkBoxContainer}
+                                                        disabled={true}
+                                                    />
+                                                    <View style={{ flex: 1 }}>
+                                                        <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
+                                                            {paymentTypeConvert[pay.payment_type]}
+                                                        </Text>
+
+                                                    </View>
+                                                    <View>
+                                                        <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
+                                                            {pay.amount.toLocaleString()} VNĐ
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        )
+                                    ))}
+                                </>
+                            )}
+
+
+                            <Divider style={{ marginTop: 20, marginBottom: 8 }} />
                             <>
 
                                 <View style={{ flex: 1 }}>
@@ -387,18 +436,20 @@ export default function detailTrip() {
                                         <>
                                             <Text style={styles.sectionTitle}>Phải thanh toán:</Text>
                                             {/* {detailTrip?.status === 'renting' && (
-                                                <TouchableOpacity onPress={toggleSelectAll} style={styles.selectAllButton}>
-                                                    <Text style={styles.selectAllText}>{selectAllText}</Text>
-                                                </TouchableOpacity>
-                                            )} */}
-                                            {payments.map(pay => (
-                                                pay.payer === 'customer' && (
+                <TouchableOpacity onPress={toggleSelectAll} style={styles.selectAllButton}>
+                    <Text style={styles.selectAllText}>{selectAllText}</Text>
+                </TouchableOpacity>
+            )} */}
+                                            {payments
+                                                .filter(pay => pay.payer === 'customer')
+                                                .sort((a, b) => a.id - b.id) // Sort by id in ascending order
+                                                .map(pay => (
                                                     <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                                         <View style={styles.paymentItem}>
                                                             <CheckBox
                                                                 checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
                                                                 onPress={() => toggleCheckbox(pay.id)}
-                                                                checkedColor={'#15891A'}
+                                                                checkedColor={pay.status === 'paid' ? '#15891A' : '#E88D67'}
                                                                 containerStyle={styles.checkBoxContainer}
                                                                 disabled={pay.status === 'paid'}
                                                             />
@@ -412,47 +463,22 @@ export default function detailTrip() {
                                                                     {pay.amount.toLocaleString()} VNĐ
                                                                 </Text>
                                                             </View>
+
                                                         </View>
                                                     </View>
-                                                )
-                                            ))}
+                                                ))}
+                                            {/* Display Total Amount */}
+                                            {detailTrip?.status === 'renting' && (
+                                                <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
+                                                    <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
+                                                        Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} VNĐ
+                                                    </Text>
+                                                </View>
+                                            )}
                                         </>
                                     )}
 
 
-                                    <Divider style={{ marginVertical: 15 }} />
-
-                                    {/* Payments for non-customers */}
-                                    {payments.filter(pay => pay.payer !== 'customer').length > 0 && (
-                                        <>
-                                            <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
-                                            {payments.map(pay => (
-                                                pay.payer !== 'customer' && (
-                                                    <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
-                                                        <View style={styles.paymentItem}>
-                                                            <CheckBox
-                                                                checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
-                                                                onPress={() => toggleCheckbox(pay.id)}
-                                                                checkedColor={'#15891A'}
-                                                                containerStyle={styles.checkBoxContainer}
-                                                                disabled={true}
-                                                            />
-                                                            <View style={{ flex: 1 }}>
-                                                                <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
-                                                                    {paymentTypeConvert[pay.payment_type]}
-                                                                </Text>
-                                                            </View>
-                                                            <View>
-                                                                <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
-                                                                    {pay.amount.toLocaleString()} VNĐ
-                                                                </Text>
-                                                            </View>
-                                                        </View>
-                                                    </View>
-                                                )
-                                            ))}
-                                        </>
-                                    )}
 
                                     {/* Payment handling button */}
                                     {selectedPaymentIds.length > 0 && detailTrip?.status === 'renting' && (
