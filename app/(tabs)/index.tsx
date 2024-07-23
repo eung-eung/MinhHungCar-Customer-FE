@@ -12,7 +12,25 @@ import { apiAccount, apiDocument, apiPayment } from '@/api/apiConfig';
 import { AuthConText } from '@/store/AuthContext';
 
 
-
+const vision = [
+  {
+    id: 1,
+    image: require('../../assets/images/safety.png'),
+    title: 'An toàn, linh hoạt và tiện lợi',
+    content: 'Nền tảng công nghệ thân thiện với người dùng, cung cấp dịch vụ cho thuê xe tự lái an toàn, linh hoạt và tiện lợi.'
+  }, {
+    id: 2,
+    image: require('../../assets/images/saving-money.png'),
+    title: 'Giá cả phải chăng',
+    content: 'Dễ dàng tìm và thuê xe phù hợp với nhu cầu với nhiều lựa chọn về loại xe và giá cả.'
+  },
+  {
+    id: 3,
+    image: require('../../assets/images/global-shipping.png'),
+    title: 'Mạng lưới đối tác trải rộng',
+    content: 'Tối ưu hóa hiệu quả sử dụng đội xe và đảm bảo lợi nhuận công bằng cho các chủ xe.'
+  }
+]
 
 export default function HomeScreen() {
   const authCtx = useContext(AuthConText);
@@ -236,6 +254,30 @@ export default function HomeScreen() {
             <CardCar />
           </View>
         </View>
+        <View style={styles.about}>
+          <Text style={styles.titleList_2}>Giới thiệu MinhHungCar</Text>
+          <View style={{ backgroundColor: '#F1F5F9', height: 190, marginBottom: 40, marginHorizontal: 25, borderRadius: 20 }}>
+            <Text style={{ padding: 25, lineHeight: 20, textAlign: 'justify', color: '#646464' }}>
+              MinhHungCar cung cấp dịch vụ cho thuê xe tự lái chất lượng cao, mang đến sự tiện lợi và riêng tư cho khách hàng. Khác với các dịch vụ công cộng, dịch vụ của MinhHungCar cho phép khách hàng tự do di chuyển, dừng chân ăn uống và vui chơi mà không bị giới hạn về thời gian hay lộ trình cố định.
+            </Text>
+          </View>
+        </View>
+        <View style={styles.about}>
+          <Text style={styles.titleList_2}>Ưu điểm của MinhHungCar</Text>
+          <ScrollView horizontal style={styles.scrollView}>
+            {vision.map((item) => (
+              <View key={item.id} style={styles.box}>
+                <View style={styles.imageContainer}>
+                  <Image source={item.image} style={styles.smallImage} />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={styles.titleText}>{item.title}</Text>
+                  <Text style={styles.descriptionText}>{item.content}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
       </View>
     </ScrollView>
   );
@@ -244,6 +286,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white'
   },
   header: {
     flexDirection: 'row',
@@ -330,14 +373,24 @@ const styles = StyleSheet.create({
   category: {
     marginTop: 350,
   },
+  about: {
+
+  },
   listCar: {
     marginTop: 5,
     flexDirection: 'row',
-    height: 400,
+    height: 360,
     marginLeft: 10
   },
   titleList: {
     marginTop: 30,
+    marginLeft: 35,
+    fontSize: 24,
+    fontWeight: 'bold'
+  },
+  titleList_2: {
+    marginTop: 0,
+    marginBottom: 20,
     marginLeft: 35,
     fontSize: 24,
     fontWeight: 'bold'
@@ -370,6 +423,45 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginRight: 10,
     width: 150
+  },
+  //vision
+  scrollView: {
+    marginBottom: 60,
+    marginHorizontal: 20
+  },
+  box: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    height: 190,
+    width: 300,
+    marginHorizontal: 10,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  imageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  smallImage: {
+    width: 90,
+    height: 90,
+  },
+  textContainer: {
+    flex: 1.5,
+    padding: 15,
+    justifyContent: 'center',
+  },
+  titleText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#333',
+  },
+  descriptionText: {
+    lineHeight: 20,
+    textAlign: 'justify',
+    color: '#646464',
   },
 });
 
