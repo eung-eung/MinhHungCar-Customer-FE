@@ -62,7 +62,11 @@ interface Payment {
     id: number;
     customer_contract_id: number;
     customer_contract: {
+        id: number;
         car_id: number;
+        collateral_type: string;
+        collateral_cash_amount: number;
+        is_return_collateral_asset: boolean;
     };
     payment_type: string;
     amount: number;
@@ -96,7 +100,11 @@ const paymentTypeConvert: Record<string, string> = {
     collateral_cash: 'Tài sản thế chấp',
     return_collateral_cash: 'Hoàn trả thế chấp',
     other: 'Khác'
+}
 
+const collateralConvert: Record<string, string> = {
+    cash: 'Tiền mặt',
+    motorbike: 'Giấy tờ xe máy',
 }
 
 export default function detailTrip() {
@@ -121,6 +129,10 @@ export default function detailTrip() {
     const [payments, setPayments] = useState<Payment[]>([]);
     const [selectedPaymentIds, setSelectedPaymentIds] = useState<number[]>([]);
     const [selectAllText, setSelectAllText] = useState<string>('Chọn tất cả');
+
+    const [collateralType, setCollateralType] = useState<string>('');
+    const [collateralAmount, setCollateralAmount] = useState<number>();
+    const [returnCollateral, setReturnCollateral] = useState(false);
 
     const [totalAmount, setTotalAmount] = useState<number>(0);
 
@@ -229,7 +241,10 @@ export default function detailTrip() {
                     Authorization: `Bearer ${token}`,
                 }
             })
-            setPayments(response.data.data)
+            setPayments(response.data.data);
+            setCollateralType(response.data.data[0].customer_contract.collateral_type);
+            setCollateralAmount(response.data.data[0].customer_contract.collateral_cash_amount);
+            setReturnCollateral(response.data.data[0].customer_contract.is_return_collateral_asset);
 
         } catch (error: any) {
             console.log('Error get contract payment: ', error.response.data.message)
@@ -392,38 +407,40 @@ export default function detailTrip() {
 
 
                             {/* Payments for non-customers */}
-                            {payments.filter(pay => pay.payer !== 'customer').length > 0 && (
-                                <>
-                                    <Divider style={{ marginTop: 25, marginBottom: 8 }} />
-                                    <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
-                                    {payments.map(pay => (
-                                        pay.payer !== 'customer' && (
-                                            <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
-                                                <View style={styles.paymentItem}>
-                                                    <CheckBox
-                                                        checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
-                                                        onPress={() => toggleCheckbox(pay.id)}
-                                                        checkedColor={'#15891A'}
-                                                        containerStyle={styles.checkBoxContainer}
-                                                        disabled={true}
-                                                    />
-                                                    <View style={{ flex: 1 }}>
-                                                        <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
-                                                            {paymentTypeConvert[pay.payment_type]}
-                                                        </Text>
+                            {/* {payments.filter(pay => pay.payer !== 'customer').length > 0 && (
+                                <> */}
+                            <Divider style={{ marginTop: 25, marginBottom: 8 }} />
+                            <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
+                            {/* {payments.map(pay => (
+                                // pay.payer !== 'customer' && ( */}
+                            <View style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                <View style={styles.paymentItem}>
+                                    <CheckBox
+                                        checked={returnCollateral === true}
+                                        // onPress={() => toggleCheckbox(pay.id)}
+                                        checkedColor={'#15891A'}
+                                        containerStyle={styles.checkBoxContainer}
+                                        disabled={true}
+                                    />
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
+                                            {collateralConvert[collateralType]}
+                                        </Text>
 
-                                                    </View>
-                                                    <View>
-                                                        <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
-                                                            {pay.amount.toLocaleString()} VNĐ
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                            </View>
-                                        )
-                                    ))}
-                                </>
-                            )}
+                                    </View>
+                                    {collateralAmount ?
+                                        <View>
+                                            <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
+                                                {collateralAmount.toLocaleString()} VNĐ
+                                            </Text>
+                                        </View>
+                                        : ''}
+                                </View>
+                            </View>
+                            {/* // )
+                            ))} */}
+                            {/* </>
+                            )} */}
 
 
                             <Divider style={{ marginTop: 20, marginBottom: 8 }} />
@@ -468,7 +485,7 @@ export default function detailTrip() {
                                                     </View>
                                                 ))}
                                             {/* Display Total Amount */}
-                                            {detailTrip?.status === 'renting' && (
+                                            {detailTrip?.status === 'renting' && totalAmount !== 0 && (
                                                 <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
                                                     <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
                                                         Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} VNĐ
@@ -483,7 +500,7 @@ export default function detailTrip() {
                                     {/* Payment handling button */}
                                     {selectedPaymentIds.length > 0 && detailTrip?.status === 'renting' && (
                                         <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
-                                            <Text style={{ color: 'white' }}>Thanh toán</Text>
+                                            <Text style={{ color: 'white', fontSize: 15, fontWeight: '700' }}>Thanh toán</Text>
                                         </TouchableOpacity>
                                     )}
                                 </View>
@@ -672,7 +689,7 @@ const styles = StyleSheet.create({
     },
     payButton: {
         backgroundColor: '#15891A',
-        padding: 10,
+        padding: 12,
         borderRadius: 12,
         // right: 5,
         marginHorizontal: 25,
