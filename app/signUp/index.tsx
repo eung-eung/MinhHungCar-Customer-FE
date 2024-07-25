@@ -23,6 +23,7 @@ interface SignUpCredentials {
 
 const SignUpScreen: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
+    const navigation = useNavigation<NavigationProp<any>>(); // Replace `any` with your navigation stack type if available
 
     const router = useRouter();
 
