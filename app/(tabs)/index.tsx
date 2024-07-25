@@ -219,6 +219,7 @@ export default function HomeScreen() {
                   display="default"
                   onChange={handleStartDateChange as any}
                   minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
+                  textColor='black'
                 />
                 {/* )} */}
               </View>
@@ -235,6 +236,7 @@ export default function HomeScreen() {
                   mode="datetime"
                   locale="vi"
                   display="default"
+
                   onChange={handleEndDateChange as any}
                   minimumDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
                 />
@@ -310,8 +312,9 @@ const styles = StyleSheet.create({
 
   content: {
     position: 'absolute',
+    width: '100%',
     top: 110,
-    left: 5,
+    marginHorizontal: 5
   },
   card: {
     marginTop: 10,

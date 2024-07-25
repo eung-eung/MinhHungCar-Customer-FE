@@ -443,7 +443,7 @@ export default function detailTrip() {
                             )} */}
 
 
-                            <Divider style={{ marginTop: 20, marginBottom: 8 }} />
+                            <Divider style={{ marginTop: 10, marginBottom: 8 }} />
                             <>
 
                                 <View style={{ flex: 1 }}>

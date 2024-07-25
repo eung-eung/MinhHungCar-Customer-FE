@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
         // justifyContent: 'flex-start',
         // alignItems: 'flex-start',
         height: 120,
-        backgroundColor: '#EBEAEA',
+        backgroundColor: '#f5f5f5',
         // borderWidth: 1,
         padding: 15,
         borderRadius: 10,
