@@ -92,29 +92,31 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin, onSubmit, credentialsInval
                         <View style={styles.form}>
                             {!isLogin && (
                                 <View style={styles.input}>
-                                    <Text style={styles.inputLabel}>Họ  <Text style={{ color: 'red' }}>*</Text></Text>
-                                    <Input
-                                        onUpdateValue={updateInputValueHandler.bind(this, 'last_name')}
-                                        placeholder='Nguyễn'
-                                        value={enteredLastName}
-                                        isInvalid={lastNameIsInvalid}
-                                    />
-                                </View>
-                            )}
-
-                            {!isLogin && (
-                                <View style={styles.input}>
-                                    <Text style={styles.inputLabel}>Tên
+                                    <Text style={styles.inputLabel}>Họ
                                         <Text style={{ color: 'red' }}>*</Text>
                                     </Text>
                                     <Input
                                         onUpdateValue={updateInputValueHandler.bind(this, 'first_name')}
                                         value={enteredFirstName}
                                         isInvalid={firstNameIsInvalid}
-                                        placeholder='Văn A'
+                                        placeholder='Nguyễn'
                                     />
                                 </View>
                             )}
+
+                            {!isLogin && (
+                                <View style={styles.input}>
+                                    <Text style={styles.inputLabel}>Tên  <Text style={{ color: 'red' }}>*</Text></Text>
+                                    <Input
+                                        onUpdateValue={updateInputValueHandler.bind(this, 'last_name')}
+                                        placeholder='Văn A'
+                                        value={enteredLastName}
+                                        isInvalid={lastNameIsInvalid}
+                                    />
+                                </View>
+                            )}
+
+
 
                             <View style={styles.input}>
                                 <Text style={styles.inputLabel}>Số điện thoại  <Text style={{ color: 'red' }}>*</Text></Text>

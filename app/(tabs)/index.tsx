@@ -197,7 +197,7 @@ export default function HomeScreen() {
             }
           </View>
           <View>
-            <Text style={styles.headerTitle}>Xin chào, {firstName} {lastName} </Text>
+            <Text style={styles.headerTitle}>Xin chào, {lastName} {firstName}  </Text>
           </View>
         </View>
         <View style={styles.content}>
