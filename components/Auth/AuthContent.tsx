@@ -49,7 +49,8 @@ const AuthContent: React.FC<AuthContentProps> = ({ isLogin, onAuthenticate }) =>
         const passwordsAreEqual = password === confirmPassword;
         const firstNameIsValid = first_name.length > 0;
         const lastNameIsValid = last_name.length > 0;
-        const phoneNumIsValid = /^[0-9]{10,15}$/.test(phone_number);
+        const phoneNumIsValid = /^[0-9]{10}$/.test(phone_number);
+
 
         if (
             !emailIsValid ||
