@@ -6,6 +6,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, ActivityIndicator, SectionList } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 interface Notification {
   id: number;
   title: string;
@@ -23,10 +24,12 @@ export default function NotificationScreen() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const isFocused = useIsFocused();
+
 
   useEffect(() => {
     getNotifications();
-  }, [page]); // Reload notifications when page changes
+  }, [page, isFocused]); // Reload notifications when page changes
 
   const getNotifications = async () => {
     try {
