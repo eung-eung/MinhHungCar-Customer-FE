@@ -128,7 +128,7 @@ export default function NotificationScreen() {
       sections={groupNotificationsByDate(notifications)}
       renderItem={renderItem}
       renderSectionHeader={renderSectionHeader}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item, index) => index.toString()}
       ListFooterComponent={renderFooter}
       onEndReached={handleLoadMore}
       onEndReachedThreshold={0.5}

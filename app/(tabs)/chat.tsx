@@ -216,7 +216,7 @@ const ChatScreen: React.FC = () => {
                             <FlatList
                                 contentContainerStyle={{ paddingBottom: 10 }}
                                 data={messages}
-                                keyExtractor={(item, index) => `${item.sender}-${index}`}
+                                keyExtractor={(item, index) => index.toString()}
                                 renderItem={renderItem}
                                 inverted
                             />

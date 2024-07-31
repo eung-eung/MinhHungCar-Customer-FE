@@ -241,7 +241,7 @@ const HistoryScreen: React.FC = () => {
                             <FlatList
                                 data={trip}
                                 renderItem={renderItem}
-                                keyExtractor={(item) => item.id.toString()}
+                                keyExtractor={(item, index) => index.toString()}
                                 ListFooterComponent={renderFooter}
                                 onEndReached={!isLoading ? getAllContract : undefined}
                                 onEndReachedThreshold={0.5}
