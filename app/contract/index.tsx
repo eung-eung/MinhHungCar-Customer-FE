@@ -90,7 +90,7 @@ export default function ContractScreen() {
                     }
                 }
             );
-            const { payment_url, qr_code_image } = response.data.data;
+            const { payment_url } = response.data.data;
             Alert.alert(
                 'Chúc mừng',
                 'Bạn đã chấp thuận hợp đồng thành công! Vui lòng thanh toán',
@@ -98,7 +98,7 @@ export default function ContractScreen() {
                     {
                         text: 'OK',
                         onPress: () =>
-                            route.replace({ pathname: '/paymentMethod', params: { payment_url, qr_code_image } })
+                            route.replace({ pathname: '/paymentMethod', params: { payment_url, contractID } })
                     }
                 ]
             );

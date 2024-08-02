@@ -93,7 +93,7 @@ export default function CardCar() {
                         <View style={styles.carFooter}>
                             <View style={styles.starContainer}>
                                 <TabBarIcon name="star" color="#F4CE14" size={24} style={{ marginRight: 6 }} />
-                                <Text style={styles.rating}>{item.rating}</Text>
+                                <Text style={styles.rating}>{item.rating.toFixed(1)}</Text>
                             </View>
                             <View style={styles.tripContainer}>
                                 <TabBarIcon name="history" color="green" size={24} style={{ marginRight: 6 }} />
@@ -102,7 +102,7 @@ export default function CardCar() {
                         </View>
                         <Divider style={{ marginTop: 15 }} />
                         <View style={{ marginTop: 10, justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                            <Text style={styles.carPrice}>{item.price.toLocaleString('en-US')} VNĐ / ngày</Text>
+                            <Text style={styles.carPrice}>{item.price.toLocaleString('en-US')} đ / ngày</Text>
                         </View>
                     </View>
                 </View>

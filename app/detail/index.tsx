@@ -210,7 +210,7 @@ export default function DetailScreen() {
                                     <View style={styles.infoRating}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
                                             <TabBarIcon name='star' color='#F4CE14' size={24} style={{ marginRight: 6 }} />
-                                            <Text style={styles.infoRatingLabel}>{carDetail.rating}</Text>
+                                            <Text style={styles.infoRatingLabel}>{carDetail.rating.toFixed(1)}</Text>
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
                                             <TabBarIcon name='history' color='green' size={24} style={{ marginRight: 6 }} />
@@ -398,7 +398,7 @@ export default function DetailScreen() {
                     <View style={styles.overlay}>
                         <View style={styles.overlayContent}>
                             <View style={styles.overlayContentTop}>
-                                <Text style={styles.overlayContentPrice}>{carDetail.price.toLocaleString('vi-VN')} VNĐ/ngày</Text>
+                                <Text style={styles.overlayContentPrice}>{carDetail.price.toLocaleString('vi-VN')} đ/ngày</Text>
                             </View>
                         </View>
 

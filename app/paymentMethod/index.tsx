@@ -12,12 +12,12 @@ const PaymentMethodScreen: React.FC<PaymentMethodScreenProps> = () => {
     const router = useRouter();
     const params = useLocalSearchParams();
 
-    const { payment_url, qr_code_image } = params;
+    const { payment_url, contractID } = params;
 
     const navigateToPayment = () => {
         router.push({
             pathname: '/payment',
-            params: { payment_url },
+            params: { payment_url, contractID },
         });
     };
 
@@ -30,7 +30,7 @@ const PaymentMethodScreen: React.FC<PaymentMethodScreenProps> = () => {
                     <TabBarIcon name='chevron-right' size={24} style={{ marginTop: 5 }} />
                     {/* <Image source={require('../assets/right.png')} style={styles.arrowIcon} /> */}
                 </TouchableOpacity>
-                {qr_code_image && typeof qr_code_image === 'string' ? (
+                {/* {qr_code_image && typeof qr_code_image === 'string' ? (
                     <>
                         <View style={styles.dividerContainer}>
                             <Divider style={styles.divider} />
@@ -43,7 +43,7 @@ const PaymentMethodScreen: React.FC<PaymentMethodScreenProps> = () => {
                             </View>
                         </View>
                     </>
-                ) : null}
+                ) : null} */}
             </View>
         </SafeAreaView>
     );

@@ -185,7 +185,7 @@ const HistoryScreen: React.FC = () => {
                         </View>
                         {/* <View style={{flexDirection: 'row', justifyContent: 'space-between'}}> */}
 
-                        <Text style={{ fontWeight: '700', color: 'red', textAlign: 'right' }}>Thành tiền: {item.rent_price.toLocaleString()} VNĐ </Text>
+                        <Text style={{ fontWeight: '700', color: 'red', textAlign: 'right' }}>Thành tiền: {item.rent_price.toLocaleString()} đ </Text>
 
                         {/* </View> */}
                         <View>

@@ -36,6 +36,7 @@ export const apiPayment = {
     //method: get
     getPaymentInfo: `${endpoint}/payment_info`,
     getBankData: `${endpoint}/banks`,
+    getCollateral: `${endpoint}/customer/customer_contract_rule`,
 
     //method: post
     uploadQR: `${endpoint}/payment_info/qr`,

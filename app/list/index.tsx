@@ -391,7 +391,7 @@ const ListProductScreen: React.FC = () => {
                                         <View style={styles.carFooter}>
                                             <View style={styles.starContainer}>
                                                 <TabBarIcon name='star' color='#F4CE14' size={24} style={{ marginRight: 6, }} />
-                                                <Text style={styles.rating}>{car.rating}</Text>
+                                                <Text style={styles.rating}>{car.rating.toFixed(1)}</Text>
                                             </View>
                                             <View style={styles.tripContainer}>
                                                 <TabBarIcon name='history' color='green' size={24} style={{ marginRight: 6, }} />
@@ -400,7 +400,7 @@ const ListProductScreen: React.FC = () => {
                                         </View>
                                         <Divider style={{ marginTop: 15 }} />
                                         <View style={{ marginTop: 10, justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                                            <Text style={styles.carPrice}>{car.price.toLocaleString('en-US')} VNĐ / ngày</Text>
+                                            <Text style={styles.carPrice}>{car.price.toLocaleString('en-US')} đ / ngày</Text>
                                         </View>
                                     </View>
                                 </TouchableOpacity>

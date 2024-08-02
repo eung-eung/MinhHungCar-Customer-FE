@@ -10,6 +10,7 @@ import AuthConTextProvider, { AuthConText } from '@/store/AuthContext';
 import ProtectedProvider from '@/components/Auth/ProtectedProvider';
 import BackButton from '@/components/BackButton';
 import NotificationHandler from '@/store/NotificationContext';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -78,6 +79,14 @@ export default function RootLayout() {
               options={{
                 headerBackTitleVisible: false,
                 title: 'Chi tiết lịch sử',
+                headerLeft: () => (
+                  <TabBarIcon
+                    name="chevron-left"
+                    size={32}
+                    color="blue"
+                    onPress={() => router.replace('/trip')} // Navigate to /trip
+                  />
+                ),
               }} />
             <Stack.Screen name="payment/index"
               options={{

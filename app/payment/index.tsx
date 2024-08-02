@@ -9,7 +9,7 @@ interface PaymentScreenProps { }
 const PaymentScreen: React.FC<PaymentScreenProps> = () => {
     const router = useRouter();
     const params = useLocalSearchParams();
-    const { payment_url } = params;
+    const { payment_url, contractID } = params;
 
     const injectedJavascript = `
         (function() {
@@ -36,7 +36,7 @@ const PaymentScreen: React.FC<PaymentScreenProps> = () => {
                 onMessage={(e) => {
                     const message = e.nativeEvent.data as string;
                     if (message === "success") {
-                        router.replace("/trip");
+                        router.replace({ pathname: '/detailTrip', params: { contractID: contractID } });
                     } else if (message === "failed") {
                         router.back();
                     }

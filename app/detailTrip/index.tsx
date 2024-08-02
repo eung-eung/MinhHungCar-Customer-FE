@@ -97,7 +97,7 @@ const statusConvert: Record<string, string> = {
 const paymentTypeConvert: Record<string, string> = {
     pre_pay: 'Phí đặt cọc',
     remaining_pay: 'Phí còn lại',
-    collateral_cash: 'Tài sản thế chấp',
+    collateral_cash: 'Tiền mặt thế chấp',
     return_collateral_cash: 'Hoàn trả thế chấp',
     other: 'Khác'
 }
@@ -114,6 +114,7 @@ export default function detailTrip() {
 
     const params = useLocalSearchParams();
     const { contractID, tripStatus } = params;
+
 
     const contractIDNumber = contractID ? Number(contractID) : 0;
 
@@ -295,7 +296,7 @@ export default function detailTrip() {
                 }
             });
 
-            router.push({ pathname: '/paymentMethod', params: { payment_url: response.data.data.payment_url } });
+            router.push({ pathname: '/paymentMethod', params: { payment_url: response.data.data.payment_url, contractID: contractIDNumber } });
             console.log('Payment successful:', response.data.message);
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.message) {
@@ -431,7 +432,7 @@ export default function detailTrip() {
                                     {collateralAmount ?
                                         <View>
                                             <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
-                                                {collateralAmount.toLocaleString()} VNĐ
+                                                {collateralAmount.toLocaleString()} đ
                                             </Text>
                                         </View>
                                         : ''}
@@ -477,31 +478,44 @@ export default function detailTrip() {
                                                             </View>
                                                             <View>
                                                                 <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
-                                                                    {pay.amount.toLocaleString()} VNĐ
+                                                                    {pay.amount.toLocaleString()} đ
                                                                 </Text>
                                                             </View>
 
                                                         </View>
+                                                        {/* <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
+                                                            <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
+                                                                Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} đ
+                                                            </Text>
+                                                        </View> */}
                                                     </View>
+
                                                 ))}
                                             {/* Display Total Amount */}
-                                            {detailTrip?.status === 'renting' && totalAmount !== 0 && (
-                                                <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
-                                                    <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
-                                                        Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} VNĐ
-                                                    </Text>
-                                                </View>
-                                            )}
+                                            {/* {detailTrip?.status === 'renting' && totalAmount !== 0 && ( 
+                                            <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
+                                                <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
+                                                    Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} đ
+                                                </Text>
+                                            </View>
+                                             )} */}
                                         </>
                                     )}
 
 
 
                                     {/* Payment handling button */}
-                                    {selectedPaymentIds.length > 0 && detailTrip?.status === 'renting' && (
-                                        <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
-                                            <Text style={{ color: 'white', fontSize: 15, fontWeight: '700' }}>Thanh toán</Text>
-                                        </TouchableOpacity>
+                                    {selectedPaymentIds.length > 0 && (
+                                        <View>
+                                            <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
+                                                <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
+                                                    Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} đ
+                                                </Text>
+                                            </View>
+                                            <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
+                                                <Text style={{ color: 'white', fontSize: 15, fontWeight: '700' }}>Thanh toán</Text>
+                                            </TouchableOpacity>
+                                        </View>
                                     )}
                                 </View>
 

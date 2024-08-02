@@ -13,6 +13,7 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import convertICTToUTC from '../config/convertICTToUTC';
 import convertUTCToICT from '../config/convertUTCToICT';
+import { Tooltip } from '@rneui/themed';
 
 
 
@@ -30,9 +31,25 @@ interface CarDetail {
     total_trip: number;
 }
 
+interface Collateral {
+    id: number;
+    insurance_percent: number;
+    prepay_percent: number;
+    collateral_cash_amount: number;
+}
 
-
-
+const ControlledTooltip: React.FC<any> = (props) => {
+    const [open, setOpen] = useState(false);
+    return (
+        <Tooltip
+            visible={open}
+            contentStyle={styles.tooltipContent}
+            onOpen={() => setOpen(true)}
+            onClose={() => setOpen(false)}
+            {...props}
+        />
+    );
+};
 
 const CheckoutScreen: React.FC = () => {
     const authCtx = useContext(AuthConText);
@@ -57,6 +74,8 @@ const CheckoutScreen: React.FC = () => {
     const [payDirect, setPayDirect] = useState(0);
     const [isLoadingPrice, setLoadingPrice] = useState(true);
 
+    const [collateralValue, setCollateralValue] = useState<Collateral>()
+
 
 
     // const isFocus = useIsFocused()
@@ -76,9 +95,9 @@ const CheckoutScreen: React.FC = () => {
         getCarDetail();
     }, [carId]);
 
-    // useEffect(() => {
-    //     getLicenseInfo()
-    // }, [isFocus])
+    useEffect(() => {
+        getCollateral()
+    }, [])
 
     useEffect(() => {
         if (parsedStartDate && parsedEndDate) {
@@ -111,43 +130,58 @@ const CheckoutScreen: React.FC = () => {
         }
     };
 
-    const getProfile = async () => {
+    const getCollateral = async () => {
         try {
-            const response = await axios.get(apiAccount.getProfile, {
+            const response = await axios.get(apiPayment.getCollateral, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            // console.log('Profile response:', response.data);
-
-            if (response.data.data.identification_card_number === "") {
-                Alert.alert(
-                    'Yêu cầu cập nhật',
-                    'Bạn chưa cập nhật thông tin tài khoản. Tiến hành cập nhật ngay!',
-                    [
-                        {
-                            text: 'OK',
-                            onPress: () => {
-                                route.push('/profile');
-                            },
-                        },
-                        {
-                            text: 'Hủy',
-                            style: 'cancel',
-                        },
-                    ]
-                );
-                return;
-            }
-
+            setCollateralValue(response.data.data);
+            console.log('Fetch getCollateral successfully: ', response.data.message)
+            setLoading(false);
         } catch (error: any) {
-            if (error.response?.data?.error_code === 10039) {
-                Alert.alert('', 'Không thể lấy thông tin tài khoản');
-            } else {
-                console.log('Error: ', error.response?.data?.message);
-            }
+            console.log("Error getCollateral: ", error.response.data.message)
         }
     };
+
+    // const getProfile = async () => {
+    //     try {
+    //         const response = await axios.get(apiAccount.getProfile, {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //         });
+    //         // console.log('Profile response:', response.data);
+
+    //         if (response.data.data.identification_card_number === "") {
+    //             Alert.alert(
+    //                 'Yêu cầu cập nhật',
+    //                 'Bạn chưa cập nhật thông tin tài khoản. Tiến hành cập nhật ngay!',
+    //                 [
+    //                     {
+    //                         text: 'OK',
+    //                         onPress: () => {
+    //                             route.push('/profile');
+    //                         },
+    //                     },
+    //                     {
+    //                         text: 'Hủy',
+    //                         style: 'cancel',
+    //                     },
+    //                 ]
+    //             );
+    //             return;
+    //         }
+
+    //     } catch (error: any) {
+    //         if (error.response?.data?.error_code === 10039) {
+    //             Alert.alert('', 'Không thể lấy thông tin tài khoản');
+    //         } else {
+    //             console.log('Error: ', error.response?.data?.message);
+    //         }
+    //     }
+    // };
 
     const rentCar = async () => {
         try {
@@ -202,7 +236,7 @@ const CheckoutScreen: React.FC = () => {
                 }
             );
             setContractID(response.data.data.id);
-            console.log("contractID-2: ", contractID)
+            // console.log("contractID-2: ", contractID)
             setLoading(false);
         } catch (error: any) {
             if (error.response?.data?.error_code === 10049) {
@@ -313,7 +347,7 @@ const CheckoutScreen: React.FC = () => {
     };
 
     const handleRent = async () => {
-        console.log("contractID-1: ", contractID)
+        // console.log("contractID-1: ", contractID)
         await rentCar();
     };
 
@@ -342,7 +376,7 @@ const CheckoutScreen: React.FC = () => {
                                             <View style={styles.cardRow}>
                                                 <View style={styles.cardRowItem}>
                                                     <TabBarIcon name='star' size={24} color='#F4CE14' style={{ marginRight: 3 }} />
-                                                    <Text style={styles.cardRowItemText}>{carDetail?.rating}</Text>
+                                                    <Text style={styles.cardRowItemText}>{carDetail?.rating.toFixed(1)}</Text>
                                                 </View>
                                                 <View style={styles.cardRowItem}>
                                                     <TabBarIcon name='history' color='green' size={24} style={{ marginRight: 3, marginLeft: 10 }} />
@@ -428,15 +462,37 @@ const CheckoutScreen: React.FC = () => {
                                         {/* <View style={styles.row}> */}
 
                                         <View style={styles.radioContainer}>
-                                            <TouchableOpacity
-                                                style={styles.radioButtonContainer}
-                                                onPress={() => handleOptionSelect('cash')}
-                                            >
-                                                <View style={[styles.radioButton, selectedCollateral === 'cash' && styles.radioButtonSelected]}>
-                                                    {selectedCollateral === 'cash' && <View style={styles.radioButtonInner} />}
-                                                </View>
-                                                <Text style={styles.radioButtonText}>Tiền mặt</Text>
-                                            </TouchableOpacity>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <TouchableOpacity
+                                                    style={styles.radioButtonContainer}
+                                                    onPress={() => handleOptionSelect('cash')}
+                                                >
+                                                    <View style={[styles.radioButton, selectedCollateral === 'cash' && styles.radioButtonSelected]}>
+                                                        {selectedCollateral === 'cash' && <View style={styles.radioButtonInner} />}
+                                                    </View>
+                                                    <Text style={styles.radioButtonText}>
+                                                        Tiền mặt
+                                                        <Text style={{ color: '#5457FB', fontWeight: '600' }}>
+                                                            {collateralValue?.collateral_cash_amount ? `:  ${collateralValue?.collateral_cash_amount.toLocaleString()} đ` : ': --- đ'}
+                                                        </Text>
+                                                    </Text>
+
+
+
+                                                </TouchableOpacity>
+                                                <ControlledTooltip
+                                                    popover={<Text style={styles.tooltipText}>Bạn cần phải thế chấp số tiền {''}
+                                                        <Text style={{ fontWeight: 'bold' }}>
+                                                            {collateralValue?.collateral_cash_amount ? collateralValue.collateral_cash_amount.toLocaleString() : '---'} đ
+                                                        </Text> {''} khi đến nhận xe tại MinhHungCar
+                                                    </Text>}
+                                                    containerStyle={styles.tooltipContainer}
+                                                    backgroundColor='#B4B1B1'
+                                                    height={60}
+                                                >
+                                                    <TabBarIcon name='progress-question' size={20} color='#C7C8CC' style={{ marginLeft: 10 }} />
+                                                </ControlledTooltip>
+                                            </View>
                                             <TouchableOpacity
                                                 style={styles.radioButtonContainer}
                                                 onPress={() => handleOptionSelect('motorbike')}
@@ -771,6 +827,21 @@ const styles = StyleSheet.create({
     radioButtonText: {
         fontSize: 14,
         color: '#000',
+    },
+
+    //toolTip
+    tooltipContainer: {
+        height: 'auto',
+        width: 200
+    },
+    tooltipContent: {
+        width: '100%',
+        height: '100%'
+    },
+    tooltipText: {
+        color: 'white',
+        flexWrap: 'wrap',
+        lineHeight: 22
     },
 });
 
