@@ -79,12 +79,13 @@ export default function RootLayout() {
               options={{
                 headerBackTitleVisible: false,
                 title: 'Chi tiết lịch sử',
+                gestureEnabled: false,
                 headerLeft: () => (
                   <TabBarIcon
                     name="chevron-left"
                     size={32}
                     color="blue"
-                    onPress={() => router.replace('/trip')} // Navigate to /trip
+                    onPress={() => router.replace('/trip')}
                   />
                 ),
               }} />

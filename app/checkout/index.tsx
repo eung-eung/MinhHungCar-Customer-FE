@@ -145,44 +145,6 @@ const CheckoutScreen: React.FC = () => {
         }
     };
 
-    // const getProfile = async () => {
-    //     try {
-    //         const response = await axios.get(apiAccount.getProfile, {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //         });
-    //         // console.log('Profile response:', response.data);
-
-    //         if (response.data.data.identification_card_number === "") {
-    //             Alert.alert(
-    //                 'Yêu cầu cập nhật',
-    //                 'Bạn chưa cập nhật thông tin tài khoản. Tiến hành cập nhật ngay!',
-    //                 [
-    //                     {
-    //                         text: 'OK',
-    //                         onPress: () => {
-    //                             route.push('/profile');
-    //                         },
-    //                     },
-    //                     {
-    //                         text: 'Hủy',
-    //                         style: 'cancel',
-    //                     },
-    //                 ]
-    //             );
-    //             return;
-    //         }
-
-    //     } catch (error: any) {
-    //         if (error.response?.data?.error_code === 10039) {
-    //             Alert.alert('', 'Không thể lấy thông tin tài khoản');
-    //         } else {
-    //             console.log('Error: ', error.response?.data?.message);
-    //         }
-    //     }
-    // };
-
     const rentCar = async () => {
         try {
             const response = await axios.get(apiAccount.getProfile, {

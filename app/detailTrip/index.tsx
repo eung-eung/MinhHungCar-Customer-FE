@@ -1,12 +1,14 @@
 import { View, Text, SafeAreaView, Alert, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Modal, TextInput } from 'react-native';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthConText } from '@/store/AuthContext';
 import axios from 'axios';
 import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Divider } from 'react-native-paper';
+import { Divider, RadioButton } from 'react-native-paper';
 import { CheckBox } from '@rneui/themed';
+import { apiPayment } from '@/api/apiConfig';
+import { useIsFocused } from '@react-navigation/native';
 
 interface Trip {
     id: number;
@@ -75,6 +77,13 @@ interface Payment {
     payer: string;
 }
 
+interface Collateral {
+    id: number;
+    insurance_percent: number;
+    prepay_percent: number;
+    collateral_cash_amount: number;
+}
+
 const getStatusStyles = (status: string) => {
     switch (status) {
         case 'ordered':
@@ -124,7 +133,6 @@ export default function detailTrip() {
     const [content, setContent] = useState<string>('');
     const [rating, setRating] = useState<number>();
 
-    const [isLoading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
 
     const [payments, setPayments] = useState<Payment[]>([]);
@@ -136,27 +144,69 @@ export default function detailTrip() {
     const [returnCollateral, setReturnCollateral] = useState(false);
 
     const [totalAmount, setTotalAmount] = useState<number>(0);
+    const [collateralValue, setCollateralValue] = useState<Collateral>();
+    const isFocus = useIsFocused()
 
+    const [isLoading, setLoading] = useState(true);
+    const [isDetailTripLoading, setDetailTripLoading] = useState(true);
+    const [isContractPaymentLoading, setContractPaymentLoading] = useState(true);
+    const [isCollateralLoading, setCollateralLoading] = useState(true);
+    const [dataLoaded, setDataLoaded] = useState(false);
 
-    useEffect(() => {
-        getDetailTrip();
-        getContractPayment();
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchData = async () => {
+                try {
+                    await Promise.all([
+                        getDetailTrip(),
+                        getContractPayment(),
+                        getCollateral(),
+                    ]);
+                } catch (error) {
+                    // Handle error if needed
+                } finally {
+                    // Ensure loading state is set to false after all data is fetched
+                    setDataLoaded(true);
+                    setLoading(false);
+                }
+            };
 
-    //Get detail trip
-    const getDetailTrip = async () => {
+            fetchData();
+        }, [isFocus])
+    );
+
+    const getCollateral = async () => {
+        setCollateralLoading(true);
         try {
-            const response = await axios.get(`https://minhhungcar.xyz/customer/activities`, {
+            const response = await axios.get(apiPayment.getCollateral, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setCollateralValue(response.data.data);
+            console.log('Fetch getCollateral successfully: ', response.data.data);
+        } catch (error: any) {
+            console.log('Error getCollateral: ', error.response?.data?.message);
+        } finally {
+            setCollateralLoading(false);
+        }
+    };
+
+    const getDetailTrip = async () => {
+        setDetailTripLoading(true);
+        try {
+            const response = await axios.get('https://minhhungcar.xyz/customer/activities', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            const trips: Trip[] = response.data.data; // Ensure trips is typed as an array of Trip objects
+            const trips: Trip[] = response.data.data;
             console.log('Fetch trip list success: ', response.data.message);
 
-            const detail: Trip | undefined = trips.find((trip: Trip) => trip.id === contractIDNumber); // Explicitly type detail as Trip | undefined
-            // console.log('detailTrip: ', detail);
+            const detail: Trip | undefined = trips.find(
+                (trip: Trip) => trip.id === contractIDNumber
+            );
 
             if (detail) {
                 setDetailTrip(detail);
@@ -165,10 +215,8 @@ export default function detailTrip() {
                     setContent(detail.feedback_content);
                 }
                 if (detail.feedback_rating !== null) {
-                    setRating(detail.feedback_rating)
+                    setRating(detail.feedback_rating);
                 }
-
-
 
                 const carResponse = await axios.get(`https://minhhungcar.xyz/car/${detail.car_id}`, {
                     headers: {
@@ -177,12 +225,12 @@ export default function detailTrip() {
                 });
 
                 const detailCar = carResponse.data.data;
-                console.log('detailCar: ', response.data.message);
+                console.log('detailCar: ', carResponse.data.message);
                 setCarDetail(detailCar);
             }
         } catch (error: any) {
-            if (error.response.data.error_code === 10066) {
-                console.log('Error get activities: ', error.response.data.message);
+            if (error.response?.data?.error_code === 10066) {
+                console.log('Error get activities: ', error.response?.data?.message);
                 Alert.alert('', 'Không thể xem chi tiết chuyến đi lúc này', [
                     {
                         text: 'OK',
@@ -191,10 +239,31 @@ export default function detailTrip() {
                 ]);
             } else {
                 Alert.alert('', 'Có vài lỗi xảy ra. Vui lòng thử lại sau!');
-                console.log('Error get activities: ', error.response.data.message);
+                console.log('Error get activities: ', error.response?.data?.message);
             }
         } finally {
-            setLoading(false);
+            setDetailTripLoading(false);
+        }
+    };
+
+    const getContractPayment = async () => {
+        setContractPaymentLoading(true);
+        try {
+            const response = await axios.get(
+                `https://minhhungcar.xyz/customer/customer_payments?customer_contract_id=${contractIDNumber}&offset=0&limit=100`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            setPayments(response.data.data);
+            setCollateralType(response.data.data[0].customer_contract.collateral_type);
+            setReturnCollateral(response.data.data[0].customer_contract.is_return_collateral_asset);
+        } catch (error: any) {
+            console.log('Error get contract payment: ', error.response?.data?.message);
+        } finally {
+            setContractPaymentLoading(false);
         }
     };
 
@@ -234,23 +303,7 @@ export default function detailTrip() {
     };
 
 
-    //get contract payments 
-    const getContractPayment = async () => {
-        try {
-            const response = await axios.get(`https://minhhungcar.xyz/customer/customer_payments?customer_contract_id=${contractID}&offset=0&limit=100`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            setPayments(response.data.data);
-            setCollateralType(response.data.data[0].customer_contract.collateral_type);
-            setCollateralAmount(response.data.data[0].customer_contract.collateral_cash_amount);
-            setReturnCollateral(response.data.data[0].customer_contract.is_return_collateral_asset);
 
-        } catch (error: any) {
-            console.log('Error get contract payment: ', error.response.data.message)
-        }
-    }
 
 
     useEffect(() => {
@@ -270,19 +323,19 @@ export default function detailTrip() {
             }
         });
     };
-    const toggleSelectAll = () => {
-        const customerPaymentIds = payments
-            .filter(pay => pay.payer === 'customer' && pay.status === 'pending')
-            .map(pay => pay.id);
+    // const toggleSelectAll = () => {
+    //     const customerPaymentIds = payments
+    //         .filter(pay => pay.payer === 'customer' && pay.status === 'pending')
+    //         .map(pay => pay.id);
 
-        if (selectedPaymentIds.length === 0) {
-            setSelectedPaymentIds(customerPaymentIds);
-            setSelectAllText('Bỏ chọn tất cả');
-        } else {
-            setSelectedPaymentIds([]);
-            setSelectAllText('Chọn tất cả');
-        }
-    };
+    //     if (selectedPaymentIds.length === 0) {
+    //         setSelectedPaymentIds(customerPaymentIds);
+    //         setSelectAllText('Bỏ chọn tất cả');
+    //     } else {
+    //         setSelectedPaymentIds([]);
+    //         setSelectAllText('Chọn tất cả');
+    //     }
+    // };
 
 
     const handlePayment = async () => {
@@ -339,7 +392,7 @@ export default function detailTrip() {
 
     return (
         <GestureHandlerRootView>
-            {isLoading ? (
+            {(isLoading || isDetailTripLoading || isContractPaymentLoading || isCollateralLoading) ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" />
                 </View>
@@ -361,6 +414,15 @@ export default function detailTrip() {
                                     <View style={styles.cardBody}>
                                         <Text style={styles.cardTag}>Biển số xe: {carDetail?.license_plate}</Text>
                                         <Text style={styles.cardTitle}>{carDetail?.car_model.brand + ' ' + carDetail?.car_model.model + ' ' + carDetail?.car_model.year}</Text>
+                                        <View style={{ marginBottom: 10, marginTop: 2 }}>
+                                            <Text style={{ color: '#686D76' }}>Loại thế chấp: </Text>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                                                <View style={styles.radioButtonOuter}>
+                                                    <View style={styles.radioButtonInner} />
+                                                </View>
+                                                <Text style={{ fontWeight: '600' }}>{collateralConvert[collateralType]}</Text>
+                                            </View>
+                                        </View>
                                         <View style={styles.cardRow}>
                                             <View style={getStatusStyles(detailTrip?.status || '')}>
                                                 <Text style={{ color: getStatusStyles(detailTrip?.status || '').color, fontWeight: 'bold' }}>
@@ -368,10 +430,11 @@ export default function detailTrip() {
                                                 </Text>
                                             </View>
                                         </View>
+
                                     </View>
                                 </View>
                             </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', marginHorizontal: 25 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', marginHorizontal: 25, marginBottom: 20 }}>
                                 <TouchableOpacity
                                     onPress={() => {
                                         router.push({ pathname: '/contract', params: { contractID } });
@@ -410,34 +473,38 @@ export default function detailTrip() {
                             {/* Payments for non-customers */}
                             {/* {payments.filter(pay => pay.payer !== 'customer').length > 0 && (
                                 <> */}
-                            <Divider style={{ marginTop: 25, marginBottom: 8 }} />
-                            <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
-                            {/* {payments.map(pay => (
+                            {returnCollateral === true ?
+                                <View>
+                                    <Divider style={{ marginTop: 22, marginBottom: 8 }} />
+                                    <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
+                                    {/* {payments.map(pay => (
                                 // pay.payer !== 'customer' && ( */}
-                            <View style={{ marginHorizontal: 25, marginVertical: 12 }}>
-                                <View style={styles.paymentItem}>
-                                    <CheckBox
-                                        checked={returnCollateral === true}
-                                        // onPress={() => toggleCheckbox(pay.id)}
-                                        checkedColor={'#15891A'}
-                                        containerStyle={styles.checkBoxContainer}
-                                        disabled={true}
-                                    />
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
-                                            {collateralConvert[collateralType]}
-                                        </Text>
+                                    <View style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                        <View style={styles.paymentItem}>
+                                            <CheckBox
+                                                checked={returnCollateral === true}
+                                                // onPress={() => toggleCheckbox(pay.id)}
+                                                checkedColor={'#15891A'}
+                                                containerStyle={styles.checkBoxContainer}
+                                                disabled={true}
+                                            />
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
+                                                    {collateralConvert[collateralType]}
+                                                </Text>
 
-                                    </View>
-                                    {collateralAmount ?
-                                        <View>
-                                            <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
-                                                {collateralAmount.toLocaleString()} đ
-                                            </Text>
+                                            </View>
+                                            {(collateralValue && collateralValue.collateral_cash_amount !== 0) ?
+                                                <View>
+                                                    <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
+                                                        {collateralValue.collateral_cash_amount.toLocaleString()} đ
+                                                    </Text>
+                                                </View>
+                                                : ''}
                                         </View>
-                                        : ''}
+                                    </View>
                                 </View>
-                            </View>
+                                : ""}
                             {/* // )
                             ))} */}
                             {/* </>
@@ -453,11 +520,7 @@ export default function detailTrip() {
                                     {payments.filter(pay => pay.payer === 'customer').length > 0 && (
                                         <>
                                             <Text style={styles.sectionTitle}>Phải thanh toán:</Text>
-                                            {/* {detailTrip?.status === 'renting' && (
-                <TouchableOpacity onPress={toggleSelectAll} style={styles.selectAllButton}>
-                    <Text style={styles.selectAllText}>{selectAllText}</Text>
-                </TouchableOpacity>
-            )} */}
+
                                             {payments
                                                 .filter(pay => pay.payer === 'customer')
                                                 .sort((a, b) => a.id - b.id) // Sort by id in ascending order
@@ -802,5 +865,21 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         marginLeft: 20,
         color: '#A9A9A9'
+    },
+    radioButtonOuter: {
+        height: 18,
+        width: 18,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: 'black',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 10,
+    },
+    radioButtonInner: {
+        height: 10,
+        width: 10,
+        borderRadius: 6,
+        backgroundColor: 'black',
     },
 });
