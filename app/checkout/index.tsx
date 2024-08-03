@@ -286,8 +286,8 @@ const CheckoutScreen: React.FC = () => {
             setParsedStartDate(currentDate);
             const endDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
             setParsedEndDate(endDate);
-            console.log('selectedStartDate: ', currentDate);
-            console.log('selectedEndDate: ', endDate);
+            // console.log('selectedStartDate: ', currentDate);
+            // console.log('selectedEndDate: ', endDate);
         }
     };
 

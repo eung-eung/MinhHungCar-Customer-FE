@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { View, Text, StatusBar, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StatusBar, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Alert, RefreshControl } from 'react-native';
 import { Divider } from 'react-native-paper';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
@@ -86,6 +86,8 @@ const HistoryScreen: React.FC = () => {
     const [page, setPage] = useState<number>(1);
     const isFocused = useIsFocused();
 
+    const [refreshing, setRefreshing] = useState<boolean>(false);
+
     useEffect(() => {
         getAllContract();
     }, [activeTab, page, isFocused]);
@@ -100,7 +102,9 @@ const HistoryScreen: React.FC = () => {
         const status = [activeTab];
 
         try {
-            const response = await axios.get(`https://minhhungcar.xyz/customer/contracts?offset=${(page - 1) * 2}&limit=100&contract_status=${status.join(',')}`, {
+            const response = await axios.get(
+                `https://minhhungcar.xyz/customer/contracts?offset=${(page - 1) * 2
+                }&limit=100&contract_status=${status.join(',')}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -108,13 +112,21 @@ const HistoryScreen: React.FC = () => {
             const contracts: Trip[] = response.data.data;
             setTrip(contracts);
             setIsLoading(false);
+            setRefreshing(false);
         } catch (error: any) {
+            setRefreshing(false);
             if (error.response?.data?.error_code === 10034) {
                 Alert.alert('Lỗi', 'Không thể lấy danh sách hợp đồng');
             } else {
                 console.log('Error: ', error.response?.data?.message);
             }
         }
+    };
+
+    const onRefresh = () => {
+        setRefreshing(true); // Start the refreshing animation
+        setPage(1); // Optionally reset the page number
+        getAllContract(); // Fetch new data
     };
 
 
@@ -245,7 +257,13 @@ const HistoryScreen: React.FC = () => {
                                 ListFooterComponent={renderFooter}
                                 onEndReached={!isLoading ? getAllContract : undefined}
                                 onEndReachedThreshold={0.5}
-                                contentContainerStyle={styles.container} // Replace listContainer with container
+                                contentContainerStyle={styles.container}
+                                refreshControl={
+                                    <RefreshControl
+                                        refreshing={refreshing}
+                                        onRefresh={onRefresh}
+                                    />
+                                }
                             />
                         ) : (
                             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 250 }}>

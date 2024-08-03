@@ -3,7 +3,7 @@ import { AuthConText } from '@/store/AuthContext';
 import axios from 'axios';
 import { router } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, ActivityIndicator, SectionList } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, ActivityIndicator, SectionList, RefreshControl } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
@@ -25,6 +25,7 @@ export default function NotificationScreen() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const isFocused = useIsFocused();
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
 
   useEffect(() => {
@@ -48,12 +49,20 @@ export default function NotificationScreen() {
         page === 1 ? newNotifications : [...prevNotifications, ...newNotifications]
       );
       setHasMore(newNotifications.length === PAGE_SIZE);
+      setRefreshing(false);
       console.log("Fetch notification successfully: ", response.data.message);
     } catch (error: any) {
+      setRefreshing(false);
       console.log("Fetch notification failed: ", error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true); // Start the refreshing animation
+    setPage(1); // Optionally reset the page number
+    getNotifications(); // Fetch new data
   };
 
   const formatDateTime = (dateTimeString: string) => {
@@ -139,6 +148,12 @@ export default function NotificationScreen() {
           <Text style={styles.emptyMessage}>Hiện tại chưa có thông báo nào</Text>
         </View>
       )}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+        />
+      }
     />
   );
 }

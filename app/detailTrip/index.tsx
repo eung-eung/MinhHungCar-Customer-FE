@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, Alert, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Modal, TextInput } from 'react-native';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthConText } from '@/store/AuthContext';
 import axios from 'axios';
@@ -9,6 +9,7 @@ import { Divider, RadioButton } from 'react-native-paper';
 import { CheckBox } from '@rneui/themed';
 import { apiPayment } from '@/api/apiConfig';
 import { useIsFocused } from '@react-navigation/native';
+import { RefreshControl } from 'react-native';
 
 interface Trip {
     id: number;
@@ -72,6 +73,7 @@ interface Payment {
     };
     payment_type: string;
     amount: number;
+    note: string;
     status: string;
     payment_url: string;
     payer: string;
@@ -124,7 +126,6 @@ export default function detailTrip() {
     const params = useLocalSearchParams();
     const { contractID, tripStatus } = params;
 
-
     const contractIDNumber = contractID ? Number(contractID) : 0;
 
     const [detailTrip, setDetailTrip] = useState<Trip | undefined>();
@@ -152,6 +153,8 @@ export default function detailTrip() {
     const [isContractPaymentLoading, setContractPaymentLoading] = useState(true);
     const [isCollateralLoading, setCollateralLoading] = useState(true);
     const [dataLoaded, setDataLoaded] = useState(false);
+
+    const [refreshing, setRefreshing] = useState(false);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -281,8 +284,14 @@ export default function detailTrip() {
             });
 
             console.log('Give feedback successfully');
-            Alert.alert('', 'Đánh giá của bạn đã được gửi');
+            Alert.alert('', 'Đánh giá của bạn đã được gửi', [
+                {
+                    text: 'OK',
+                    onPress: () => onRefresh(),
+                },
+            ]);
             setModalVisible(false);
+
         } catch (error: any) {
             if (error.response.data.error_code === 10067) {
                 console.log('Error: ', error.response.data.message);
@@ -323,19 +332,6 @@ export default function detailTrip() {
             }
         });
     };
-    // const toggleSelectAll = () => {
-    //     const customerPaymentIds = payments
-    //         .filter(pay => pay.payer === 'customer' && pay.status === 'pending')
-    //         .map(pay => pay.id);
-
-    //     if (selectedPaymentIds.length === 0) {
-    //         setSelectedPaymentIds(customerPaymentIds);
-    //         setSelectAllText('Bỏ chọn tất cả');
-    //     } else {
-    //         setSelectedPaymentIds([]);
-    //         setSelectAllText('Chọn tất cả');
-    //     }
-    // };
 
 
     const handlePayment = async () => {
@@ -361,7 +357,15 @@ export default function detailTrip() {
     };
 
 
-
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([
+            getDetailTrip(),
+            getContractPayment(),
+            getCollateral(),
+        ]);
+        setRefreshing(false);
+    }, []);
 
 
     const renderProgressLine = () => {
@@ -398,7 +402,11 @@ export default function detailTrip() {
                 </View>
             ) : (
                 <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
-                    <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+                    <ScrollView contentContainerStyle={{ paddingBottom: 100 }}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        }
+                    >
                         <View style={styles.container}>
                             {/* Progress line */}
                             {renderProgressLine()}
@@ -543,22 +551,16 @@ export default function detailTrip() {
                                                             </View>
 
                                                         </View>
-                                                        {/* <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
-                                                            <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
-                                                                Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} đ
-                                                            </Text>
-                                                        </View> */}
+                                                        {pay.note ?
+                                                            <View style={{ marginTop: 2, marginLeft: 55 }}>
+                                                                <Text style={{ fontSize: 13, color: '#A9A9A9', fontWeight: '600' }}>Ghi chú: {pay.note}</Text>
+                                                            </View>
+                                                            : ""}
+
                                                     </View>
 
                                                 ))}
-                                            {/* Display Total Amount */}
-                                            {/* {detailTrip?.status === 'renting' && totalAmount !== 0 && ( 
-                                            <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
-                                                <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
-                                                    Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} đ
-                                                </Text>
-                                            </View>
-                                             )} */}
+
                                         </>
                                     )}
 

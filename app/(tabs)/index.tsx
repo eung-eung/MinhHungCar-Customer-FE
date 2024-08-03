@@ -75,8 +75,8 @@ export default function HomeScreen() {
       // Automatically set end date to 22 hours after start date
       const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
       setEndDate(nextDay);
-      console.log('selectedStartDate: ', currentDate);
-      console.log('selectedEndDate: ', nextDay);
+      // console.log('selectedStartDate: ', currentDate);
+      // console.log('selectedEndDate: ', nextDay);
     } else {
       Alert.alert('', 'Thời gian nhận xe là sau 2 tiếng kể từ hiện tại');
     }
