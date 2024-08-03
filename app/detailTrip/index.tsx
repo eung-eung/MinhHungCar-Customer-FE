@@ -414,7 +414,7 @@ export default function detailTrip() {
                                     <View style={styles.cardBody}>
                                         <Text style={styles.cardTag}>Biển số xe: {carDetail?.license_plate}</Text>
                                         <Text style={styles.cardTitle}>{carDetail?.car_model.brand + ' ' + carDetail?.car_model.model + ' ' + carDetail?.car_model.year}</Text>
-                                        <View style={{ marginBottom: 10, marginTop: 2 }}>
+                                        <View style={{ marginBottom: 10, marginTop: 5 }}>
                                             <Text style={{ color: '#686D76' }}>Loại thế chấp: </Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
                                                 <View style={styles.radioButtonOuter}>
@@ -471,14 +471,13 @@ export default function detailTrip() {
 
 
                             {/* Payments for non-customers */}
-                            {/* {payments.filter(pay => pay.payer !== 'customer').length > 0 && (
-                                <> */}
-                            {returnCollateral === true ?
-                                <View>
+                            {payments.filter(pay => pay.payer === 'admin' || collateralType === 'motorbike').length > 0 && (
+                                <>
                                     <Divider style={{ marginTop: 22, marginBottom: 8 }} />
                                     <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
-                                    {/* {payments.map(pay => (
-                                // pay.payer !== 'customer' && ( */}
+                                    {/* {payments
+                                        .filter(pay => pay.payer === 'admin' || collateralType === 'motorbike')
+                                        .map((pay, index) => ( */}
                                     <View style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                         <View style={styles.paymentItem}>
                                             <CheckBox
@@ -494,7 +493,7 @@ export default function detailTrip() {
                                                 </Text>
 
                                             </View>
-                                            {(collateralValue && collateralValue.collateral_cash_amount !== 0) ?
+                                            {(collateralValue && collateralValue.collateral_cash_amount !== 0 && collateralType === 'cash') ?
                                                 <View>
                                                     <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
                                                         {collateralValue.collateral_cash_amount.toLocaleString()} đ
@@ -503,12 +502,10 @@ export default function detailTrip() {
                                                 : ''}
                                         </View>
                                     </View>
-                                </View>
-                                : ""}
-                            {/* // )
-                            ))} */}
-                            {/* </>
-                            )} */}
+
+                                    {/* ))} */}
+                                </>
+                            )}
 
 
                             <Divider style={{ marginTop: 10, marginBottom: 8 }} />
@@ -523,7 +520,7 @@ export default function detailTrip() {
 
                                             {payments
                                                 .filter(pay => pay.payer === 'customer')
-                                                .sort((a, b) => a.id - b.id) // Sort by id in ascending order
+                                                .sort((a, b) => a.id - b.id)
                                                 .map(pay => (
                                                     <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                                         <View style={styles.paymentItem}>
