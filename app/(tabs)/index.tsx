@@ -4,12 +4,13 @@ import { Card } from '@rneui/themed';
 import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
 import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/native';
 import CardCar from '@/components/CardCar';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import axios from 'axios';
 import { apiAccount, apiDocument, apiPayment } from '@/api/apiConfig';
 import { AuthConText } from '@/store/AuthContext';
+import { RefreshControl } from 'react-native';
 
 
 const vision = [
@@ -51,6 +52,9 @@ export default function HomeScreen() {
   const [drivingLicense, setDrivingLicense] = useState([])
   const router = useRouter()
 
+  const [refreshing, setRefreshing] = useState(false);
+
+
 
 
 
@@ -60,7 +64,13 @@ export default function HomeScreen() {
     }
   }, []);
 
-
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([
+      fetchAndValidateUserInfo()
+    ]);
+    setRefreshing(false);
+  }, []);
 
 
   const handleStartDateChange = (event: Event, selectedDate?: Date) => {
@@ -172,7 +182,9 @@ export default function HomeScreen() {
 
 
   return (
-    <ScrollView>
+    <ScrollView refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
       <View style={styles.container}>
         <Svg height="100%" width="100%" style={styles.background}>
           <Defs>

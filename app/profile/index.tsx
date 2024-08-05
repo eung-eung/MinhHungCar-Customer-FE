@@ -46,6 +46,9 @@ const ProfileScreen: React.FC = () => {
         avatarURL: null,
     });
 
+    const [isEditable, setIsEditable] = useState(false);
+
+
     useEffect(() => {
         getProfile();
     }, []);
@@ -283,10 +286,10 @@ const ProfileScreen: React.FC = () => {
                                         onChangeText={(phone) => setPhoneNum(phone)}
                                         placeholder="0987654321"
                                         placeholderTextColor="#6b7280"
-                                        style={styles.inputControl}
+                                        style={[styles.inputControl, isEditable ? styles.editableInput : styles.nonEditableInput]}
                                         keyboardType="numeric"
                                         value={phoneNum}
-                                        editable={false}
+                                        editable={isEditable}
                                     />
                                 </View>
                                 <View style={styles.input}>
@@ -532,6 +535,12 @@ const styles = StyleSheet.create({
         lineHeight: 24,
         fontWeight: '600',
         flex: 1,
+    },
+    editableInput: {
+        color: '#000',
+    },
+    nonEditableInput: {
+        color: '#B4B4B8',
     },
 });
 
