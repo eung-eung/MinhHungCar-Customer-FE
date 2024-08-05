@@ -10,6 +10,7 @@ import { CheckBox } from '@rneui/themed';
 import { apiPayment } from '@/api/apiConfig';
 import { useIsFocused } from '@react-navigation/native';
 import { RefreshControl } from 'react-native';
+import LoadingOverlay from '@/components/LoadingOverlay';
 
 interface Trip {
     id: number;
@@ -398,7 +399,7 @@ export default function detailTrip() {
         <GestureHandlerRootView>
             {(isLoading || isDetailTripLoading || isContractPaymentLoading || isCollateralLoading) ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" />
+                    <LoadingOverlay message="" />
                 </View>
             ) : (
                 <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
