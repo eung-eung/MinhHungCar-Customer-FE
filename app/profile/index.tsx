@@ -31,7 +31,7 @@ const ProfileScreen: React.FC = () => {
     const [lastName, setLastName] = useState<string>('');
     const [phoneNum, setPhoneNum] = useState<string>('');
     const [IDCard, setIDCard] = useState<string>('');
-    const [driveLicense, setDriveLicense] = useState<string>('');
+    // const [driveLicense, setDriveLicense] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [day, setDay] = useState<string>('');
     const [month, setMonth] = useState<string>('');
@@ -68,7 +68,7 @@ const ProfileScreen: React.FC = () => {
             setPhoneNum(response.data.data.phone_number || '');
             setIDCard(response.data.data.identification_card_number || '');
             setEmail(response.data.data.email || '');
-            setDriveLicense(response.data.data.driving_license || '');
+            // setDriveLicense(response.data.data.driving_license || '');
             setAvatarURL(response.data.data.avatar_url || null);
 
             // console.log('Fetch profile successfully ', response.data.data);
@@ -156,7 +156,7 @@ const ProfileScreen: React.FC = () => {
                 phone_number: phoneNum,
                 identification_card_number: IDCard,
                 date_of_birth: formattedDob,
-                driving_license: driveLicense,
+                // driving_license: driveLicense,
                 email: email
             };
 
@@ -180,11 +180,11 @@ const ProfileScreen: React.FC = () => {
                 ]);
                 getProfile();
             } else {
-                console.log('Unexpected response status:', response.status);
+                console.log('Unexpected response status:', response.data.message);
                 Alert.alert('Lỗi', 'Đã xảy ra lỗi khi cập nhật thông tin.');
             }
-        } catch (error) {
-            console.log('Error updating profile:', error);
+        } catch (error: any) {
+            console.log('Error updating profile:', error.response.data.message);
             Alert.alert('Lỗi', 'Đã xảy ra lỗi khi cập nhật thông tin.');
         }
     };
