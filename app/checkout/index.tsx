@@ -221,7 +221,7 @@ const CheckoutScreen: React.FC = () => {
                         },
                     ]
                 );
-            } else {
+            } else if (error.response?.data?.error_code === 10077) {
                 Alert.alert(
                     'Yêu cầu cập nhật',
                     'Bạn chưa cập nhật giấy phép lái xe. Tiến hành cập nhật ngay!',
