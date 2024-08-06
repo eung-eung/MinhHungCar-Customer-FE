@@ -210,7 +210,7 @@ export default function DetailScreen() {
                                     <View style={styles.infoRating}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
                                             <TabBarIcon name='star' color='#F4CE14' size={24} style={{ marginRight: 6 }} />
-                                            <Text style={styles.infoRatingLabel}>{carDetail.rating.toFixed(1)}</Text>
+                                            <Text style={styles.infoRatingLabel}>{carDetail.total_trip !== 0 ? carDetail.rating.toFixed(1) : '0.0'}</Text>
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
                                             <TabBarIcon name='history' color='green' size={24} style={{ marginRight: 6 }} />
@@ -290,7 +290,7 @@ export default function DetailScreen() {
                                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10, marginLeft: 8 }}>
                                         {/* <Image style={{ width: 35, height: 35 }} source={require('../assets/money.png')} /> */}
                                         <TabBarIcon name='currency-usd' size={35} />
-                                        <Text style={styles.requireContent}>Tài sản thế chấp tiền mặt(15 triệu hoặc theo thỏa thuận) hoặc xe máy có giá trị tương đương 15 triệu trở lên (xe máy và cavet gốc) trước khi nhận xe.</Text>
+                                        <Text style={styles.requireContent}>Tài sản thế chấp tiền mặt hoặc giấy tờ xe máy có giá trị tương đương trước khi nhận xe.</Text>
                                     </View>
                                 </View>
 
@@ -368,7 +368,7 @@ export default function DetailScreen() {
                                                     }
                                                     <View style={styles.commentTextContainer}>
                                                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                                            <Text style={styles.commentAuthor}>{item.customer.first_name + ' ' + item.customer.last_name}</Text>
+                                                            <Text style={styles.commentAuthor}>{item.customer.last_name + ' ' + item.customer.first_name}</Text>
                                                             <Text style={styles.commentDate}>{formatDate(item.created_at)}</Text>
                                                         </View>
                                                         <View style={styles.commentRating}>

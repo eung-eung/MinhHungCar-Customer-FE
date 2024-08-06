@@ -338,7 +338,7 @@ const CheckoutScreen: React.FC = () => {
                                             <View style={styles.cardRow}>
                                                 <View style={styles.cardRowItem}>
                                                     <TabBarIcon name='star' size={24} color='#F4CE14' style={{ marginRight: 3 }} />
-                                                    <Text style={styles.cardRowItemText}>{carDetail?.rating.toFixed(1)}</Text>
+                                                    <Text style={styles.cardRowItemText}>{carDetail?.total_trip !== 0 ? carDetail?.rating.toFixed(1) : '0.0'}</Text>
                                                 </View>
                                                 <View style={styles.cardRowItem}>
                                                     <TabBarIcon name='history' color='green' size={24} style={{ marginRight: 3, marginLeft: 10 }} />
@@ -482,7 +482,7 @@ const CheckoutScreen: React.FC = () => {
                                                 </View>
                                                 <View style={styles.priceDetail}>
                                                     <Text style={styles.priceTitle}>Bảo hiểm thuê xe</Text>
-                                                    <Text style={styles.priceText}>{insurancePricePerDay !== undefined ? rentPricePerDay.toLocaleString() : 'Loading...'} đ/ngày</Text>
+                                                    <Text style={styles.priceText}>{insurancePricePerDay !== undefined ? insurancePricePerDay.toLocaleString() : 'Loading...'} đ/ngày</Text>
                                                 </View>
                                                 <Divider style={styles.divider} />
                                                 <View style={styles.priceDetail}>
@@ -510,7 +510,7 @@ const CheckoutScreen: React.FC = () => {
                                             </View>
                                             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10, marginLeft: 8 }}>
                                                 <TabBarIcon name='currency-usd' size={35} />
-                                                <Text style={styles.requireContent}>Tài sản thế chấp tiền mặt(15 triệu hoặc theo thỏa thuận) hoặc xe máy có giá trị tương đương 15 triệu trở lên (xe máy và cavet gốc) trước khi nhận xe.</Text>
+                                                <Text style={styles.requireContent}>Tài sản thế chấp tiền mặt hoặc giấy tờ xe máy có giá trị tương đương trước khi nhận xe.</Text>
                                             </View>
                                         </View>
                                     </View>

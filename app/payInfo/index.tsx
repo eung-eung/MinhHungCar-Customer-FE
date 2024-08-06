@@ -88,7 +88,7 @@ const PaymentInformationScreen: React.FC = () => {
 
             if (response.data.data && response.data.data.banks) {
                 setBanks(response.data.data.banks);
-                console.log('Fetch success: ', response.data.data.banks);
+                console.log('Fetch success: ', response.data.data.messge);
             } else {
                 console.log('No data returned for bank list.');
             }

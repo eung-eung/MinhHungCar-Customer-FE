@@ -391,7 +391,7 @@ const ListProductScreen: React.FC = () => {
                                         <View style={styles.carFooter}>
                                             <View style={styles.starContainer}>
                                                 <TabBarIcon name='star' color='#F4CE14' size={24} style={{ marginRight: 6, }} />
-                                                <Text style={styles.rating}>{car.rating.toFixed(1)}</Text>
+                                                <Text style={styles.rating}>{car.total_trip !== 0 ? car.rating.toFixed(1) : '0.0'}</Text>
                                             </View>
                                             <View style={styles.tripContainer}>
                                                 <TabBarIcon name='history' color='green' size={24} style={{ marginRight: 6, }} />

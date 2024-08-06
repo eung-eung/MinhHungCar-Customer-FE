@@ -11,6 +11,7 @@ import ProtectedProvider from '@/components/Auth/ProtectedProvider';
 import BackButton from '@/components/BackButton';
 import NotificationHandler from '@/store/NotificationContext';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { Alert } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -18,6 +19,26 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter(); // Use useRouter hook instead of useNavigation
+
+  const handlePress = () => {
+    Alert.alert(
+      'Xác nhận',
+      'Bạn có chắc chắn muốn rời khỏi trang này?',
+      [
+        {
+          text: 'Hủy',
+          style: 'cancel',
+
+        },
+        {
+          text: 'Ok',
+          onPress: () => router.replace('/trip'),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <AuthConTextProvider>
       <NotificationHandler>
@@ -46,8 +67,16 @@ export default function RootLayout() {
             <Stack.Screen name="contract/index"
               options={{
                 headerBackTitleVisible: false,
-                gestureEnabled: false,
                 title: 'Hợp đồng',
+                gestureEnabled: false,
+                headerLeft: () => (
+                  <TabBarIcon
+                    name="chevron-left"
+                    size={32}
+                    color="blue"
+                    onPress={handlePress}
+                  />
+                ),
               }} />
             <Stack.Screen name="detail/index"
               options={{
@@ -64,6 +93,15 @@ export default function RootLayout() {
               options={{
                 headerBackTitleVisible: false,
                 title: 'Phương thức thanh toán',
+                gestureEnabled: false,
+                headerLeft: () => (
+                  <TabBarIcon
+                    name="chevron-left"
+                    size={32}
+                    color="blue"
+                    onPress={handlePress}
+                  />
+                ),
               }} />
             <Stack.Screen name="list/index"
               options={{
