@@ -95,8 +95,10 @@ const getStatusStyles = (status: string) => {
             return { borderColor: '#24D02B', color: '#24D02B', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'completed':
             return { borderColor: '#15891A', color: '#15891A', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'canceled':
+            return { borderColor: 'red', color: 'red', borderWidth: 1, borderRadius: 50, padding: 4 };
         default:
-            return {};
+            return { borderColor: 'grey', color: 'grey', borderWidth: 1, borderRadius: 50, padding: 4 };
     }
 };
 
@@ -104,6 +106,7 @@ const statusConvert: Record<string, string> = {
     ordered: 'Đã đặt',
     renting: 'Đang thuê',
     completed: 'Hoàn thành',
+    canceled: 'Đã hủy'
 };
 
 const paymentTypeConvert: Record<string, string> = {
@@ -154,6 +157,8 @@ export default function detailTrip() {
     const [isContractPaymentLoading, setContractPaymentLoading] = useState(true);
     const [isCollateralLoading, setCollateralLoading] = useState(true);
     const [dataLoaded, setDataLoaded] = useState(false);
+
+
 
     const [refreshing, setRefreshing] = useState(false);
 
@@ -371,25 +376,42 @@ export default function detailTrip() {
 
     const renderProgressLine = () => {
         return (
-            <View style={styles.progressLine}>
-                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={[styles.progressStep, detailTrip?.status === 'ordered' && styles.progressStepActive]}>
+            <>
+                {(tripStatus === 'canceled' || detailTrip?.status === 'canceled') ?
+                    <View style={styles.progressLine}>
+                        <View style={styles.stepContainer}>
+                            <View style={[styles.progressStep, detailTrip?.status === 'ordered' && styles.progressStepActive]} />
+                            <Text style={styles.progressStepText}>Đã đặt</Text>
+                        </View>
+                        <View style={[styles.progressConnector, detailTrip?.status === 'canceled' && styles.progressConnectorActive]} />
+                        <View style={styles.stepContainer}>
+                            <View style={[styles.progressStep, detailTrip?.status === 'canceled' && styles.progressStepCancel]} />
+                            <Text style={styles.progressStepText}>Đã hủy</Text>
+                        </View>
                     </View>
-                    <Text style={styles.progressStepText}>Đã đặt</Text>
-                </View>
-                <View style={[styles.progressConnector, detailTrip?.status === 'renting' && styles.progressConnectorActive]} />
-                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={[styles.progressStep, detailTrip?.status === 'renting' && styles.progressStepActive]}>
+                    :
+                    <View style={styles.progressLine}>
+                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={[styles.progressStep, detailTrip?.status === 'ordered' && styles.progressStepActive]}>
+                            </View>
+                            <Text style={styles.progressStepText}>Đã đặt</Text>
+                        </View>
+                        <View style={[styles.progressConnector, detailTrip?.status === 'renting' && styles.progressConnectorActive]} />
+                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={[styles.progressStep, detailTrip?.status === 'renting' && styles.progressStepActive]}>
+                            </View>
+                            <Text style={styles.progressStepText}>Đang thuê</Text>
+                        </View>
+                        <View style={[styles.progressConnector, detailTrip?.status === 'completed' && styles.progressConnectorActive]} />
+                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={[styles.progressStep, detailTrip?.status === 'completed' && styles.progressStepActive]}>
+                            </View>
+                            <Text style={styles.progressStepText}>Hoàn thành</Text>
+                        </View>
                     </View>
-                    <Text style={styles.progressStepText}>Đang thuê</Text>
-                </View>
-                <View style={[styles.progressConnector, detailTrip?.status === 'completed' && styles.progressConnectorActive]} />
-                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={[styles.progressStep, detailTrip?.status === 'completed' && styles.progressStepActive]}>
-                    </View>
-                    <Text style={styles.progressStepText}>Hoàn thành</Text>
-                </View>
-            </View>
+                }
+            </>
+
         );
     };
 
@@ -523,14 +545,14 @@ export default function detailTrip() {
                                 <View style={{ flex: 1 }}>
 
                                     {/* Payments for customers */}
-                                    {payments.filter(pay => pay.payer === 'customer').length > 0 && (
+                                    {payments.filter((pay) => pay.payer === 'customer').length > 0 && (
                                         <>
                                             <Text style={styles.sectionTitle}>Phải thanh toán:</Text>
 
                                             {payments
-                                                .filter(pay => pay.payer === 'customer')
+                                                .filter((pay) => pay.payer === 'customer')
                                                 .sort((a, b) => a.id - b.id)
-                                                .map(pay => (
+                                                .map((pay) => (
                                                     <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                                         <View style={styles.paymentItem}>
                                                             <CheckBox
@@ -550,36 +572,31 @@ export default function detailTrip() {
                                                                     {pay.amount.toLocaleString()} đ
                                                                 </Text>
                                                             </View>
-
                                                         </View>
-                                                        {pay.note ?
+                                                        {pay.note ? (
                                                             <View style={{ marginTop: 2, marginLeft: 55 }}>
                                                                 <Text style={{ fontSize: 13, color: '#A9A9A9', fontWeight: '600' }}>Ghi chú: {pay.note}</Text>
                                                             </View>
-                                                            : ""}
-
+                                                        ) : null}
                                                     </View>
-
                                                 ))}
 
+                                            {/* Payment handling button */}
+                                            {selectedPaymentIds.length > 0 && payments.some((pay) => selectedPaymentIds.includes(pay.id) && pay.status !== 'paid') && (
+                                                <View>
+                                                    <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
+                                                        <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
+                                                            Tổng tiền cần thanh toán: {totalAmount.toLocaleString()} đ
+                                                        </Text>
+                                                    </View>
+                                                    <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
+                                                        <Text style={{ color: 'white', fontSize: 15, fontWeight: '700' }}>Thanh toán</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            )}
                                         </>
                                     )}
 
-
-
-                                    {/* Payment handling button */}
-                                    {selectedPaymentIds.length > 0 && (
-                                        <View>
-                                            <View style={{ marginHorizontal: 25, marginTop: 18, marginBottom: 5 }}>
-                                                <Text style={{ fontSize: 15, fontWeight: '700', textAlign: 'right', color: '#E88D67' }}>
-                                                    Tổng tiền cần thanh toán: {' '} {totalAmount.toLocaleString()} đ
-                                                </Text>
-                                            </View>
-                                            <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
-                                                <Text style={{ color: 'white', fontSize: 15, fontWeight: '700' }}>Thanh toán</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    )}
                                 </View>
 
                             </>
@@ -735,11 +752,17 @@ const styles = StyleSheet.create({
     },
     progressLine: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginHorizontal: 25,
-        marginTop: 10,
-        marginBottom: 20,
-        height: 80,
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        marginHorizontal: 40,
+        marginTop: 6,
+        marginBottom: 35,
+        height: 40,
+    },
+    stepContainer: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     progressStep: {
         width: 20,
@@ -750,11 +773,14 @@ const styles = StyleSheet.create({
     progressStepActive: {
         backgroundColor: 'green',
     },
+    progressStepCancel: {
+        backgroundColor: 'red',
+    },
     progressConnector: {
         flex: 1,
         height: 2,
+        marginTop: -18,
         backgroundColor: '#CCCCCC',
-        marginTop: 20,
     },
     progressConnectorActive: {
         backgroundColor: 'black',
@@ -762,7 +788,7 @@ const styles = StyleSheet.create({
     progressStepText: {
         fontSize: 12,
         textAlign: 'center',
-        marginTop: 18,
+        marginTop: 6,
     },
     payButton: {
         backgroundColor: '#15891A',

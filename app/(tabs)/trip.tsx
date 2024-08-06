@@ -161,8 +161,8 @@ const HistoryScreen: React.FC = () => {
         } else if (trip && trip.status === 'waiting_contract_payment') {
             console.log('waiting_contract_payment:', trip.status)
             getLastPaymentDetail(trip.id);
-        } else if (trip && trip.status === 'canceled') {
-            return;
+            // } else if (trip && trip.status === 'canceled') {
+            //     return;
         } else if (trip) {
             router.push({ pathname: '/detailTrip', params: { contractID: trip.id, tripStatus: trip.status } });
         }
