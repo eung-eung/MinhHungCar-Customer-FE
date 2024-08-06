@@ -114,6 +114,7 @@ const paymentTypeConvert: Record<string, string> = {
     remaining_pay: 'Phí còn lại',
     collateral_cash: 'Tiền mặt thế chấp',
     return_collateral_cash: 'Hoàn trả thế chấp',
+    refund_pre_pay: 'Hoàn trả tiền cọc',
     other: 'Khác'
 }
 
@@ -533,8 +534,33 @@ export default function detailTrip() {
                                                 : ''}
                                         </View>
                                     </View>
+                                    {payments
+                                        .filter(pay => pay.payer === 'admin' && pay.payment_type === 'refund_pre_pay') // Add the payment_type filter
+                                        .sort((a, b) => a.id - b.id)
+                                        .map((pay, index) => (
+                                            <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                                <View style={styles.paymentItem}>
+                                                    <CheckBox
+                                                        checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
+                                                        // onPress={() => toggleCheckbox(pay.id)}
+                                                        checkedColor={'#15891A'}
+                                                        containerStyle={styles.checkBoxContainer}
+                                                        disabled={pay.status === 'paid'}
+                                                    />
+                                                    <View style={{ flex: 1 }}>
+                                                        <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
+                                                            {paymentTypeConvert[pay.payment_type]}
+                                                        </Text>
+                                                    </View>
+                                                    <View>
+                                                        <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
+                                                            {pay.amount.toLocaleString()} đ
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        ))}
 
-                                    {/* ))} */}
                                 </>
                             )}
 
