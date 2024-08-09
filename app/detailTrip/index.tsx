@@ -89,6 +89,12 @@ interface Collateral {
 
 const getStatusStyles = (status: string) => {
     switch (status) {
+        case 'waiting_partner_approval':
+            return { borderColor: '#667BC6', color: '#667BC6', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'waiting_contract_payment':
+            return { borderColor: '#56AEFF', color: '#56AEFF', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'waiting_for_agreement':
+            return { borderColor: 'gray', color: 'gray', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'ordered':
             return { borderColor: '#F4BB4C', color: '#F4BB4C', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'renting':
@@ -103,11 +109,23 @@ const getStatusStyles = (status: string) => {
 };
 
 const statusConvert: Record<string, string> = {
+    waiting_partner_approval: 'Chờ xác nhận',
+    waiting_for_agreement: 'Chờ chấp thuận',
+    waiting_contract_payment: 'Chờ thanh toán',
     ordered: 'Đã đặt',
     renting: 'Đang thuê',
     completed: 'Hoàn thành',
     canceled: 'Đã hủy'
 };
+
+const statuses = [
+    { key: 'waiting_partner_approval', label: 'Chờ xác nhận' },
+    { key: 'waiting_for_agreement', label: 'Chờ chấp thuận' },
+    { key: 'waiting_contract_payment', label: 'Chờ thanh toán' },
+    { key: 'ordered', label: 'Đã đặt' },
+    { key: 'renting', label: 'Đang thuê' },
+    { key: 'completed', label: 'Hoàn thành' },
+];
 
 const paymentTypeConvert: Record<string, string> = {
     pre_pay: 'Phí đặt cọc',
@@ -122,6 +140,8 @@ const collateralConvert: Record<string, string> = {
     cash: 'Tiền mặt',
     motorbike: 'Giấy tờ xe máy',
 }
+
+
 
 export default function detailTrip() {
     const router = useRouter();
@@ -162,6 +182,8 @@ export default function detailTrip() {
 
 
     const [refreshing, setRefreshing] = useState(false);
+
+
 
     useFocusEffect(
         React.useCallback(() => {
@@ -374,15 +396,46 @@ export default function detailTrip() {
         setRefreshing(false);
     }, []);
 
+    // Find the index of the active status
+    const activeIndex = statuses.findIndex(status => status.key === detailTrip?.status);
+
+    // Determine the range of indices to display
+    let start, end;
+
+    if (detailTrip?.status === 'waiting_partner_approval') {
+        // Special case: show two statuses behind and the current one
+        start = Math.max(activeIndex - 2, 0);
+        end = activeIndex;
+    } else if (detailTrip?.status === 'completed') {
+        // Special case: show the current one and two statuses in front
+        start = activeIndex;
+        end = Math.min(activeIndex + 2, statuses.length - 1);
+    } else {
+        // Default case: show one status before, the current, and one after
+        start = Math.max(activeIndex - 1, 0);
+        end = Math.min(activeIndex + 1, statuses.length - 1);
+    }
+
+    // Ensure exactly three items are displayed if possible
+    if (end - start < 2) {
+        if (start === 0) {
+            end = Math.min(start + 2, statuses.length - 1);
+        } else if (end === statuses.length - 1) {
+            start = Math.max(end - 2, 0);
+        }
+    }
+
+    // Slice the statuses to get only the visible ones
+    const visibleStatuses = statuses.slice(start, end + 1);
 
     const renderProgressLine = () => {
         return (
             <>
                 {(tripStatus === 'canceled' || detailTrip?.status === 'canceled') ?
-                    <View style={styles.progressLine}>
+                    <View style={styles.progressLineCancel}>
                         <View style={styles.stepContainer}>
-                            <View style={[styles.progressStep, detailTrip?.status === 'ordered' && styles.progressStepActive]} />
-                            <Text style={styles.progressStepText}>Đã đặt</Text>
+                            <View style={[styles.progressStep, { marginRight: 10 }]} />
+                            <Text style={styles.progressStepText}></Text>
                         </View>
                         <View style={[styles.progressConnector, detailTrip?.status === 'canceled' && styles.progressConnectorActive]} />
                         <View style={styles.stepContainer}>
@@ -392,23 +445,19 @@ export default function detailTrip() {
                     </View>
                     :
                     <View style={styles.progressLine}>
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={[styles.progressStep, detailTrip?.status === 'ordered' && styles.progressStepActive]}>
-                            </View>
-                            <Text style={styles.progressStepText}>Đã đặt</Text>
-                        </View>
-                        <View style={[styles.progressConnector, detailTrip?.status === 'renting' && styles.progressConnectorActive]} />
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={[styles.progressStep, detailTrip?.status === 'renting' && styles.progressStepActive]}>
-                            </View>
-                            <Text style={styles.progressStepText}>Đang thuê</Text>
-                        </View>
-                        <View style={[styles.progressConnector, detailTrip?.status === 'completed' && styles.progressConnectorActive]} />
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={[styles.progressStep, detailTrip?.status === 'completed' && styles.progressStepActive]}>
-                            </View>
-                            <Text style={styles.progressStepText}>Hoàn thành</Text>
-                        </View>
+                        {visibleStatuses.map((status, index) => (
+                            <React.Fragment key={status.key}>
+                                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                                    <View style={[styles.progressStep, detailTrip?.status === status.key && styles.progressStepActive]}>
+                                    </View>
+                                    <Text style={styles.progressStepText}>{status.label}</Text>
+                                </View>
+                                {/* Render connector if it's not the last item */}
+                                {index < visibleStatuses.length - 1 && (
+                                    <View style={[styles.progressConnector, detailTrip?.status === visibleStatuses[index + 1].key && styles.progressConnectorActive]} />
+                                )}
+                            </React.Fragment>
+                        ))}
                     </View>
                 }
             </>
@@ -446,15 +495,17 @@ export default function detailTrip() {
                                     <View style={styles.cardBody}>
                                         <Text style={styles.cardTag}>Biển số xe: {carDetail?.license_plate}</Text>
                                         <Text style={styles.cardTitle}>{carDetail?.car_model.brand + ' ' + carDetail?.car_model.model + ' ' + carDetail?.car_model.year}</Text>
-                                        <View style={{ marginBottom: 10, marginTop: 5 }}>
-                                            <Text style={{ color: '#686D76' }}>Loại thế chấp: </Text>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                                                <View style={styles.radioButtonOuter}>
-                                                    <View style={styles.radioButtonInner} />
+                                        {collateralType ?
+                                            <View style={{ marginBottom: 10, marginTop: 5 }}>
+                                                <Text style={{ color: '#686D76' }}>Loại thế chấp: </Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                                                    <View style={styles.radioButtonOuter}>
+                                                        <View style={styles.radioButtonInner} />
+                                                    </View>
+                                                    <Text style={{ fontWeight: '600' }}>{collateralConvert[collateralType]}</Text>
                                                 </View>
-                                                <Text style={{ fontWeight: '600' }}>{collateralConvert[collateralType]}</Text>
                                             </View>
-                                        </View>
+                                            : ""}
                                         <View style={styles.cardRow}>
                                             <View style={getStatusStyles(detailTrip?.status || '')}>
                                                 <Text style={{ color: getStatusStyles(detailTrip?.status || '').color, fontWeight: 'bold' }}>
@@ -467,14 +518,21 @@ export default function detailTrip() {
                                 </View>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', marginHorizontal: 25, marginBottom: 20 }}>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        router.push({ pathname: '/contract', params: { contractID } });
-                                    }}
-                                    style={styles.button}
-                                >
-                                    <Text style={{ color: 'white' }}>Xem hợp đồng</Text>
-                                </TouchableOpacity>
+                                {detailTrip?.status === 'waiting_partner_approval' ?
+                                    <Text>{' '}</Text>
+                                    :
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            router.push({ pathname: '/contract', params: { contractID: contractID } });
+                                        }}
+                                        style={styles.button}
+                                    >
+                                        {detailTrip?.status === 'waiting_for_agreement' ?
+                                            <Text style={{ color: 'white' }}>Chấp thuận hợp đồng</Text>
+                                            :
+                                            <Text style={{ color: 'white' }}>Xem hợp đồng</Text>}
+                                    </TouchableOpacity>
+                                }
                                 {detailTrip?.status === 'completed' && (
                                     <TouchableOpacity
                                         onPress={() => setModalVisible(true)}
@@ -779,11 +837,20 @@ const styles = StyleSheet.create({
     progressLine: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-around',
-        marginHorizontal: 40,
+        justifyContent: 'space-between',
+        marginHorizontal: 25,
         marginTop: 6,
         marginBottom: 35,
-        height: 40,
+        height: 45,
+    },
+    progressLineCancel: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        marginHorizontal: 35,
+        marginTop: 6,
+        marginBottom: 35,
+        height: 45,
     },
     stepContainer: {
         flexDirection: 'column',

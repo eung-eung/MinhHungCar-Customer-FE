@@ -108,7 +108,27 @@ const CheckoutScreen: React.FC = () => {
     useEffect(() => {
         if (contractID) {
 
-            route.push({ pathname: "/contract", params: { contractID: contractID } })
+
+            Alert.alert(
+                'Xác nhận',
+                'Bạn có chắc muốn chọn thuê chiếc xe này không?',
+                [
+                    {
+                        text: 'Hủy',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            route.push({ pathname: '/detailTrip', params: { contractID: contractID } });
+                        },
+                    },
+                ],
+                { cancelable: true }
+            );
+
+
+
 
         }
     }, [contractID]);
@@ -245,6 +265,8 @@ const CheckoutScreen: React.FC = () => {
             setLoading(false);
         }
     };
+
+
 
     const calculatePricing = async () => {
         if (!parsedStartDate || !parsedEndDate) return;

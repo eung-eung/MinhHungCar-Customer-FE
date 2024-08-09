@@ -32,7 +32,7 @@ export default function RootLayout() {
         },
         {
           text: 'Ok',
-          onPress: () => router.replace('/trip'),
+          onPress: () => router.back(),
         },
       ],
       { cancelable: true }

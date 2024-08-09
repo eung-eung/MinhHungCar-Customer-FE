@@ -93,7 +93,7 @@ export default function ContractScreen() {
             const { payment_url } = response.data.data;
             Alert.alert(
                 'Chúc mừng',
-                'Bạn đã chấp thuận hợp đồng thành công! Vui lòng thanh toán',
+                'Bạn đã chấp thuận hợp đồng thành công! Vui lòng thanh toán phí đặt cọc.',
                 [
                     {
                         text: 'OK',

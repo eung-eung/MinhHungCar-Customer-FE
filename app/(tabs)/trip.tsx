@@ -5,9 +5,7 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import { AuthConText } from '@/store/AuthContext';
 import { useRouter } from 'expo-router';
-import convertICTToUTC from '../config/convertICTToUTC';
 import { AntDesign } from '@expo/vector-icons';
-import { FontAwesome6 } from '@expo/vector-icons';
 
 interface Trip {
     id: number;
@@ -30,6 +28,8 @@ const getStatusStyles = (status: string) => {
     switch (status) {
         case 'no_filter':
             return { borderColor: '#F89F36', color: '#F89F36' };
+        case 'waiting_partner_approval':
+            return { borderColor: '#667BC6', color: '#667BC6' };
         case 'waiting_contract_payment':
             return { borderColor: '#56AEFF', color: '#56AEFF' };
         case 'waiting_for_agreement':
@@ -49,6 +49,7 @@ const getStatusStyles = (status: string) => {
 
 const statusConvert: Record<string, string> = {
     no_filter: 'Tất cả',
+    waiting_partner_approval: 'Chờ xác nhận',
     waiting_for_agreement: 'Chờ chấp thuận',
     waiting_contract_payment: 'Chờ thanh toán',
     ordered: 'Đã đặt',
@@ -156,14 +157,15 @@ const HistoryScreen: React.FC = () => {
     };
 
     const navigateToScreen = (trip: Trip) => {
-        if (trip && trip.status === 'waiting_for_agreement') {
-            router.push({ pathname: '/contract', params: { contractID: trip.id } });
-        } else if (trip && trip.status === 'waiting_contract_payment') {
-            console.log('waiting_contract_payment:', trip.status)
-            getLastPaymentDetail(trip.id);
-            // } else if (trip && trip.status === 'canceled') {
-            //     return;
-        } else if (trip) {
+        // if (trip && trip.status === 'waiting_for_agreement') {
+        //     router.push({ pathname: '/contract', params: { contractID: trip.id } });
+        // } else if (trip && trip.status === 'waiting_contract_payment') {
+        //     console.log('waiting_contract_payment:', trip.status)
+        //     getLastPaymentDetail(trip.id);
+        //     // } else if (trip && trip.status === 'canceled') {
+        //     //     return;
+        // } else 
+        if (trip) {
             router.push({ pathname: '/detailTrip', params: { contractID: trip.id, tripStatus: trip.status } });
         }
     };
@@ -180,9 +182,9 @@ const HistoryScreen: React.FC = () => {
                     <View style={{ marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between' }}>
 
                         <View style={{ flexDirection: 'row', marginTop: 7 }}>
-                            <Text style={{ fontWeight: 'bold' }}>{formattedStartDate}</Text>
+                            <Text style={{ fontWeight: '600' }}>{formattedStartDate}</Text>
                             <Text style={{ fontWeight: 'bold', marginHorizontal: 2 }}>→</Text>
-                            <Text style={{ fontWeight: 'bold' }}>{formattedEndDate}</Text>
+                            <Text style={{ fontWeight: '600' }}>{formattedEndDate}</Text>
                         </View>
                         <View style={[styles.statusContainer, getStatusStyles(item.status)]}>
                             <Text style={{ color: getStatusStyles(item.status).color, fontWeight: 'bold' }}>{statusConvert[item.status]}</Text>
