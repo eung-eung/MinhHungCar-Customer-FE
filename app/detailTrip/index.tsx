@@ -97,12 +97,16 @@ const getStatusStyles = (status: string) => {
             return { borderColor: 'gray', color: 'gray', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'ordered':
             return { borderColor: '#F4BB4C', color: '#F4BB4C', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'appraising_car_approved':
+            return { borderColor: '#AF47D2', color: '#AF47D2', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'renting':
             return { borderColor: '#24D02B', color: '#24D02B', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'completed':
             return { borderColor: '#15891A', color: '#15891A', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'canceled':
             return { borderColor: 'red', color: 'red', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'appraising_car_rejected':
+            return { borderColor: '#8C6A5D', color: '#8C6A5D', borderWidth: 1, borderRadius: 50, padding: 4 };
         default:
             return { borderColor: 'grey', color: 'grey', borderWidth: 1, borderRadius: 50, padding: 4 };
     }
@@ -113,9 +117,11 @@ const statusConvert: Record<string, string> = {
     waiting_for_agreement: 'Chờ chấp thuận',
     waiting_contract_payment: 'Chờ thanh toán',
     ordered: 'Đã đặt',
+    appraising_car_approved: 'Đã kiểm tra',
     renting: 'Đang thuê',
     completed: 'Hoàn thành',
-    canceled: 'Đã hủy'
+    canceled: 'Đã hủy',
+    appraising_car_rejected: 'Kiểm tra thất bại'
 };
 
 const statuses = [
@@ -123,6 +129,7 @@ const statuses = [
     { key: 'waiting_for_agreement', label: 'Chờ chấp thuận' },
     { key: 'waiting_contract_payment', label: 'Chờ thanh toán' },
     { key: 'ordered', label: 'Đã đặt' },
+    { key: 'appraising_car_approved', label: 'Đã kiểm tra' },
     { key: 'renting', label: 'Đang thuê' },
     { key: 'completed', label: 'Hoàn thành' },
 ];
@@ -431,17 +438,25 @@ export default function detailTrip() {
     const renderProgressLine = () => {
         return (
             <>
-                {(tripStatus === 'canceled' || detailTrip?.status === 'canceled') ?
+                {(tripStatus === 'canceled' || detailTrip?.status === 'canceled' || detailTrip?.status === 'appraising_car_rejected') ?
                     <View style={styles.progressLineCancel}>
                         <View style={styles.stepContainer}>
                             <View style={[styles.progressStep, { marginRight: 10 }]} />
                             <Text style={styles.progressStepText}></Text>
                         </View>
-                        <View style={[styles.progressConnector, detailTrip?.status === 'canceled' && styles.progressConnectorActive]} />
-                        <View style={styles.stepContainer}>
-                            <View style={[styles.progressStep, detailTrip?.status === 'canceled' && styles.progressStepCancel]} />
-                            <Text style={styles.progressStepText}>Đã hủy</Text>
-                        </View>
+                        {detailTrip?.status === 'canceled' ? <>
+                            <View style={[styles.progressConnector, detailTrip?.status === 'canceled' && styles.progressConnectorActive]} />
+                            <View style={styles.stepContainer}>
+                                <View style={[styles.progressStep, detailTrip?.status === 'canceled' && styles.progressStepCancel]} />
+                                <Text style={styles.progressStepText}>Đã hủy</Text>
+                            </View>
+                        </> : <>
+                            <View style={[styles.progressConnector, detailTrip?.status === 'appraising_car_rejected' && styles.progressConnectorActive]} />
+                            <View style={styles.stepContainer}>
+                                <View style={[styles.progressStep, detailTrip?.status === 'appraising_car_rejected' && styles.progressStepCancel]} />
+                                <Text style={styles.progressStepText}>Kiểm tra thất bại</Text>
+                            </View>
+                        </>}
                     </View>
                     :
                     <View style={styles.progressLine}>

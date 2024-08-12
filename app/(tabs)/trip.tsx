@@ -36,10 +36,14 @@ const getStatusStyles = (status: string) => {
             return { borderColor: 'gray', color: 'gray' };
         case 'ordered':
             return { borderColor: '#F4BB4C', color: '#F4BB4C' };
+        case 'appraising_car_approved':
+            return { borderColor: '#AF47D2', color: '#AF47D2' };
         case 'renting':
             return { borderColor: '#24D02B', color: '#24D02B' };
         case 'completed':
             return { borderColor: '#15891A', color: '#15891A' };
+        case 'appraising_car_rejected':
+            return { borderColor: '#8C6A5D', color: '#8C6A5D' };
         case 'canceled':
             return { borderColor: 'red', color: 'red' };
         default:
@@ -53,9 +57,11 @@ const statusConvert: Record<string, string> = {
     waiting_for_agreement: 'Chờ chấp thuận',
     waiting_contract_payment: 'Chờ thanh toán',
     ordered: 'Đã đặt',
+    appraising_car_approved: 'Đã kiểm tra',
     renting: 'Đang thuê',
     completed: 'Hoàn thành',
     canceled: 'Đã hủy',
+    appraising_car_rejected: 'Kiểm tra thất bại'
 };
 
 const convertUTCToVietnamTime = (utcDate: Date): string => {
@@ -186,13 +192,14 @@ const HistoryScreen: React.FC = () => {
                             <Text style={{ fontWeight: 'bold', marginHorizontal: 2 }}>→</Text>
                             <Text style={{ fontWeight: '600' }}>{formattedEndDate}</Text>
                         </View>
-                        <View style={[styles.statusContainer, getStatusStyles(item.status)]}>
-                            <Text style={{ color: getStatusStyles(item.status).color, fontWeight: 'bold' }}>{statusConvert[item.status]}</Text>
-                        </View>
+
                     </View>
 
                     <Divider style={{ marginBottom: 10, marginTop: -5 }} />
                     <View>
+                        <View style={[styles.statusContainer, getStatusStyles(item.status)]}>
+                            <Text style={{ color: getStatusStyles(item.status).color, fontWeight: 'bold' }}>{statusConvert[item.status]}</Text>
+                        </View>
                         <View style={styles.cardBody}>
                             <Text style={styles.cardTitle}>{item.car.car_model.brand} {item.car.car_model.model} {item.car.car_model.year}</Text>
                             <Text style={styles.cardTag}>Biển số xe: {item.car.license_plate}</Text>
@@ -334,6 +341,7 @@ const styles = StyleSheet.create({
     statusContainer: {
         borderWidth: 1,
         marginTop: 2,
+        marginBottom: 10,
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 16,
