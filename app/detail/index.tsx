@@ -197,16 +197,16 @@ export default function DetailScreen() {
                                 {/*  */}
 
                                 <View style={styles.info}>
-                                    {/* <Text style={{
+
+                                    <Text style={styles.infoTitle}>{carDetail.car_model.brand + ' ' + carDetail.car_model.model + ' ' + carDetail.car_model.year}</Text>
+                                    <Text style={{
                                         fontWeight: '600',
                                         fontSize: 13,
-                                        color: '#758694',
+                                        color: '#A9A9A9',
                                         marginBottom: 10
                                     }}>
                                         Biển số xe: {carDetail.license_plate}
-                                    </Text> */}
-                                    <Text style={styles.infoTitle}>{carDetail.car_model.brand + ' ' + carDetail.car_model.model + ' ' + carDetail.car_model.year}</Text>
-
+                                    </Text>
                                     <View style={styles.infoRating}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
                                             <TabBarIcon name='star' color='#F4CE14' size={24} style={{ marginRight: 6 }} />

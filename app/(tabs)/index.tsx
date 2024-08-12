@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   listCar: {
     marginTop: 5,
     flexDirection: 'row',
-    height: 360,
+    height: 380,
     marginLeft: 10
   },
   titleList: {

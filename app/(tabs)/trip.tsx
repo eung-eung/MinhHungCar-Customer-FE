@@ -185,9 +185,9 @@ const HistoryScreen: React.FC = () => {
         return (
             <TouchableOpacity onPress={() => navigateToScreen(item)}>
                 <View style={styles.card}>
-                    <View style={{ marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <View style={{ marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between' }}>
 
-                        <View style={{ flexDirection: 'row', marginTop: 7 }}>
+                        <View style={{ flexDirection: 'row', marginTop: 2 }}>
                             <Text style={{ fontWeight: '600' }}>{formattedStartDate}</Text>
                             <Text style={{ fontWeight: 'bold', marginHorizontal: 2 }}>→</Text>
                             <Text style={{ fontWeight: '600' }}>{formattedEndDate}</Text>
