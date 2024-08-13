@@ -542,10 +542,11 @@ export default function detailTrip() {
                                         }}
                                         style={styles.button}
                                     >
-                                        {detailTrip?.status === 'waiting_for_agreement' ?
+                                        {/* {detailTrip?.status === 'waiting_for_agreement' ?
                                             <Text style={{ color: 'white' }}>Chấp thuận hợp đồng</Text>
-                                            :
-                                            <Text style={{ color: 'white' }}>Xem hợp đồng</Text>}
+                                            : */}
+                                        <Text style={{ color: 'white' }}>Xem hợp đồng</Text>
+                                        {/* } */}
                                     </TouchableOpacity>
                                 }
                                 {detailTrip?.status === 'completed' && (
