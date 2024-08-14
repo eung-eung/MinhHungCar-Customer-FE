@@ -117,20 +117,26 @@ const statusConvert: Record<string, string> = {
     waiting_for_agreement: 'Chờ chấp thuận',
     waiting_contract_payment: 'Chờ thanh toán',
     ordered: 'Đã đặt',
-    appraising_car_approved: 'Đã kiểm tra',
+    appraising_car_approved: 'Đủ điều kiện bàn giao',
     renting: 'Đang thuê',
+    returned_car: 'Đã trả xe',
+    appraised_return_car: 'Hoàn thành kiểm tra',
     completed: 'Hoàn thành',
+    appraising_car_rejected: 'Không đủ điều kiện',
     canceled: 'Đã hủy',
-    appraising_car_rejected: 'Kiểm tra thất bại'
 };
+
+
 
 const statuses = [
     { key: 'waiting_partner_approval', label: 'Chờ xác nhận' },
     { key: 'waiting_for_agreement', label: 'Chờ chấp thuận' },
     { key: 'waiting_contract_payment', label: 'Chờ thanh toán' },
     { key: 'ordered', label: 'Đã đặt' },
-    { key: 'appraising_car_approved', label: 'Đã kiểm tra' },
+    { key: 'appraising_car_approved', label: 'Đủ điều kiện bàn giao' },
     { key: 'renting', label: 'Đang thuê' },
+    { key: 'returned_car', label: 'Đã trả xe' },
+    { key: 'appraised_return_car', label: 'Hoàn thành kiểm tra' },
     { key: 'completed', label: 'Hoàn thành' },
 ];
 
@@ -454,7 +460,7 @@ export default function detailTrip() {
                             <View style={[styles.progressConnector, detailTrip?.status === 'appraising_car_rejected' && styles.progressConnectorActive]} />
                             <View style={styles.stepContainer}>
                                 <View style={[styles.progressStep, detailTrip?.status === 'appraising_car_rejected' && styles.progressStepCancel]} />
-                                <Text style={styles.progressStepText}>Kiểm tra thất bại</Text>
+                                <Text style={styles.progressStepText}>Không đủ điều kiện</Text>
                             </View>
                         </>}
                     </View>
