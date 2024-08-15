@@ -103,6 +103,10 @@ const getStatusStyles = (status: string) => {
             return { borderColor: '#24D02B', color: '#24D02B', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'completed':
             return { borderColor: '#15891A', color: '#15891A', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'pending_resolve':
+            return { borderColor: '#C75B7A', color: '#C75B7A', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'resolved':
+            return { borderColor: '#1679AB', color: '#1679AB', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'canceled':
             return { borderColor: 'red', color: 'red', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'appraising_car_rejected':
@@ -122,6 +126,8 @@ const statusConvert: Record<string, string> = {
     returned_car: 'Đã trả xe',
     appraised_return_car: 'Hoàn thành kiểm tra',
     completed: 'Hoàn thành',
+    pending_resolve: 'Đang xử lí sự cố',
+    resolved: 'Đã xử lí sự cố',
     appraising_car_rejected: 'Không đủ điều kiện',
     canceled: 'Đã hủy',
 };
@@ -138,6 +144,12 @@ const statuses = [
     { key: 'returned_car', label: 'Đã trả xe' },
     { key: 'appraised_return_car', label: 'Hoàn thành kiểm tra' },
     { key: 'completed', label: 'Hoàn thành' },
+];
+
+const statuses_2 = [
+    { key: 'renting', label: 'Đang thuê' },
+    { key: 'pending_resolve', label: 'Đang xử lí sự cố' },
+    { key: 'resolved', label: 'Đã xử lí sự cố' },
 ];
 
 const paymentTypeConvert: Record<string, string> = {
@@ -440,6 +452,7 @@ export default function detailTrip() {
 
     // Slice the statuses to get only the visible ones
     const visibleStatuses = statuses.slice(start, end + 1);
+    const visibleStatuses_2 = statuses_2.slice(start, end + 1);
 
     const renderProgressLine = () => {
         return (
@@ -465,21 +478,42 @@ export default function detailTrip() {
                         </>}
                     </View>
                     :
-                    <View style={styles.progressLine}>
-                        {visibleStatuses.map((status, index) => (
-                            <React.Fragment key={status.key}>
-                                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                                    <View style={[styles.progressStep, detailTrip?.status === status.key && styles.progressStepActive]}>
-                                    </View>
-                                    <Text style={styles.progressStepText}>{status.label}</Text>
-                                </View>
-                                {/* Render connector if it's not the last item */}
-                                {index < visibleStatuses.length - 1 && (
-                                    <View style={[styles.progressConnector, detailTrip?.status === visibleStatuses[index + 1].key && styles.progressConnectorActive]} />
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </View>
+                    <>
+                        {(detailTrip?.status === 'pending_resolve' || detailTrip?.status === 'resolved') ?
+                            <View style={styles.progressLine}>
+                                {visibleStatuses_2.map((status, index) => (
+                                    <React.Fragment key={status.key}>
+                                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={[styles.progressStep, detailTrip?.status === status.key && styles.progressStepActive]}>
+                                            </View>
+                                            <Text style={styles.progressStepText}>{status.label}</Text>
+                                        </View>
+                                        {/* Render connector if it's not the last item */}
+                                        {index < visibleStatuses_2.length - 1 && (
+                                            <View style={[styles.progressConnector, detailTrip?.status === visibleStatuses_2[index + 1].key && styles.progressConnectorActive]} />
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </View>
+                            :
+
+                            <View style={styles.progressLine}>
+                                {visibleStatuses.map((status, index) => (
+                                    <React.Fragment key={status.key}>
+                                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={[styles.progressStep, detailTrip?.status === status.key && styles.progressStepActive]}>
+                                            </View>
+                                            <Text style={styles.progressStepText}>{status.label}</Text>
+                                        </View>
+                                        {/* Render connector if it's not the last item */}
+                                        {index < visibleStatuses.length - 1 && (
+                                            <View style={[styles.progressConnector, detailTrip?.status === visibleStatuses[index + 1].key && styles.progressConnectorActive]} />
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </View>
+                        }
+                    </>
                 }
             </>
 

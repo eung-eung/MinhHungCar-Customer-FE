@@ -46,6 +46,10 @@ const getStatusStyles = (status: string) => {
             return { borderColor: '#E0A75E', color: '#E0A75E' };
         case 'completed':
             return { borderColor: '#15891A', color: '#15891A' };
+        case 'pending_resolve':
+            return { borderColor: '#C75B7A', color: '#C75B7A', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'resolved':
+            return { borderColor: '#1679AB', color: '#1679AB', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'appraising_car_rejected':
             return { borderColor: '#8C6A5D', color: '#8C6A5D' };
         case 'canceled':
@@ -66,6 +70,8 @@ const statusConvert: Record<string, string> = {
     returned_car: 'Đã trả xe',
     appraised_return_car: 'Hoàn thành kiểm tra',
     completed: 'Hoàn thành',
+    pending_resolve: 'Đang xử lí sự cố',
+    resolved: 'Đã xử lí sự cố',
     appraising_car_rejected: 'Không đủ điều kiện',
     canceled: 'Đã hủy',
 
