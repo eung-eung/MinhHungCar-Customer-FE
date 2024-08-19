@@ -26,6 +26,7 @@ interface Trip {
     feedback_content: string;
     feedback_rating: number;
     feedback_status: string;
+    technician_appraising_note: string;
     updated_at: string;
     url: string;
     car: {
@@ -610,7 +611,12 @@ export default function detailTrip() {
                                 )}
 
                             </View>
-
+                            {detailTrip?.technician_appraising_note ?
+                                <View style={{ marginHorizontal: 25, flexDirection: 'row', marginVertical: 10 }}>
+                                    <Text style={{ fontWeight: '700', color: 'grey' }}>Đánh giá của kĩ thuật viên: </Text>
+                                    <Text style={{ color: 'grey' }}>{detailTrip?.technician_appraising_note}</Text>
+                                </View>
+                                : ""}
                             {/* Payment */}
 
 

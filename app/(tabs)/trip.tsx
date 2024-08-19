@@ -61,9 +61,9 @@ const getStatusStyles = (status: string) => {
 
 const statusConvert: Record<string, string> = {
     no_filter: 'Tất cả',
+    waiting_partner_approval: 'Chờ xác nhận',
     waiting_for_agreement: 'Chờ chấp thuận',
     waiting_contract_payment: 'Chờ thanh toán',
-    waiting_partner_approval: 'Chờ xác nhận',
     ordered: 'Đã đặt',
     appraising_car_approved: 'Đủ điều kiện bàn giao',
     renting: 'Đang thuê',
