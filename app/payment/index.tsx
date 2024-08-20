@@ -37,8 +37,6 @@ const PaymentScreen: React.FC<PaymentScreenProps> = () => {
                     const message = e.nativeEvent.data as string;
                     if (message === "success") {
                         router.replace({ pathname: '/detailTrip', params: { contractID: contractID } });
-                    } else if (message === "failed") {
-                        router.back();
                     }
                 }}
             />
