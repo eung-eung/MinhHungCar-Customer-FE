@@ -36,11 +36,16 @@ export default function ContractScreen() {
                 getDetailContract();
             }, 2500); // Retry after 2.5 seconds
 
-            return () => clearTimeout(retryTimeout); // Clear timeout on unmount or retry success
+            return () => clearTimeout(retryTimeout);
         } else if (retryCount === 2) {
-            setLoading(false); // Stop loading after the second retry
+            const finalTimeout = setTimeout(() => {
+                setLoading(false);
+            }, 2500); // Additional delay of 2.5 seconds before stopping loading
+
+            return () => clearTimeout(finalTimeout);
         }
     }, [pdfURL, retryCount]);
+
 
     const getDetailContract = async () => {
         if (contractID && contractIDNumber) {
