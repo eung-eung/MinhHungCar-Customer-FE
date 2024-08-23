@@ -157,7 +157,7 @@ const paymentTypeConvert: Record<string, string> = {
     pre_pay: 'Phí đặt cọc',
     remaining_pay: 'Phí còn lại',
     collateral_cash: 'Tiền mặt thế chấp',
-    return_collateral_cash: 'Hoàn trả thế chấp',
+    return_collateral_cash: 'Tiền mặt thế chấp',
     refund_pre_pay: 'Hoàn trả tiền cọc',
     other: 'Khác'
 }
