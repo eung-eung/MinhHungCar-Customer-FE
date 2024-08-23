@@ -163,7 +163,7 @@ const paymentTypeConvert: Record<string, string> = {
 }
 
 const collateralConvert: Record<string, string> = {
-    cash: 'Tiền mặt',
+    cash: 'Tiền mặt thế chấp',
     motorbike: 'Giấy tờ xe máy',
 }
 
@@ -622,39 +622,64 @@ export default function detailTrip() {
 
 
 
-                            {/* Payments for non-customers */}
+                            {/* Payments for admin */}
                             {payments.filter(pay => pay.payer === 'admin' || collateralType === 'motorbike').length > 0 && (
                                 <>
                                     <Divider style={{ marginTop: 22, marginBottom: 8 }} />
                                     <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
-                                    {/* {payments
-                                        .filter(pay => pay.payer === 'admin' || collateralType === 'motorbike')
-                                        .map((pay, index) => ( */}
-                                    <View style={{ marginHorizontal: 25, marginVertical: 12 }}>
-                                        <View style={styles.paymentItem}>
-                                            <CheckBox
-                                                checked={returnCollateral === true}
-                                                // onPress={() => toggleCheckbox(pay.id)}
-                                                checkedColor={'#15891A'}
-                                                containerStyle={styles.checkBoxContainer}
-                                                disabled={true}
-                                            />
-                                            <View style={{ flex: 1 }}>
-                                                <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
-                                                    {collateralConvert[collateralType]}
-                                                </Text>
 
-                                            </View>
-                                            {(collateralValue && collateralValue.collateral_cash_amount !== 0 && collateralType === 'cash') ?
-                                                <View>
-                                                    <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
-                                                        {collateralValue.collateral_cash_amount.toLocaleString()} đ
-                                                    </Text>
-                                                </View>
-                                                : ''}
-                                        </View>
-                                    </View>
                                     {payments
+                                        .filter((pay) => pay.payer === 'admin' || collateralType === 'motorbike')
+                                        .sort((a, b) => a.id - b.id)
+                                        .map((pay, index) => (
+
+                                            <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                                <View style={styles.paymentItem}>
+                                                    {pay.payment_type === 'refund_pre_pay' ?
+                                                        <>
+                                                            <CheckBox
+                                                                checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
+                                                                // onPress={() => toggleCheckbox(pay.id)}
+                                                                checkedColor={'#15891A'}
+                                                                containerStyle={styles.checkBoxContainer}
+                                                                disabled={pay.status === 'paid'}
+                                                            />
+                                                            <View style={{ flex: 1 }}>
+                                                                <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
+                                                                    {paymentTypeConvert[pay.payment_type]}
+                                                                </Text>
+                                                            </View>
+                                                        </>
+                                                        :
+                                                        <>
+                                                            <CheckBox
+                                                                checked={returnCollateral === true}
+                                                                // onPress={() => toggleCheckbox(pay.id)}
+                                                                checkedColor={'#15891A'}
+                                                                containerStyle={styles.checkBoxContainer}
+                                                                disabled={true}
+                                                            />
+                                                            <View style={{ flex: 1 }}>
+
+                                                                <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
+
+                                                                    {collateralConvert[collateralType]}
+                                                                </Text>
+
+                                                            </View>
+                                                        </>
+                                                    }
+                                                    {(collateralType === 'cash' && pay.amount) ?
+                                                        <View>
+                                                            <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
+                                                                {pay.amount.toLocaleString()} đ
+                                                            </Text>
+                                                        </View>
+                                                        : ""}
+                                                </View>
+                                            </View>
+                                        ))}
+                                    {/* {payments
                                         .filter(pay => pay.payer === 'admin' && pay.payment_type === 'refund_pre_pay') // Add the payment_type filter
                                         .sort((a, b) => a.id - b.id)
                                         .map((pay, index) => (
@@ -679,7 +704,7 @@ export default function detailTrip() {
                                                     </View>
                                                 </View>
                                             </View>
-                                        ))}
+                                        ))} */}
 
                                 </>
                             )}
@@ -698,8 +723,8 @@ export default function detailTrip() {
                                             {payments
                                                 .filter((pay) => pay.payer === 'customer')
                                                 .sort((a, b) => a.id - b.id)
-                                                .map((pay) => (
-                                                    <View key={pay.id} style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                                .map((pay, index) => (
+                                                    <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                                         <View style={styles.paymentItem}>
                                                             <CheckBox
                                                                 checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
