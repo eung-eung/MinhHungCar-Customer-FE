@@ -628,15 +628,33 @@ export default function detailTrip() {
                                     <Divider style={{ marginTop: 22, marginBottom: 8 }} />
                                     <Text style={styles.sectionTitle}>Hoàn trả từ MinhHungCar:</Text>
 
-                                    {payments
-                                        .filter((pay) => pay.payer === 'admin' || collateralType === 'motorbike')
-                                        .sort((a, b) => a.id - b.id)
-                                        .map((pay, index) => (
-
-                                            <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                    {collateralType === 'motorbike' ? (
+                                        <>
+                                            <View style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                                 <View style={styles.paymentItem}>
-                                                    {pay.payment_type === 'refund_pre_pay' ?
-                                                        <>
+                                                    <CheckBox
+                                                        checked={returnCollateral === true}
+                                                        // onPress={() => toggleCheckbox(pay.id)}
+                                                        checkedColor={'#15891A'}
+                                                        containerStyle={styles.checkBoxContainer}
+                                                        disabled={true}
+                                                    />
+                                                    <View style={{ flex: 1 }}>
+                                                        <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
+                                                            {collateralConvert[collateralType]}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {payments
+                                                .filter((pay) => pay.payer === 'admin')
+                                                .sort((a, b) => a.id - b.id)
+                                                .map((pay, index) => (
+                                                    <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
+                                                        <View style={styles.paymentItem}>
                                                             <CheckBox
                                                                 checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
                                                                 // onPress={() => toggleCheckbox(pay.id)}
@@ -649,65 +667,23 @@ export default function detailTrip() {
                                                                     {paymentTypeConvert[pay.payment_type]}
                                                                 </Text>
                                                             </View>
-                                                        </>
-                                                        :
-                                                        <>
-                                                            <CheckBox
-                                                                checked={returnCollateral === true}
-                                                                // onPress={() => toggleCheckbox(pay.id)}
-                                                                checkedColor={'#15891A'}
-                                                                containerStyle={styles.checkBoxContainer}
-                                                                disabled={true}
-                                                            />
-                                                            <View style={{ flex: 1 }}>
 
-                                                                <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
-
-                                                                    {collateralConvert[collateralType]}
-                                                                </Text>
-
-                                                            </View>
-                                                        </>
-                                                    }
-                                                    {(collateralType === 'cash' && pay.amount) ?
-                                                        <View>
-                                                            <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
-                                                                {pay.amount.toLocaleString()} đ
-                                                            </Text>
+                                                            {collateralType === 'cash' && pay.amount ? (
+                                                                <View>
+                                                                    <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
+                                                                        {pay.amount.toLocaleString()} đ
+                                                                    </Text>
+                                                                </View>
+                                                            ) : null}
                                                         </View>
-                                                        : ""}
-                                                </View>
-                                            </View>
-                                        ))}
-                                    {/* {payments
-                                        .filter(pay => pay.payer === 'admin' && pay.payment_type === 'refund_pre_pay') // Add the payment_type filter
-                                        .sort((a, b) => a.id - b.id)
-                                        .map((pay, index) => (
-                                            <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
-                                                <View style={styles.paymentItem}>
-                                                    <CheckBox
-                                                        checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
-                                                        // onPress={() => toggleCheckbox(pay.id)}
-                                                        checkedColor={'#15891A'}
-                                                        containerStyle={styles.checkBoxContainer}
-                                                        disabled={pay.status === 'paid'}
-                                                    />
-                                                    <View style={{ flex: 1 }}>
-                                                        <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
-                                                            {paymentTypeConvert[pay.payment_type]}
-                                                        </Text>
                                                     </View>
-                                                    <View>
-                                                        <Text style={{ fontSize: 14, textAlign: 'right', fontWeight: '700' }}>
-                                                            {pay.amount.toLocaleString()} đ
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                            </View>
-                                        ))} */}
-
+                                                ))}
+                                        </>
+                                    )}
                                 </>
                             )}
+
+
 
 
                             <Divider style={{ marginTop: 10, marginBottom: 8 }} />
