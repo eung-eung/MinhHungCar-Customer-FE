@@ -72,6 +72,8 @@ interface Payment {
         collateral_type: string;
         collateral_cash_amount: number;
         is_return_collateral_asset: boolean;
+        status: string;
+        reason: string;
     };
     payment_type: string;
     amount: number;
@@ -617,6 +619,12 @@ export default function detailTrip() {
                                     <Text style={{ color: 'grey' }}>{detailTrip?.technician_appraising_note}</Text>
                                 </View>
                                 : ""}
+                            {detailTrip?.reason ?
+                                <View style={{ marginHorizontal: 25, flexDirection: 'row', marginVertical: 10 }}>
+                                    <Text style={{ fontWeight: '700', color: 'grey' }}>Lí do hủy: </Text>
+                                    <Text style={{ color: 'grey' }}>{detailTrip?.reason}</Text>
+                                </View>
+                                : ""}
                             {/* Payment */}
 
 
@@ -703,7 +711,7 @@ export default function detailTrip() {
                                                     <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                                         <View style={styles.paymentItem}>
                                                             <CheckBox
-                                                                checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
+                                                                checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id) || pay.customer_contract.status !== 'canceled'}
                                                                 onPress={() => toggleCheckbox(pay.id)}
                                                                 checkedColor={pay.status === 'paid' ? '#15891A' : '#E88D67'}
                                                                 containerStyle={styles.checkBoxContainer}

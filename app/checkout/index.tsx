@@ -105,33 +105,33 @@ const CheckoutScreen: React.FC = () => {
         }
     });
 
-    useEffect(() => {
-        if (contractID) {
+    // useEffect(() => {
+    //     if (contractID) {
 
 
-            Alert.alert(
-                'Xác nhận',
-                'Bạn có chắc muốn chọn thuê chiếc xe này không?',
-                [
-                    {
-                        text: 'Hủy',
-                        style: 'cancel',
-                    },
-                    {
-                        text: 'OK',
-                        onPress: () => {
-                            route.push({ pathname: '/detailTrip', params: { contractID: contractID } });
-                        },
-                    },
-                ],
-                { cancelable: true }
-            );
+    //         Alert.alert(
+    //             'Xác nhận',
+    //             'Bạn có chắc muốn chọn thuê chiếc xe này không?',
+    //             [
+    //                 {
+    //                     text: 'Hủy',
+    //                     style: 'cancel',
+    //                 },
+    //                 {
+    //                     text: 'OK',
+    //                     onPress: () => {
+    //                         route.push({ pathname: '/detailTrip', params: { contractID: contractID } });
+    //                     },
+    //                 },
+    //             ],
+    //             { cancelable: true }
+    //         );
 
 
 
 
-        }
-    }, [contractID]);
+    //     }
+    // }, [contractID]);
 
     const getCarDetail = async () => {
         try {
@@ -163,6 +163,24 @@ const CheckoutScreen: React.FC = () => {
         } catch (error: any) {
             console.log("Error getCollateral: ", error.response.data.message)
         }
+    };
+
+    const handleRentAlert = () => {
+        Alert.alert(
+            'Xác nhận',
+            'Bạn có chắc muốn chọn thuê chiếc xe này không?',
+            [
+                {
+                    text: 'Hủy',
+                    style: 'cancel',
+                },
+                {
+                    text: 'OK',
+                    onPress: handleRent,
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
     const rentCar = async () => {
@@ -220,6 +238,10 @@ const CheckoutScreen: React.FC = () => {
             setContractID(response.data.data.id);
             // console.log("contractID-2: ", contractID)
             setLoading(false);
+
+            // After successful rent, navigate to the detailTrip page
+            route.push({ pathname: '/detailTrip', params: { contractID: response.data.data.id } });
+
         } catch (error: any) {
             if (error.response?.data?.error_code === 10049) {
                 Alert.alert('Không thể thuê xe', 'Xe này đang có người thuê. Vui lòng chọn thời gian khác!');
@@ -562,7 +584,7 @@ const CheckoutScreen: React.FC = () => {
                             </View>
 
                             <TouchableOpacity
-                                onPress={handleRent}>
+                                onPress={handleRentAlert}>
                                 <View style={styles.btn}>
                                     <Text style={styles.btnText}>Thuê xe</Text>
                                 </View>
