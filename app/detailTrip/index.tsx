@@ -104,6 +104,10 @@ const getStatusStyles = (status: string) => {
             return { borderColor: '#AF47D2', color: '#AF47D2', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'renting':
             return { borderColor: '#24D02B', color: '#24D02B', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'returned_car':
+            return { borderColor: '#E178C5', color: '#E178C5', borderWidth: 1, borderRadius: 50, padding: 4 };
+        case 'appraised_return_car':
+            return { borderColor: '#E0A75E', color: '#E0A75E', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'completed':
             return { borderColor: '#15891A', color: '#15891A', borderWidth: 1, borderRadius: 50, padding: 4 };
         case 'pending_resolve':
