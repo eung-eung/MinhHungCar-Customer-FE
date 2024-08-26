@@ -711,11 +711,11 @@ export default function detailTrip() {
                                                     <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                                         <View style={styles.paymentItem}>
                                                             <CheckBox
-                                                                checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id) || pay.customer_contract.status !== 'canceled'}
+                                                                checked={pay.status === 'paid' || selectedPaymentIds.includes(pay.id)}
                                                                 onPress={() => toggleCheckbox(pay.id)}
                                                                 checkedColor={pay.status === 'paid' ? '#15891A' : '#E88D67'}
                                                                 containerStyle={styles.checkBoxContainer}
-                                                                disabled={pay.status === 'paid'}
+                                                                disabled={pay.status === 'paid' || pay.customer_contract.status === 'canceled'}
                                                             />
                                                             <View style={{ flex: 1 }}>
                                                                 <Text style={{ fontSize: 14, textAlign: 'left', fontWeight: '700' }}>
