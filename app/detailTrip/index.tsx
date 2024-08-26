@@ -618,15 +618,14 @@ export default function detailTrip() {
 
                             </View>
                             {detailTrip?.technician_appraising_note ?
-                                <View style={{ marginHorizontal: 25, flexDirection: 'row', marginVertical: 10 }}>
-                                    <Text style={{ fontWeight: '700', color: 'grey' }}>Đánh giá của kĩ thuật viên: </Text>
-                                    <Text style={{ color: 'grey' }}>{detailTrip?.technician_appraising_note}</Text>
+                                <View style={{ marginHorizontal: 25, marginVertical: 10 }}>
+                                    <Text style={{ color: 'grey', marginTop: 5, marginLeft: 10 }}><Text style={{ fontWeight: '700', color: 'grey' }}>Đánh giá của kĩ thuật viên: </Text> {detailTrip?.technician_appraising_note}</Text>
                                 </View>
+
                                 : ""}
                             {detailTrip?.reason ?
-                                <View style={{ marginHorizontal: 25, flexDirection: 'row', marginVertical: 10 }}>
-                                    <Text style={{ fontWeight: '700', color: 'grey' }}>Lí do hủy: </Text>
-                                    <Text style={{ color: 'grey' }}>{detailTrip?.reason}</Text>
+                                <View style={{ marginHorizontal: 25, marginVertical: 10 }}>
+                                    <Text style={{ color: 'grey', marginTop: 5, marginLeft: 10 }}><Text style={{ fontWeight: '700', color: 'grey' }}>Lí do hủy: </Text>{detailTrip?.reason}</Text>
                                 </View>
                                 : ""}
                             {/* Payment */}

@@ -97,7 +97,7 @@ export default function DetailScreen() {
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
 
     const [offset, setOffset] = useState(0);
-    const limit = 20; // Adjust the limit as needed
+    const limit = 2;
     const [hasMoreFeedbacks, setHasMoreFeedbacks] = useState(true);
 
     const [isLoading, setLoading] = useState(true);
@@ -357,15 +357,15 @@ export default function DetailScreen() {
                                             <Text style={styles.commentTitle}>Đánh giá</Text>
                                         </>
                                     )}
-                                    {feedbacks.map((item) => (
-                                        (item.feedback_content && item.feedback_rating) && (
-                                            <View key={item.id.toString()} style={styles.comment}>
+                                    {feedbacks.map((item, index) => (
+                                        item.feedback_content && item.feedback_rating && (
+                                            <View key={index} style={styles.comment}>
                                                 <View style={styles.commentContainer}>
-                                                    {item.customer.avatar_url ?
+                                                    {item.customer.avatar_url ? (
                                                         <Image source={{ uri: item.customer.avatar_url }} style={styles.commentAvatar} />
-                                                        :
+                                                    ) : (
                                                         <TabBarIcon name='account-circle' size={40} style={styles.commentAvatar} />
-                                                    }
+                                                    )}
                                                     <View style={styles.commentTextContainer}>
                                                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                                             <Text style={styles.commentAuthor}>{item.customer.last_name + ' ' + item.customer.first_name}</Text>
@@ -381,6 +381,7 @@ export default function DetailScreen() {
                                             </View>
                                         )
                                     ))}
+
                                     {hasMoreFeedbacks && (
                                         <TouchableOpacity
                                             style={styles.seeMoreContainer}
