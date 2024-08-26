@@ -668,7 +668,7 @@ export default function detailTrip() {
                                                     <View key={index} style={{ marginHorizontal: 25, marginVertical: 12 }}>
                                                         <View style={styles.paymentItem}>
                                                             <CheckBox
-                                                                checked={pay.status === 'paid'}
+                                                                checked={pay.status === 'paid' || returnCollateral === true}
                                                                 // onPress={() => toggleCheckbox(pay.id)}
                                                                 checkedColor={'#15891A'}
                                                                 containerStyle={styles.checkBoxContainer}
