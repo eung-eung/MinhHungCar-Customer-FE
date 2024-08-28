@@ -220,6 +220,12 @@ const CheckoutScreen: React.FC = () => {
             if (error.response?.data?.error_code === 10049) {
                 Alert.alert('Không thể thuê xe', 'Xe này đang có người thuê. Vui lòng chọn thời gian khác!');
                 console.log('Error renting car: ', error.response?.data?.message);
+            } else if (error.response?.data?.error_code === 100103) {
+                Alert.alert('Không thể thuê xe', 'Bạn đã có 1 hợp đồng thuê xe vào thời gian này!');
+                console.log('Error renting car: ', error.response?.data?.message);
+            } else if (error.response?.data?.error_code === 10088) {
+                Alert.alert('Không thể thuê xe', 'Bạn đã có 1 hợp đồng thuê xe vào thời gian này!');
+                console.log('Error renting car: ', error.response?.data?.message);
             } else if (error.response?.data?.error_code === 10068) {
                 Alert.alert(
                     'Yêu cầu cập nhật',
@@ -256,8 +262,10 @@ const CheckoutScreen: React.FC = () => {
                 );
                 return;
 
+            } else {
+                console.log('Error: ', error.response?.data?.message);
             }
-            console.log('Error: ', error.response?.data?.message);
+
             setLoading(false);
         }
     };

@@ -161,6 +161,12 @@ const ListProductScreen: React.FC = () => {
         } catch (error: any) {
             if (error.response.data.error_code === 10048) {
                 Alert.alert('Lỗi', 'Không thể tìm kiếm xe');
+            } else if (error.response?.data?.error_code === 100103) {
+                Alert.alert('Không thể thuê xe', 'Bạn đã có 1 hợp đồng thuê xe vào thời gian này!');
+                console.log('Error find car: ', error.response?.data?.message);
+            } else if (error.response?.data?.error_code === 10088) {
+                Alert.alert('Không thể thuê xe', 'Bạn đã có 1 hợp đồng thuê xe vào thời gian này!');
+                console.log('Error renting car: ', error.response?.data?.message);
             } else if (error.response.data.error_code === 10049) {
                 console.log('Lỗi', 'Ngày nhận xe phải sau hôm nay');
                 console.log("Error: ", error.response.data.message);
