@@ -118,10 +118,10 @@ const ListProductScreen: React.FC = () => {
     const handleStartDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedStartDate;
         const now = new Date();
-        const minStartDate = new Date(now.getTime() + 2 * 60 * 60 * 1000); // Current time + 2 hours
+        const minStartDate = new Date(now.getTime() + 60 * 60 * 1000); // Current time + 1 hours
 
         if (currentDate < minStartDate) {
-            Alert.alert('', 'Thời gian nhận xe là sau 2h kể từ hiện tại');
+            Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 1 tiếng kể từ hiện tại');
         } else {
             setParsedStartDate(currentDate);
             const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
@@ -131,7 +131,7 @@ const ListProductScreen: React.FC = () => {
 
     const handleEndDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedEndDate;
-        const minEndDate = new Date(parsedStartDate.getTime() + 24 * 60 * 60 * 1000); // Start date + 22 hours
+        const minEndDate = new Date(parsedStartDate.getTime() + 24 * 60 * 60 * 1000); // Start date + 24 hours
 
         if (currentDate <= minEndDate) {
             Alert.alert('', 'Thời gian thuê tối thiểu là 1 ngày');
@@ -326,7 +326,7 @@ const ListProductScreen: React.FC = () => {
                                     mode="datetime"
                                     display="default"
                                     onChange={handleStartDateChange as any}
-                                    minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
+                                    minimumDate={new Date(Date.now() + 60 * 60 * 1000)}
                                     locale="vi"
                                 />
                             </View>

@@ -105,33 +105,7 @@ const CheckoutScreen: React.FC = () => {
         }
     });
 
-    // useEffect(() => {
-    //     if (contractID) {
 
-
-    //         Alert.alert(
-    //             'Xác nhận',
-    //             'Bạn có chắc muốn chọn thuê chiếc xe này không?',
-    //             [
-    //                 {
-    //                     text: 'Hủy',
-    //                     style: 'cancel',
-    //                 },
-    //                 {
-    //                     text: 'OK',
-    //                     onPress: () => {
-    //                         route.push({ pathname: '/detailTrip', params: { contractID: contractID } });
-    //                     },
-    //                 },
-    //             ],
-    //             { cancelable: true }
-    //         );
-
-
-
-
-    //     }
-    // }, [contractID]);
 
     const getCarDetail = async () => {
         try {
@@ -322,10 +296,10 @@ const CheckoutScreen: React.FC = () => {
 
     const handleStartDateChange = (event: Event, selectedDate?: Date) => {
         const currentDate = selectedDate || parsedStartDate;
-        const minStartDate = new Date(Date.now() + 2 * 60 * 60 * 1000); // Minimum start date, 2 hours from now
+        const minStartDate = new Date(Date.now() + 60 * 60 * 1000); // Minimum start date = 1 hours from now
 
         if (currentDate < minStartDate) {
-            Alert.alert('', 'Thời gian nhận xe  là sau 2h kể từ hiện tại');
+            Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 1 tiếng kể từ hiện tại');
         } else {
             setParsedStartDate(currentDate);
             const endDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
@@ -414,7 +388,7 @@ const CheckoutScreen: React.FC = () => {
                                                             mode="datetime"
                                                             display="default"
                                                             onChange={handleStartDateChange as any}
-                                                            minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
+                                                            minimumDate={new Date(Date.now() + 60 * 60 * 1000)}
                                                             locale="vi"
                                                         />
                                                     </View>
@@ -566,19 +540,6 @@ const CheckoutScreen: React.FC = () => {
                         <View style={styles.overlay}>
                             <View style={styles.overlayContent}>
                                 <View style={styles.overlayContentTop}>
-                                    {/* <Switch
-                            trackColor={{ false: '#6E6D6D', true: '#67C96B' }}
-                            thumbColor={'#fff'}
-                            ios_backgroundColor="#B8B8B8"
-                            onValueChange={toggleSwitch}
-                            value={isEnabled}
-                            style={styles.switch}
-                        />
-                        <Text style={styles.overlayContentPrice}>Tôi đồng ý với{' '}
-                            <Text style={{color: '#15891A'}}>
-                                Chính sách hủy chuyến của MinhHungCar
-                            </Text>
-                        </Text> */}
                                 </View>
 
                             </View>

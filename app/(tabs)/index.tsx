@@ -37,7 +37,7 @@ export default function HomeScreen() {
   const authCtx = useContext(AuthConText);
   const token = authCtx.access_token;
 
-  const [startDate, setStartDate] = useState<Date>(new Date(Date.now() + 2 * 60 * 60 * 1000)); // Current time + 2 hours
+  const [startDate, setStartDate] = useState<Date>(new Date(Date.now() + 60 * 60 * 1000)); // Current time + 2 hours
   const [endDate, setEndDate] = useState<Date>(new Date(startDate.getTime() + 24 * 60 * 60 * 1000)); // Start date + 1 day
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
@@ -76,25 +76,25 @@ export default function HomeScreen() {
   const handleStartDateChange = (event: Event, selectedDate?: Date) => {
     const currentDate = selectedDate || startDate;
     const now = new Date();
-    const minStartDate = new Date(now.getTime() + 2 * 60 * 60 * 1000); // Current time + 2 hours
+    const minStartDate = new Date(now.getTime() + 60 * 60 * 1000); // Current time + 1 hours
 
     setShowStartDatePicker(Platform.OS === 'ios');
 
     if (currentDate >= minStartDate) {
       setStartDate(currentDate);
-      // Automatically set end date to 22 hours after start date
+      // Automatically set end date to 24 hours after start date
       const nextDay = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
       setEndDate(nextDay);
       // console.log('selectedStartDate: ', currentDate);
       // console.log('selectedEndDate: ', nextDay);
     } else {
-      Alert.alert('', 'Thời gian nhận xe là sau 2 tiếng kể từ hiện tại');
+      Alert.alert('', 'Thời gian nhận xe tối thiểu là sau 1 tiếng kể từ hiện tại');
     }
   };
 
   const handleEndDateChange = (event: Event, selectedDate?: Date) => {
     const currentDate = selectedDate || endDate;
-    const minEndDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // Start date + 22 hours
+    const minEndDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // Start date + 24 hours
 
     setShowEndDatePicker(Platform.OS === 'ios');
 
@@ -230,7 +230,7 @@ export default function HomeScreen() {
                   locale="vi"
                   display="default"
                   onChange={handleStartDateChange as any}
-                  minimumDate={new Date(Date.now() + 2 * 60 * 60 * 1000)}
+                  minimumDate={new Date(Date.now() + 60 * 60 * 1000)}
                   textColor='black'
                 />
                 {/* )} */}
