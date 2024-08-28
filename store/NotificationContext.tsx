@@ -26,7 +26,7 @@ export default function NotificationHandler({ children }: { children: React.Reac
     useEffect(() => {
         registerForPushNotificationsAsync()
             .then(expToken => {
-                console.log('Push token:', expToken);
+                // console.log('Push token:', expToken);
                 setExpoPushToken(expToken ?? null);
                 if (expToken && authCtx.isAuthenticated) {
                     // Send token to backend
@@ -102,7 +102,7 @@ export default function NotificationHandler({ children }: { children: React.Reac
                         projectId,
                     })
                 ).data;
-                console.log('Expo push token:', expToken);
+                // console.log('Expo push token:', expToken);
             } catch (e) {
                 expToken = `${e}`;
             }

@@ -1,5 +1,7 @@
+import { apiExpoToken } from '@/api/apiConfig';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { AuthConText } from '@/store/AuthContext';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useContext } from 'react';
 import {
@@ -17,16 +19,32 @@ interface Props {
 
 const SettingScreen: React.FC<Props> = () => {
     const authCtx = useContext(AuthConText);
+    const token = authCtx.access_token;
 
-    const router = useRouter()
+    const router = useRouter();
+
+    const removeExpoToken = async () => {
+        try {
+            const response = await axios.put(apiExpoToken.removePushToken, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            console.log("Remove expo push token", response.data.message);
+        } catch (error: any) {
+            console.log("Error remove expo token: ", error.response?.data?.message);
+        }
+    }
 
     const handleLogout = async () => {
         try {
-            authCtx.logout();
+            await removeExpoToken(); // Call the removeExpoToken function
+            authCtx.logout(); // Then proceed to logout
         } catch (error) {
-            console.log('Error clearing AsyncStorage:', error);
+            console.log('Error during logout process:', error);
         }
     };
+
 
     return (
         <SafeAreaView style={styles.safeArea}>

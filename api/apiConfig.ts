@@ -56,4 +56,5 @@ export const apiChat = {
 
 export const apiExpoToken = {
     expoPushToken: `${endpoint}/customer/expo_push_token`,
+    removePushToken: `${endpoint}/customer/expo_push_token/remove`
 }
